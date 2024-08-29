@@ -1,0 +1,30 @@
+.form-outline {
+    position: relative;
+
+}
+
+.form-control:focus::placeholder {
+    visibility: hidden;
+}
+
+.label {
+    padding: 2px;
+    position: absolute;
+    transition: 0.2s;
+    transition-timing-function: ease;
+    transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+    pointer-events: none;
+    font-size: 1rem;
+    background-color: #fff;
+    display: none
+}
+
+.form-control:focus+label,
+.form-control:not(:placeholder-shown)+label {
+    display: block;
+    left: 10px;
+    top: -12px;
+    color: #6366f1;
+    font-size: 0.8rem;
+    z-index: 10;
+}
