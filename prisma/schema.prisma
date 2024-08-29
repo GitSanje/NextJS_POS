@@ -37,7 +37,7 @@ enum UserRole {
 }
 
 model User {
-  id            String       @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
   phone         String?
   email         String?   @unique
@@ -45,14 +45,14 @@ model User {
   password      String?
   image         String?
 
-  role  UserRole @default(USER)
+  role UserRole @default(USER)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   accounts Account[]
   // sessions Session[]
-
+  orders     Order[]
 }
 
 // model Session {
@@ -62,3 +62,84 @@ model User {
 //   expires      DateTime
 //   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 // }
+model Product {
+  id              String  @id @default(cuid())
+  name            String
+  description     String?
+  price           Float
+  quantityInStock Int
+  validity        String?
+  salePrice       Float?
+  margin          String?
+
+  inventory Inventory?
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  suppliers Supplier[] @relation("ProductSuppliers")
+  orders     Order[]
+}
+
+model Category {
+  id           String  @id @default(cuid())
+  categoryName String
+  description  String?
+
+  products Product[]
+}
+
+model Inventory {
+  id          String   @id @default(cuid())
+  quantity    Int
+  restockDate DateTime
+  location    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Supplier {
+  id           String  @id @default(cuid())
+  supplierName String
+  email        String?
+  phone        String?
+
+  products Product[] @relation("ProductSuppliers")
+}
+
+model Order {
+  id            String    @id @default(cuid())
+  orderDate     DateTime?
+  quantity      Int
+  delivaaryDate DateTime?
+
+  productId     String
+  product       Product     @relation(fields: [productId], references: [id])
+
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId String
+
+  SalesInvoice SalesInvoice[]
+}
+
+model PaymentMethod {
+  id          String @id @default(cuid())
+  paymentType String // e.g., 'Cash', 'Credit Card'
+
+  orders Order[]
+}
+
+model SalesInvoice {
+  id          String   @id @default(cuid())
+  invoiceDate DateTime // e.g., 'Cash', 'Credit Card'
+
+  totalAmount Float
+  order       Order  @relation(fields: [orderId], references: [id])
+  orderId     String
+}
