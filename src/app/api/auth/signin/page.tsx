@@ -10,8 +10,11 @@ import Button from "../../../../components/Button/Button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormState } from 'react-dom';
 import { signup } from '../auth';
+import SignUpButton from './SignUpButton';
+
+
 
 interface Props {
   searchParams: URLSearchParams;
@@ -305,7 +308,7 @@ const SiginIn: React.FC<Props> =  () => {
                 </label>
               </div>
 
-              <SignupButton/>
+              <SignUpButton/>
             </form>
 
             
@@ -320,13 +323,3 @@ const SiginIn: React.FC<Props> =  () => {
 export default SiginIn;
 
 
-export function SignupButton(){
-
-  const { pending } = useFormStatus();
-
-  return (
-    <Button aria-disabled={pending} type="submit"  className="w-full bg-indigo-500 text-white py-2 rounded-lg ">
-      {pending ? 'Submitting...' : 'Signup'}
-    </Button>
-  );
-}
