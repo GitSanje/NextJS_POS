@@ -9,14 +9,15 @@ import {
 } from "@headlessui/react";
 
 interface ModalProps {
-  showModal: () =>void;
+  showModal: any;
   dialougeTitle: string;
   dialougePlaceholder: string;
  
-  onSubmit: (value: string) => void;
+  onSubmit: any;
 }
 
 const Modal: React.FC<ModalProps>= ({
+  
   showModal,
   dialougeTitle,
   dialougePlaceholder,
