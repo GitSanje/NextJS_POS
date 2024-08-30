@@ -9,16 +9,17 @@ import {
 } from "@headlessui/react";
 
 interface ModalProps {
+  showModal: () =>void;
   dialougeTitle: string;
   dialougePlaceholder: string;
-  showModal: () =>void;
+ 
   onSubmit: (value: string) => void;
 }
 
 const Modal: React.FC<ModalProps>= ({
+  showModal,
   dialougeTitle,
   dialougePlaceholder,
-  showModal,
   onSubmit,
 }) => {
   const [open, setOpen] = useState<boolean>(true);
