@@ -44,6 +44,8 @@ model User {
   emailVerified DateTime?
   password      String?
   image         String?
+  dob           DateTime?
+  gender        String?
 
   role UserRole @default(USER)
 
@@ -52,7 +54,7 @@ model User {
 
   accounts Account[]
   // sessions Session[]
-  orders     Order[]
+  orders   Order[]
 }
 
 // model Session {
@@ -62,13 +64,16 @@ model User {
 //   expires      DateTime
 //   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 // }
+
 model Product {
   id              String  @id @default(cuid())
-  name            String
+  name            String  @unique
   description     String?
-  price           Float
+  image           String?
+  costPrice       Float
   quantityInStock Int
   validity        String?
+  discount        String?
   salePrice       Float?
   margin          String?
 
@@ -78,12 +83,46 @@ model Product {
   category   Category @relation(fields: [categoryId], references: [id])
 
   suppliers Supplier[] @relation("ProductSuppliers")
-  orders     Order[]
+  orders    Order[]
+  carts     Cart[]
+  Variants  Variant[]
+}
+
+model Cart {
+  id       String  @id @default(cuid())
+  userId   String? // User ID for authenticated users
+  quantity Int
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  variantId String?
+  variant   Variant? @relation(fields: [variantId], references: [id])
+}
+
+model Variant {
+  id             String   @id @default(uuid())
+  name           String
+  salePrice       Float
+  priceDifference Float?
+  status         String?
+  costPrice       Float? 
+ 
+
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  productId      String
+  product        Product  @relation(fields: [productId], references: [id])
+
+
+  carts          Cart[]
 }
 
 model Category {
   id           String  @id @default(cuid())
-  categoryName String
+  categoryName String @unique
   description  String?
 
   products Product[]
@@ -91,6 +130,7 @@ model Category {
 
 model Inventory {
   id          String   @id @default(cuid())
+  status      String
   quantity    Int
   restockDate DateTime
   location    String?
@@ -116,11 +156,11 @@ model Order {
   quantity      Int
   delivaaryDate DateTime?
 
-  productId     String
-  product       Product     @relation(fields: [productId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
 
-  userId        String
-  user          User        @relation(fields: [userId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
   paymentMethodId String
