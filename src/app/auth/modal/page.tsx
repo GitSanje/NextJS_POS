@@ -9,11 +9,11 @@ import {
 } from "@headlessui/react";
 
 interface ModalProps {
-  showModal: any;
+  showModal: () =>void;
   dialougeTitle: string;
   dialougePlaceholder: string;
  
-  onSubmit: any;
+  onSubmit: (value: string) => void;
 }
 
 const Modal: React.FC<ModalProps>= ({

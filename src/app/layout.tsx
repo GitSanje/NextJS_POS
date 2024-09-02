@@ -6,6 +6,7 @@ import { Providers } from "./providers";
 import { ToastContainer } from "react-toastify";
 const inter = Inter({ subsets: ["latin"] });
 import './styles/globals.css'
+import Navbar from "../components/Navbar/Navbar";
 
 export const metadata: Metadata = {
   title: 'Vendify',
@@ -23,6 +24,7 @@ export default function RootLayout({ children }:{
 
       <body className={`${inter.className} bg-white`}>
         <Providers>
+          <Navbar/>
         {children}
         </Providers>
         <ToastContainer/>
