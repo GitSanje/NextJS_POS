@@ -10,11 +10,15 @@ import {
     SignupFormSchema,
   } from './definitions';
 
+import { toast } from 'react-toastify';
 
 
+
+import { redirect } from 'next/navigation'
 export async function signup(
     state: FormState,
-    formData: FormData
+    formData: FormData,
+    // router: ReturnType<typeof useRouter>
 ): Promise<FormState> {
 
   // 1. Validate form fields
@@ -23,7 +27,9 @@ export async function signup(
     email: formData.get('email'),
     phone: formData.get('phone'),
     password: formData.get('password'),
-    passwordConfirm: formData.get('password_confirmation'),
+    gender: formData.get('gender'),
+    dob: formData.get('dob')
+    // passwordConfirm: formData.get('password_confirmation'),
   });
 
   if (!validatedFields.success) {
@@ -31,7 +37,7 @@ export async function signup(
       errors: validatedFields.error.flatten().fieldErrors,
     };
    }
-   const { name, phone, email, password } = validatedFields.data;
+   const { name, phone, email, password , gender,dob} = validatedFields.data;
   
    const existingUser = await prisma.user.findUnique({
     where: {
@@ -46,13 +52,15 @@ export async function signup(
   }
 
   const hashedPassword = await bcrypt.hash(password, 10)
+  const dobDate = new Date(dob);
     const user = prisma.user.create({
         data:{
             name:name,
             phone:phone,
             email:email,
             password:hashedPassword,
-
+            dob: dobDate,
+            gender: gender
         }
     })
     const account = await prisma.account.create({
@@ -70,10 +78,13 @@ export async function signup(
         };
       }
 
-    const userId = user.id;
-    await createSession(userId);
+
+    //  return { success: true };
+    // const userId = user.id;
+    // await createSession(userId);
+    redirect('/api/auth/signin')
 }
 
 
-// 
+// 12345!@Sa
 

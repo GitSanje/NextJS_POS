@@ -2,7 +2,12 @@
 
 import { z } from 'zod';
 
+const genderOptions = ['Male', 'Female', 'Other'] as const;
+
+console.log(genderOptions);
+
 export const SignupFormSchema = z.object({
+  
   name: z
     .string()
     .min(2, { message: 'Name must be at least 2 characters long.' })
@@ -21,11 +26,29 @@ phone: z
     .string()
     .regex(/^\d{10}$/, { message: 'Phone number must be exactly 10 digits.' })
     .trim(),
-  passwordConfirm: z.string().trim(),
-}).refine((data) => data.password === data.passwordConfirm, {
-  path: ['passwordConfirm'],
-  message: 'Passwords do not match.',
+  // passwordConfirm: z.string().trim(),
+  gender: z.enum(genderOptions, { message: 'Select a valid gender' }),
+  dob: z
+  .string()
+  .refine((date) => {
+    const parsedDate = Date.parse(date);
+    if (isNaN(parsedDate)) {
+      return false; // Invalid date
+    }
+
+    const dobDate = new Date(parsedDate);
+    const currentYear = new Date().getFullYear();
+    const dobYear = dobDate.getFullYear();
+
+    return currentYear - dobYear > 15; // Must be greater than 15 years old
+  }, { message: 'You must be at least 15 years old.' }),
+
 });
+
+// .refine((data) => data.password === data.passwordConfirm, {
+//   path: ['passwordConfirm'],
+//   message: 'Passwords do not match.',
+// });
 
 export const LoginFormSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -38,6 +61,8 @@ export type FormState =
         name?: string[];
         email?: string[];
         password?: string[];
+        dob?: string[];
+        gender?: string[];
       };
       message?: string;
     }

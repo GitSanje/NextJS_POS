@@ -13,6 +13,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useFormState } from 'react-dom';
 import { signup } from '../auth';
 import SignUpButton from './SignUpButton';
+import Select from '../../../../components/Select/Select';
 
 
 
@@ -25,7 +26,8 @@ interface RegisterData {
   phone: string;
   email: string;
   password: string;
-  password_confirmation: string;
+  gender: string;
+  dob: string;
 }
 interface LoginData {
   email: string;
@@ -49,8 +51,11 @@ const SiginIn: React.FC<Props> =  () => {
     phone: "",
     email: "",
     password: "",
-    password_confirmation: "",
+    gender: "",
+    dob:""
   });
+  console.log(registerData);
+  
   const [error, setError] = useState<string>('')
 
   const router = useRouter()
@@ -99,6 +104,13 @@ const SiginIn: React.FC<Props> =  () => {
       [name]: value,
     }));
   };
+
+  const genderOptions = [
+    { value: 'Male', label: 'Male' },
+    { value: 'Female', label: 'Female' },
+    { value: 'Other', label: 'Other' },
+    
+  ];
 
   const social_icons =
     "btn btn-link btn-floating mx-1 bg-gray-300  text-gray-500  rounded-full hover:bg-indigo-400 hover:text-white  ";
@@ -287,16 +299,33 @@ const SiginIn: React.FC<Props> =  () => {
                 </ul>
               </div>
             )}
-              <Input
-                type="password"
-                id="registerRepeatPassword"
-                placeholder="Repeat Password"
-                name="password_confirmation"
-                label="Repeat Password"
-                value={registerData.password_confirmation}
+
+             <Input
+                type="date"
+                id="registerPassword"
+                placeholder="Password"
+                name="dob"
+                label="DOB"
+                value={registerData.dob}
                 onChange={handleOnChange}
               />
+              {state?.errors?.dob && (
+          <p className="text-sm text-red-500">{state.errors.dob}</p>
+        )}
 
+             <Select
+             id="registergender"
+             name="gender"
+             label="gender"
+             placeholder="Select your gender"
+             options={genderOptions}
+             value={registerData.gender}
+             onChange={handleOnChange}
+             />
+             {state?.errors?.gender && (
+          <p className="text-sm text-red-500">{state.errors.gender}</p>
+        )}
+          
               <div className="flex justify-center items-center mb-4">
                 <input
                   type="checkbox"
