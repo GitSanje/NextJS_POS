@@ -7,7 +7,7 @@ type CartState = {
     isLoading: boolean;
     counter: number;
     getCart: (userId: string) => void;
-    addItem: (userId: string, productId: string, variantId: string, quantity: number) => void;
+    addItem: (userEmail: string, productName: string, variantName: string, quantity: number) => void;
     removeItem: (itemId: string) => void;
 
 }
@@ -21,8 +21,8 @@ export const useCartStore = create<CartState>((set) => ({
     set({ isLoading: true});
     try {
         const response = await fetch(`/api/cart/${userId}`, {
-            method: 'GET',
-            credentials: true
+            method: 'GET'
+         
         });
         const data = await response.json()
 
@@ -41,7 +41,7 @@ export const useCartStore = create<CartState>((set) => ({
     addItem: async (userEmail, productName, variantName, quantity) => {
         set({ isLoading: true });
         try {
-          const response = await fetch('/api/cart/add', {
+          const response = await fetch('/api/cart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userEmail, productName, variantName, quantity }),
@@ -60,7 +60,7 @@ export const useCartStore = create<CartState>((set) => ({
       removeItem: async (itemId: string) => {
         set({ isLoading: true });
         try {
-          const response = await fetch('/api/cart/remove', {
+          const response = await fetch('/api/cart', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ itemId }),

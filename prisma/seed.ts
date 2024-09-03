@@ -214,13 +214,13 @@ async function main() {
         variantId: (await prisma.variant.findFirst({ where: { name: 'T-shirt - Large, Blue' } }))?.id!,
       },
       {
-        userId: (await prisma.user.findUnique({ where: { email:"sanjay@gmail.com "}}))?.id!,
+        userId: (await prisma.user.findUnique({ where: { email:"sanjay@gmail.com"}}))?.id!,
         quantity: 1,
         productId: productsList[2].id,
         variantId: (await prisma.variant.findFirst({ where: { name: 'Office Chair - Black' } }))?.id!,
       },
       {
-        userId: (await prisma.user.findUnique({ where: { email:"sanjay@gmail.com "}}))?.id!,
+        userId: (await prisma.user.findUnique({ where: { email:"sanjay@gmail.com"}}))?.id!,
         quantity: 3,
         productId: productsList[4].id,
         variantId: (await prisma.variant.findFirst({ where: { name: 'Pasta - Gluten-Free' } }))?.id!,

@@ -30,19 +30,22 @@ export default async function Home() {
   const session = await getServerSession(authOptions)
   return (
     <>
-     {/* <LoginSignup searchParams={SearchParams}/>
-     */}
-      <LoginButton />
-      <LogoutButton />
-      <h2>Server Call</h2>
-     <pre>{JSON.stringify(session)}</pre>
-     <h2>Client Call</h2>
-     <User/>
+    
+      <h2> HOME</h2>
     
      </>
   
   );
 }
+
+ {/* <LoginSignup searchParams={SearchParams}/>
+     <LoginButton />
+      <LogoutButton />
+      <h2>Server Call</h2>
+     <pre>{JSON.stringify(session)}</pre>
+     <h2>Client Call</h2>
+     <User/>
+     */}
 
 
 // clerk session data 

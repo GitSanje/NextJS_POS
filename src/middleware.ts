@@ -1,4 +1,29 @@
-export {default } from "next-auth/middleware"
+// export {default } from "next-auth/middleware"
+
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from 'next/server';
+
+// // 1. Specify protected and public routes
+const protectedRoutes = ['/dashboard','/profile'];
+const publicRoutes = ['/login', '/signup', '/'];
+
+export default async function middleware(req: NextRequest){
+     // 2. Check if the current route is protected or public
+     const path = req.nextUrl.pathname
+     const isProtectedRoute = protectedRoutes.includes(path);
+    const isPublicRoute = publicRoutes.includes(path);
+     
+       // 3. Decrypt the session from the cookie
+    const session = cookies().get('next-auth.session-token')?.value;
+
+    if(isProtectedRoute && !session ){
+        return NextResponse.redirect(new URL('/api/auth/signin', req.nextUrl));
+    }
+    
+
+    return NextResponse.next();
+}
+
 
 // export const config = {
 //     matcher: [
@@ -7,15 +32,13 @@ export {default } from "next-auth/middleware"
 //     ]
 // }
 
-// import { NextRequest, NextResponse } from 'next/server';
+
 // import { decrypt } from "./app/api/auth/stateless-session";
-// import { cookies } from "next/headers";
 
 
 
-// // 1. Specify protected and public routes
-// const protectedRoutes = ['/admin'];
-// const publicRoutes = ['/login', '/signup', '/'];
+
+
 
 
 // export default async function middleware(req: NextRequest){
@@ -26,7 +49,7 @@ export {default } from "next-auth/middleware"
 //   const isPublicRoute = publicRoutes.includes(path);
 
 //     // 3. Decrypt the session from the cookie
-//     const cookie = cookies().get('session')?.value;
+//     const cookie = cookies().get('next-auth.session-token')?.value;
 //     const session = await decrypt(cookie);
 
 //      // 4. Redirect
