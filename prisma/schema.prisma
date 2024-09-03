@@ -123,7 +123,7 @@ model Variant {
 
 model Category {
   id           String  @id @default(cuid())
-  categoryName String  @unique
+  categoryName String  
   description  String?
 
   products Product[]

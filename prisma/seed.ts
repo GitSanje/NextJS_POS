@@ -69,7 +69,8 @@ async function main() {
         quantityInStock: 100,
         salePrice: 600,
         margin: '20%',
-        categoryId: (await prisma.category.findUnique({ where: { categoryName: 'Electronics' } }))?.id!,
+        image: "https://img.freepik.com/free-vector/realistic-display-smartphone-with-different-apps_52683-30241.jpg?t=st=1725359349~exp=1725362949~hmac=2641138e8e827934511c760fb830d570619fd130c173ca59fec2178470566268&w=740",
+        categoryId: (await prisma.category.findFirst({ where: { categoryName: 'Electronics' } }))?.id!,
       },
       {
         name: 'T-shirt',
@@ -78,7 +79,8 @@ async function main() {
         quantityInStock: 200,
         salePrice: 15,
         margin: '50%',
-        categoryId: (await prisma.category.findUnique({ where: { categoryName: 'Clothing' } }))?.id!,
+        image:"https://veirdo.in/cdn/shop/files/FROGOGNL.jpg?v=1722686502&width=360",
+        categoryId: (await prisma.category.findFirst({ where: { categoryName: 'Clothing' } }))?.id!,
       },
       {
         name: 'Office Chair',
@@ -87,7 +89,8 @@ async function main() {
         quantityInStock: 50,
         salePrice: 150,
         margin: '33%',
-        categoryId: (await prisma.category.findUnique({ where: { categoryName: 'Furniture' } }))?.id!,
+        image:"https://sbfurniturenepal.com/web/image/product.product/4532/image_1024/%5B19087811%5D%20Landy%20Office%20Chair%20-%20Black?unique=5becb20",
+        categoryId: (await prisma.category.findFirst({ where: { categoryName: 'Furniture' } }))?.id!,
       },
       {
         name: 'Fiction Novel',
@@ -96,7 +99,8 @@ async function main() {
         quantityInStock: 300,
         salePrice: 10,
         margin: '50%',
-        categoryId: (await prisma.category.findUnique({ where: { categoryName: 'Books' } }))?.id!,
+        image:"https://static01.nyt.com/images/2020/12/03/books/00HISTORICAL-TOP-TEN-COMBO/00HISTORICAL-TOP-TEN-COMBO-jumbo-v2.jpg?quality=75&auto=webp",
+        categoryId: (await prisma.category.findFirst({ where: { categoryName: 'Books' } }))?.id!,
       },
       {
         name: 'Pasta',
@@ -105,7 +109,8 @@ async function main() {
         quantityInStock: 400,
         salePrice: 3,
         margin: '33%',
-        categoryId: (await prisma.category.findUnique({ where: { categoryName: 'Groceries' } }))?.id!,
+        image:"https://cdn77-s3.lazycatkitchen.com/wp-content/uploads/2021/10/roasted-tomato-sauce-portion-800x1200.jpg",
+        categoryId: (await prisma.category.findFirst({ where: { categoryName: 'Groceries' } }))?.id!,
       },
     ],
   });

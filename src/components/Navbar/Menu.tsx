@@ -1,5 +1,5 @@
 "use client";
-
+// import { useRouter } from "next/router";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
-import { redirect } from "next/navigation";
+
 
 // Menu items
 const menuItems = [
@@ -21,8 +21,12 @@ const menuItems = [
 ];
 
 const Menu = () => {
+  // const router = useRouter();
+
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
+
+ 
 
   const handleSignOut = async () => {
     try {
@@ -30,7 +34,7 @@ const Menu = () => {
       toast.success("Logged out successfully", {
         autoClose: 2000,
       });
-      redirect("/");
+      window.location.href = '/';
     } catch (error) {
       toast.error("Failed to log out");
     }

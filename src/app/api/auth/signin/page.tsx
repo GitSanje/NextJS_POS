@@ -54,7 +54,7 @@ const SiginIn: React.FC<Props> =  () => {
     gender: "",
     dob:""
   });
-  console.log(registerData);
+
   
   const [error, setError] = useState<string>('')
 

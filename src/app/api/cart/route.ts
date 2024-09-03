@@ -18,13 +18,18 @@ export async function GET(request:  NextRequest) {
       where: { userId: userId as string },
       include: { product: true, variant: true },
     });
+    // Calculate the subtotal
+    const subtotal = cartItems.reduce((total, item) => {
+      const price = item.variant?.salePrice || 0;
+      return total + (price * (item.quantity || 0))
+    },0)
 
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ message: "Cart not found" }, { status: 404 });
     }
 
    // Return the cart items
-   return NextResponse.json({ cartItems:  cartItems}, { status: 200 });
+   return NextResponse.json({ cartItems:  cartItems, subtotal :subtotal}, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Failed to fetch cart", error }, { status: 500 });
   }
@@ -87,6 +92,8 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const { cartId } = await req.json();
+  console.log(req);
+  
   try {
     if (!cartId) {
      

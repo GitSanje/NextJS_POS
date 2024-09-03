@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // // 1. Specify protected and public routes
 const protectedRoutes = ['/dashboard','/profile'];
-const publicRoutes = ['/login', '/signup', '/'];
+const publicRoutes = ['/api/auth/signin', '/'];
 
 export default async function middleware(req: NextRequest){
      // 2. Check if the current route is protected or public
@@ -18,6 +18,9 @@ export default async function middleware(req: NextRequest){
 
     if(isProtectedRoute && !session ){
         return NextResponse.redirect(new URL('/api/auth/signin', req.nextUrl));
+    }
+    if(isPublicRoute && path==="/api/auth/signin" && session){
+        return NextResponse.redirect(new URL('/',req.nextUrl));
     }
     
 
