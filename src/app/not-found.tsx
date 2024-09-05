@@ -1,7 +1,7 @@
 // app/not-found.tsx
-import { FC } from 'react';
 
-const NotFound: FC = () => {
+
+const NotFound= () => {
   return (
     <div className='flex items-center justify-center min-h-screen'>
         <div className='flex flex-col gap-2 text-center'>
