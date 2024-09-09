@@ -1,7 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../vendor/prisma";
-import { equal } from "assert";
 
 
 // Handle GET request: Fetch the cart

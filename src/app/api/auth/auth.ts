@@ -18,7 +18,7 @@ import { redirect } from 'next/navigation'
 export async function signup(
     state: FormState,
     formData: FormData,
-    // router: ReturnType<typeof useRouter>
+    
 ): Promise<FormState> {
 
   // 1. Validate form fields

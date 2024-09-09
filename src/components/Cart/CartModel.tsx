@@ -4,25 +4,16 @@ import Image from "next/image";
 import { useCartStore } from "../../hooks/useCartStore";
 
 import React from 'react'
+import Link from "next/link";
 
-const CartModel = () => {
+interface Props {
+  setIsCartOpen: (isOpen: boolean) => void;
+}
+
+const CartModel:React.FC<Props> = (props) => {
+  const { setIsCartOpen } = props
 
     const { cart, isLoading,subTotal, removeItem } = useCartStore()
-    
-    const handleCheckout = async () => {
-        try {
-          const response = await fetch("/api/checkout", {
-            method: "POST",
-          });
-    
-          const data = await response.json();
-          if (response.ok && data.redirectUrl) {
-            window.location.href = data.redirectUrl;
-          }
-        } catch (err) {
-          console.log("Checkout error:", err);
-        }
-      };
     
 
 
@@ -94,16 +85,22 @@ const CartModel = () => {
               Shipping and taxes calculated at checkout.
             </p>
             <div className="flex justify-between text-sm">
-              <button className="rounded-md py-3 px-4 ring-1 ring-gray-300">
+              <Link href='/view-cart'>
+              <button className="rounded-md py-3 px-4 ring-1 ring-gray-300"
+              onClick={() => setIsCartOpen(false)}>
                 View Cart
               </button>
+              </Link>
+              <Link href='/checkout'>
+           
               <button
                 className="rounded-md py-3 px-4 bg-black text-white disabled:cursor-not-allowed disabled:opacity-75"
-                disabled={isLoading}
-                onClick={handleCheckout}
-              >
+                onClick={() => setIsCartOpen(false)}>
+              
+              
                 Checkout
               </button>
+              </Link>
             </div>
           </div>
         </>

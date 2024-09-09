@@ -68,7 +68,7 @@ model User {
 
 model Product {
   id              String  @id @default(cuid())
-  name            String  
+  name            String
   description     String?
   image           String?
   costPrice       Float
@@ -84,15 +84,20 @@ model Product {
   category   Category @relation(fields: [categoryId], references: [id])
 
   suppliers Supplier[] @relation("ProductSuppliers")
-  orders    Order[]
+  orders    Order[] @relation("ProductOrders")
   carts     Cart[]
   Variants  Variant[]
 }
 
+enum CartStatus {
+  PENDING
+  CHECKOUT
+}
 model Cart {
   id String @id @default(cuid())
 
   quantity Int
+  status    CartStatus @default(PENDING) 
 
   productId String
   product   Product @relation(fields: [productId], references: [id])
@@ -123,7 +128,7 @@ model Variant {
 
 model Category {
   id           String  @id @default(cuid())
-  categoryName String  
+  categoryName String
   description  String?
 
   products Product[]
@@ -150,15 +155,24 @@ model Supplier {
 
   products Product[] @relation("ProductSuppliers")
 }
+enum OrderStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
 
 model Order {
   id            String    @id @default(cuid())
-  orderDate     DateTime?
+  orderDate     DateTime  @default(now())
   quantity      Int
-  delivaaryDate DateTime?
+  deliveryDate  DateTime?
+  streetAddress String
+  state         String
+  city          String
+  status        OrderStatus @default(PENDING)
 
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
+  products   Product[] @relation("ProductOrders")
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
