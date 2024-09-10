@@ -19,16 +19,23 @@ export async function GET(request:  NextRequest) {
     });
     // Calculate the subtotal
     const subtotal = cartItems.reduce((total, item) => {
-      const price = item.variant?.salePrice || 0;
+      
+      const price = item.status==="PENDING" ? item.variant?.salePrice : 0;
       return total + (price * (item.quantity || 0))
     },0)
+
+    const pendingTotal = cartItems.reduce((total, item) =>{
+      const status = item.status=="PENDING" ? 1: 0
+      return total + status
+
+    },0 )
 
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ message: "Cart not found" }, { status: 404 });
     }
 
    // Return the cart items
-   return NextResponse.json({ cartItems:  cartItems, subtotal :subtotal}, { status: 200 });
+   return NextResponse.json({ cartItems:  cartItems, subtotal :subtotal, pendingTotal: pendingTotal}, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Failed to fetch cart", error }, { status: 500 });
   }

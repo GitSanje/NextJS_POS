@@ -17,7 +17,7 @@ const menuItems = [
   { href: "/", label: "Deals" },
   { href: "/", label: "About" },
   { href: "/", label: "Contact" },
-  { href: "/", label: "Cart(1)" },
+  { href: "/view-cart", label: "Cart" },
 ];
 
 const Menu = () => {

@@ -2,6 +2,7 @@
 'use server';
 import { CheckoutState , checkoutSchema} from "./definitions";
 import { prisma } from "../../vendor/prisma";
+import { connect } from "http2";
 
 
 
@@ -55,6 +56,8 @@ export async function checkout(
         include: { product: true }
      })
 
+     
+
 
      if (pendingCarts.length === 0) {
         throw new Error('No pending carts found for the user');
@@ -72,12 +75,45 @@ export async function checkout(
           data: { paymentType: paymentMethod },
         });
       }
-       // Extract product IDs from pending carts
-       const productIds = pendingCarts.flatMap(cart => cart.productId)
+   
+    const orderQuantity= pendingCarts.reduce(((sum, cart) => sum+ cart.quantity),0);
+
+      // Fetch the product-variant pairs to validate
+    //   const filteredCarts = 
+
+    //   const productVariants = await Promise.all(
+    //     pendingCarts.map( async cart => {
+    //         if( cart.variantId){
+    //             const variant = await prisma.variant.findFirst({
+    //                 where: {
+    //                     id: cart.variantId,
+    //                     productId: cart.productId
+    //                 }
+
+    //             })
+
+    //             return  variant ? { productId: cart.productId, variantId: cart.variantId } : { productId: cart.productId, variantId: null };
+    //         }
+    //         return { productId: cart.productId, variantId: null };
+    //     })
+      
+    //   )
+      // Filter out invalid variant-product pairs
+    //    const validVariantsFiltered = productVariants.filter(Boolean);
+
+
+    //    // Extract product IDs from pending carts
+    //    const productIds = pendingCarts.map(cart => cart.productId)
+    //    const variantIds = pendingCarts
+    //                        .filter(cart => cart.variantId)// Only keep carts with a variant
+    //                        .map(cart => cart.variantId);
+
+
        const deliveryDate = new Date();
        deliveryDate.setDate(deliveryDate.getDate()+3);
-       // Create a single order
-       const orderQuantity= pendingCarts.reduce(((sum, cart) => sum+ cart.quantity),0);
+       
+        // Create a single order
+        const cartIds = pendingCarts.map(cart => cart.id);
        const order = await prisma.order.create({
           data: {
             orderDate: new Date(),
@@ -88,9 +124,17 @@ export async function checkout(
             city:city,
             userId: user.id,
             paymentMethodId: paymentMethodRecord.id,
-            products: {
-                connect: productIds.map(id => ({ id })),
-            }
+        //     products: {
+        //         connect: productVariants.map(pv => ({ id: pv.productId })),
+        //     },
+        //    variants : {
+        //     connect : productVariants.map(pv => ({
+        //         id: pv.variantId || null
+        //     }))
+        //    },
+           carts: {
+            connect: cartIds.map(id => ({ id }))
+           }
 
 
 
@@ -110,8 +154,9 @@ export async function checkout(
         }
      })
 
-console.log(order);
-   
+
+    console.log(order);
+    
 
 
 

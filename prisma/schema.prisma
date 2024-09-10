@@ -84,7 +84,7 @@ model Product {
   category   Category @relation(fields: [categoryId], references: [id])
 
   suppliers Supplier[] @relation("ProductSuppliers")
-  orders    Order[] @relation("ProductOrders")
+  // orders    Order[]    @relation("ProductOrders")
   carts     Cart[]
   Variants  Variant[]
 }
@@ -93,11 +93,12 @@ enum CartStatus {
   PENDING
   CHECKOUT
 }
+
 model Cart {
   id String @id @default(cuid())
 
   quantity Int
-  status    CartStatus @default(PENDING) 
+  status   CartStatus @default(PENDING)
 
   productId String
   product   Product @relation(fields: [productId], references: [id])
@@ -107,6 +108,9 @@ model Cart {
 
   userId String? // User ID for authenticated users
   user   User?   @relation(fields: [userId], references: [id])
+
+  orderId String?
+  order   Order?  @relation(fields: [orderId], references: [id], name: "OrderCarts")
 }
 
 model Variant {
@@ -124,6 +128,8 @@ model Variant {
   product   Product @relation(fields: [productId], references: [id])
 
   carts Cart[]
+
+  // orders Order[] @relation("OrderVariants")
 }
 
 model Category {
@@ -155,6 +161,7 @@ model Supplier {
 
   products Product[] @relation("ProductSuppliers")
 }
+
 enum OrderStatus {
   PENDING
   SHIPPED
@@ -163,8 +170,8 @@ enum OrderStatus {
 }
 
 model Order {
-  id            String    @id @default(cuid())
-  orderDate     DateTime  @default(now())
+  id            String      @id @default(cuid())
+  orderDate     DateTime    @default(now())
   quantity      Int
   deliveryDate  DateTime?
   streetAddress String
@@ -172,7 +179,9 @@ model Order {
   city          String
   status        OrderStatus @default(PENDING)
 
-  products   Product[] @relation("ProductOrders")
+  // products Product[] @relation("ProductOrders") //
+
+  // variants Variant[] @relation("OrderVariants")
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
@@ -181,6 +190,8 @@ model Order {
   paymentMethodId String
 
   SalesInvoice SalesInvoice[]
+
+  carts Cart[] @relation("OrderCarts")
 }
 
 model PaymentMethod {

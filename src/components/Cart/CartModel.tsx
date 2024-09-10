@@ -13,7 +13,7 @@ interface Props {
 const CartModel:React.FC<Props> = (props) => {
   const { setIsCartOpen } = props
 
-    const { cart, isLoading,subTotal, removeItem } = useCartStore()
+    const { cart, isLoading,subTotal,pendingTotal, removeItem } = useCartStore()
     
 
 
@@ -22,7 +22,7 @@ const CartModel:React.FC<Props> = (props) => {
   return (
     <>
       <div className="w-max absolute p-4 rounded-md shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-white top-12 right-0 flex flex-col gap-6 z-20">
-      {!cart || cart.length === 0 ? (
+      {!cart || cart.length === 0 ||  pendingTotal === 0 ? (
         <div className="">Cart is Empty</div>
       ) : (
         <>
@@ -30,7 +30,12 @@ const CartModel:React.FC<Props> = (props) => {
           {/* LIST */}
           <div className="flex flex-col gap-8">
             {cart.map((item) => (
-              <div className="flex gap-4" key={item.id}>
+             
+
+             
+              item.status === "PENDING" ?
+             
+             ( <div className="flex gap-4" key={item.id}>
                 {/* {item.product.image && (
                   <Image
                     src={item.product.image }
@@ -73,6 +78,8 @@ const CartModel:React.FC<Props> = (props) => {
                   </div>
                 </div>
               </div>
+             ): null
+
             ))}
           </div>
           {/* BOTTOM */}
