@@ -1,7 +1,7 @@
 import { Inter } from "next/font/google";
 
 import { Metadata } from 'next';
-import page from "./auth/profile/page";
+
 import { Providers } from "./providers";
 import { ToastContainer } from "react-toastify";
 const inter = Inter({ subsets: ["latin"] });
