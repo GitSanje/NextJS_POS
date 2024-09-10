@@ -7,6 +7,7 @@ import { useOrderStore } from '../../hooks/useOrderStore';
 import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Button from '../Button/Button';
+import DeleteForm from './DeleteForm';
 
 const Orders = () => {
     const { orders, counter, isLoading, getOrder } = useOrderStore();
@@ -41,7 +42,7 @@ const Orders = () => {
                                 <th className="px-6 py-3 text-left text-sm font-medium">Quantity</th>
                                 <th className="px-6 py-3 text-left text-sm font-medium">Address</th>
                                 <th className="px-6 py-3 text-left text-sm font-medium">Status</th>
-                                <th className="px-6 py-3 text-left text-sm font-medium">Items</th>
+                                <th className="px-16 py-3 text-left text-sm font-medium">Items</th>
                                 <th className="px-6 py-3 text-left text-sm font-medium">Delete</th>
                             </tr>
                         </thead>
@@ -66,9 +67,7 @@ const Orders = () => {
                                     </td>
 
                                     <td className="px-6 py-4 text-sm text-gray-900  ">
-                                        <Button className='px-4'> 
-                                        Delete
-                                        </Button>
+                                       <DeleteForm id={order.id} />
                                      
                                         </td>
                                 </tr>
