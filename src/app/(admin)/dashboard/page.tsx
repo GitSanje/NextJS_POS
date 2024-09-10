@@ -18,11 +18,13 @@ const page:React.FC = async () => {
  
 
   const session = await getServerSession(authOptions)
-  if( session?.user.role !== "ADMIN"){
-    // throw new Error("you need to be an admin")
-    return <>
-    <h2> you need to be an admin </h2>
-    </>
+  if (!session || !session.user || session.user.role !== "ADMIN") {
+    // User is not an admin or session is not defined
+    return (
+      <>
+        <h2>You need to be an admin</h2>
+      </>
+    );
   }
 
   // if(!session){
