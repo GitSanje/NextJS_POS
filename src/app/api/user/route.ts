@@ -13,8 +13,8 @@ export const GET = async(req: NextRequest) => {
         const user = await prisma.user.findUnique({
             omit: {
                 password: true,
-                Cart: true,
-                orders: true
+                // Cart: true,
+                // orders: true
             },
             where: {
                 id: userId as string

@@ -17,8 +17,8 @@ import "react-toastify/dist/ReactToastify.css";
 interface Props{ 
     sidebarOpen : boolean,
     setSideBarOpen: (open: boolean) => void,
-    name: string,
-    email: string
+    name: string | null,
+    email: string | null
 
 }
 
@@ -56,11 +56,12 @@ const Sidebar: React.FC<Props> = (props) => {
 //     }
   
 //    }
-  const sidebarRef = useRef(null);
+const sidebarRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: any ) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+    const handleClickOutside = (event:MouseEvent  ) => {
+       // Ensure sidebarRef.current is not null and that contains is available
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
         setSideBarOpen(false);
       }
     };

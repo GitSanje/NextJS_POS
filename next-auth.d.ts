@@ -18,4 +18,10 @@ declare module 'next-auth' {
         }
 
     }
+
+    interface Profile{
+        id: string,
+        role: UserRole,
+        picture: string | null
+    }
 }

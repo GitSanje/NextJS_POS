@@ -1,12 +1,14 @@
 import { create } from "zustand";
 
+import { User } from "@prisma/client";
+
 type UserState = {
-  user: any[];
+  user: User | null;
   isLoading: boolean;
   getUser: (userId: string) => void;
 };
 export const useUserState = create<UserState>((set) => ({
-  user: [],
+  user: null,
   isLoading: true,
   getUser: async (userId: string) => {
     set({isLoading:true})
