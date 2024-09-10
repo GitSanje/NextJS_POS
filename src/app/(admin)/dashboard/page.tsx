@@ -18,7 +18,7 @@ const page:React.FC = async () => {
  
 
   const session = await getServerSession(authOptions)
-  if (!session || !session.user || session.user.role !== "ADMIN") {
+  if (!session || !session.user || session.user?.role !== "ADMIN") {
     // User is not an admin or session is not defined
     return (
       <>

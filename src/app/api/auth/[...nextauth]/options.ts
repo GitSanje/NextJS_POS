@@ -18,7 +18,7 @@ export const authOptions: NextAuthOptions = {
         const id = profile.id || profile.sub || ""; // Use `profile.sub` if `profile.id` is missing
         return {
           ...profile,
-          role: profile.role ?? "USER",
+          role: profile.role ?? "USER" ,
           id: id.toString(),
           image: profile.picture,
         };
