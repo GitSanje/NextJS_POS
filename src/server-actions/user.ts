@@ -2,17 +2,18 @@
 import 'server-only';
 
 import { cache } from 'react'
-import { verifySession } from './stateless-session'
-import { prisma } from '../../../vendor/prisma';
+import { prisma } from '../vendor/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../app/api/auth/[...nextauth]/options';
 
 
 export const getUser = cache( async() => {
-    const session = await verifySession();
+    const session = await getServerSession(authOptions)
     if (!session) return null;
     try {
         const user = await prisma.user.findUnique({
             where: {
-              id: session.userId,
+              id: session?.user.id,
             },
             select: {
               id: true,
