@@ -16,6 +16,7 @@ import { checkout } from "../../server-actions/checkout/checkout";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import CheckoutButton from "./CheckoutButton";
+import ActionButton from "../Button/ActionButton";
 
 interface FormData {
   phoneNumber: string;
@@ -236,7 +237,7 @@ const CheckoutForm: React.FC<Props> = (props) => {
             </div>
           </div>
 
-          <CheckoutButton/>
+        <ActionButton title="Checkout"/>
             
           
 

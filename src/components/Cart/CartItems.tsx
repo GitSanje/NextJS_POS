@@ -7,7 +7,7 @@ import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 
 const CartItems = () => {
-  const { cart, counter, removeItem, subTotal, isLoading } = useCartStore();
+  const { cart, counter, removeItem, subTotal,pendingTotal, isLoading } = useCartStore();
   const { data: session } = useSession();
 
   const handleRemoveItem = (id: string) => {
@@ -34,10 +34,10 @@ const CartItems = () => {
       </div>
     );
   }
-  if (counter === 0) {
+  if (pendingTotal === 0) {
     return (
       <div className="flex justify-center items-center h-screen text-xl">
-        Loading...
+         No Cart Found
       </div>
     );
   }
@@ -55,11 +55,7 @@ const CartItems = () => {
       </div>
       <hr />
 
-      {cart.length === 0 ? (
-        <div className="flex justify-center items-center h-screen text-xl">
-          No Cart Found
-        </div>
-      ) : (
+      {
         cart
           .filter((item) => item.status === "PENDING")
           .map((item) => (
@@ -88,7 +84,7 @@ const CartItems = () => {
               <hr />
             </div>
           ))
-      )}
+      }
 
       <div className="cartitems-down">
         <div className="cartitems-total">

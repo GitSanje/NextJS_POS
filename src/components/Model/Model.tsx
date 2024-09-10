@@ -9,20 +9,19 @@ import {
 } from "@headlessui/react";
 
 interface ModalProps {
-  showModal: () =>void;
+  showModal: (isModalOpen: boolean) =>void;
   dialougeTitle: string;
   dialougePlaceholder: string;
  
   onSubmit: (value: string) => void;
 }
 
-const Modal: React.FC<ModalProps>= ({
-  
-  showModal,
-  dialougeTitle,
-  dialougePlaceholder,
-  onSubmit,
-}) => {
+const Modal: React.FC<ModalProps>= (props) => {
+
+ const  {showModal, dialougeTitle,dialougePlaceholder,onSubmit} = props
+
+
+
   const [open, setOpen] = useState<boolean>(true);
   const [inputValue, setInputValue] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -59,7 +58,7 @@ const Modal: React.FC<ModalProps>= ({
 
   const handleCancel = () => {
     setOpen(false);
-    showModal();
+    showModal(false);
   };
 
   return (

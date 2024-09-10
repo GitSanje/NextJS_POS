@@ -6,36 +6,60 @@ import {
   Phone,
   TableOfContents,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-import React,{useRef,useEffect} from "react";
+import React,{useRef,useEffect, FormEvent} from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 
+interface Props{ 
+    sidebarOpen : boolean,
+    setSideBarOpen: (open: boolean) => void,
+    name: string,
+    email: string
 
-const Page = ({ sidebarOpen ,setSideBarOpen}) => {
+}
+
+
+const Sidebar: React.FC<Props> = (props) => {
   const router = useRouter()
 
-  const handleLogout =  async(e) => {
-    e.preventDefault();
-  
-    const res = await fetch('http://localhost:3500/api/users/logout', {
-      method:"POST",
-      credentials: "include"
-    })
-  
-    if(res.ok){
-      toast.success("Logged out successfully!");
-      localStorage.removeItem('user');
-      router.push("/?tab=login");
+
+  const { sidebarOpen,setSideBarOpen, email,name} = props
+
+     
+  const handleLogout = async () => {
+    try {
+      await signOut({ redirect: false }); // Prevent automatic redirection
+      toast.success("Logged out successfully", {
+        autoClose: 2000,
+      });
+      window.location.href = '/';
+    } catch (error) {
+      toast.error("Failed to log out");
     }
+  };
+//   const handleLogout =  async(e) => {
+//     e.preventDefault();
   
-   }
+//     const res = await fetch('http://localhost:3500/api/users/logout', {
+//       method:"POST",
+//       credentials: "include"
+//     })
+  
+//     if(res.ok){
+//       toast.success("Logged out successfully!");
+//       localStorage.removeItem('user');
+//       router.push("/?tab=login");
+//     }
+  
+//    }
   const sidebarRef = useRef(null);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: any ) => {
       if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
         setSideBarOpen(false);
       }
@@ -67,10 +91,10 @@ const Page = ({ sidebarOpen ,setSideBarOpen}) => {
                 alt="avatar"
               />
               <h4 className="mx-2 mt-2 font-medium text-gray-800 dark:text-gray-200">
-                Sukraj Chaudhary
+                {name}
               </h4>
               <p className="mx-2 mt-1 text-sm font-medium text-gray-600 dark:text-gray-400">
-                Sukrajchaudhary90@gmail.com
+                {email}
               </p>
               <button className="h-1 p-5 px-6 border-1 bg-red-400 mt-2 flex justify-center items-center rounded-3xl"
               onClick={handleLogout}>Signout</button>
@@ -138,4 +162,4 @@ const Page = ({ sidebarOpen ,setSideBarOpen}) => {
   );
 };
 
-export default Page;
+export default Sidebar;
