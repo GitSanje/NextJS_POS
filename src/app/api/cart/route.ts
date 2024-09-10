@@ -20,7 +20,7 @@ export async function GET(request:  NextRequest) {
     // Calculate the subtotal
     const subtotal = cartItems.reduce((total, item) => {
       
-      const price = item.status==="PENDING" ? item.variant?.salePrice : 0;
+      const price = item.status==="PENDING" ? item.variant?.salePrice ?? 0: 0 ;
       return total + (price * (item.quantity || 0))
     },0)
 
