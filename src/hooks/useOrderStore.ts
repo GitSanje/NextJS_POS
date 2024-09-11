@@ -1,7 +1,30 @@
+import { Product, Variant } from "@prisma/client";
 import { create } from "zustand";
 
+
+
+interface Cart{
+  quantity: number;
+  product: Product;
+  variant?: Variant;
+
+}
+interface Order {
+  id: string;
+  orderDate: string;
+  deliveryDate: string;
+  quantity: number;
+  streetAddress: string;
+  city: string;
+  state: string;
+  status: string;
+  carts: Cart[]
+}
+
+
+
 type OrderState = {
-    orders: any[],
+    orders: Order[],
 //   cart: any[];
 //   quantity: number;
 //   streetadress: string;
