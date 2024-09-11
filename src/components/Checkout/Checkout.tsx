@@ -15,11 +15,11 @@ import { useFormState } from "react-dom";
 import { checkout } from "../../server-actions/checkout/checkout";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
-import CheckoutButton from "./CheckoutButton";
+
 import ActionButton from "../Button/ActionButton";
 
 interface FormData {
-  phoneNumber: string;
+  phone: string;
   state: string;
   email: string;
   name: string;
@@ -27,8 +27,7 @@ interface FormData {
   zipcode: string;
   city: string;
   paymentMethod: string;
-  totalAmount: string;
-  cartData: string;
+  
 }
 
 
@@ -57,7 +56,7 @@ const CheckoutForm: React.FC<Props> = (props) => {
   // const {getTotalCartAmount, clearCart, cartItems} = useContext(ShopContext);
   const {  session } = props
   const [formData, setFormData] = useState<FormData>({
-    phone:  session?.user?.phone || "",
+    phone:   "",
     email: session?.user?.email || "",
     name:  session?.user?.name || "",
     streetaddress: "",
@@ -75,7 +74,7 @@ const CheckoutForm: React.FC<Props> = (props) => {
 
   
   
-  const handleChange = (e: ChangeEvent<HTMLFormElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement| HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
