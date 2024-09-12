@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
         // to verify with credentials
         // Docs: https://next-auth.js.org/configuration/providers/credentials
         //const user = { id: "42", name: "Sanjay", email: "test@test.com" }
-        console.log(credentials,"credenitals");
+  
         
         if (!credentials?.email || !credentials?.password) {
           return null;

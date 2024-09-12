@@ -114,6 +114,9 @@ export async function checkout(
        
         // Create a single order
         const cartIds = pendingCarts.map(cart => cart.id);
+
+        const productIds = pendingCarts.map(cart => cart.productId)
+
        const order = await prisma.order.create({
           data: {
             orderDate: new Date(),
@@ -124,9 +127,9 @@ export async function checkout(
             city:city,
             userId: user.id,
             paymentMethodId: paymentMethodRecord.id,
-        //     products: {
-        //         connect: productVariants.map(pv => ({ id: pv.productId })),
-        //     },
+            products: {
+                connect: productIds.map(id => ({ id })),
+            },
         //    variants : {
         //     connect : productVariants.map(pv => ({
         //         id: pv.variantId || null
@@ -154,7 +157,7 @@ export async function checkout(
         }
      })
 
-
+    
     console.log(order);
     
 

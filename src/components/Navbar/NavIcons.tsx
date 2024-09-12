@@ -8,18 +8,21 @@ import { useCartStore } from "../../hooks/useCartStore";
 import { signOut, useSession } from "next-auth/react";
 import CartModel from "../Cart/CartModel";
 import { toast } from "react-toastify";
+import useGloabalContext from "../../context/GlobalProvider";
 
 
 
 const NavIcons = () => {
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
   const pathName = usePathname();
   const {data: session} = useSession()
+
+  const { isCartOpen,setCartOpen , cartToogle } = useGloabalContext()
   
   
   const { cart, counter, getCart } = useCartStore();
@@ -70,11 +73,14 @@ const NavIcons = () => {
       {isProfileOpen && (
         <div className="absolute p-4 rounded-md top-12 left-0 bg-white text-sm shadow-[0_3px_10px_rgb(0,0,0,0.2)] z-20">
           
-          <Link href="/profile">Profile</Link>
+          <div className="mt-2 cursor-pointer" onClick={() => setIsProfileOpen(false)}>
+           <Link href="/profile">Profile</Link>
+            </div>
 
            <div className="mt-2 cursor-pointer" onClick={() => setIsProfileOpen(false)}>
            <Link href="/order">Order</Link>
             </div>
+         
          
           <div className="mt-2 cursor-pointer" onClick={handleSignOut}>
             {isLoading ? "Logging out" : "Logout"}
@@ -90,14 +96,14 @@ const NavIcons = () => {
       />
       <div
         className="relative cursor-pointer"
-        onClick={() => setIsCartOpen((prev) => !prev)}
+        onClick={()=>setCartOpen(!isCartOpen)}
       >
         <Image src="/cart.png" alt="" width={22} height={22} />
         <div className="absolute -top-4 -right-4 w-6 h-6 bg-lama rounded-full text-white text-sm flex items-center justify-center">
           {counter}
         </div>
       </div>
-      {isCartOpen && <CartModel setIsCartOpen = {setIsCartOpen}/>}
+      {isCartOpen  && <CartModel setIsCartOpen = {setCartOpen} />}
     </div>
       
     </>

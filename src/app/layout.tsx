@@ -1,15 +1,21 @@
 import { Inter } from "next/font/google";
 
 import { Metadata } from 'next';
-
-import { Providers } from "./providers";
-import { ToastContainer } from "react-toastify";
-const inter = Inter({ subsets: ["latin"] });
 import './styles/globals.css'
 import Navbar from "../components/Navbar/Navbar";
+import { GlobalProvider } from "../context/GlobalProvider";
+import { Providers } from "./providers";
+import { ToastContainer } from "react-toastify";
+
+
+const inter = Inter({ subsets: ["latin"] });
+
 
 export const metadata: Metadata = {
-  title: 'Vendify',
+  title: {
+    default:'Vendify | ',
+    template:'Vendify | %s',
+    },
   description: 'The official Vendify.',
   icons: {
     icon: '/favicon.png',
@@ -23,10 +29,12 @@ export default function RootLayout({ children }:{
     <html lang="en">
 
       <body className={`${inter.className} bg-white`}>
+        <GlobalProvider>
         <Providers>
           <Navbar/>
         {children}
         </Providers>
+        </GlobalProvider>
         <ToastContainer/>
       </body>
     </html>

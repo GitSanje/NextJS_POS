@@ -67,6 +67,11 @@ model User {
 //   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 // }
 
+enum ProductStatus {
+  AVAILABLE
+  NOTAVAILABLE
+}
+
 model Product {
   id              String  @id @default(cuid())
   name            String
@@ -78,6 +83,7 @@ model Product {
   discount        String?
   salePrice       Float?
   margin          String?
+  status          ProductStatus @default(AVAILABLE)
 
   inventory Inventory?
 
@@ -85,7 +91,7 @@ model Product {
   category   Category @relation(fields: [categoryId], references: [id])
 
   suppliers Supplier[] @relation("ProductSuppliers")
-  // orders    Order[]    @relation("ProductOrders")
+  orders    Order[]    @relation("ProductOrders")
   carts     Cart[]
   Variants  Variant[]
 }
@@ -180,7 +186,7 @@ model Order {
   city          String
   status        OrderStatus @default(PENDING)
 
-  // products Product[] @relation("ProductOrders") //
+  products Product[] @relation("ProductOrders") 
 
   // variants Variant[] @relation("OrderVariants")
 

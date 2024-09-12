@@ -11,9 +11,13 @@ import Modal from "../../../components/Model/Model";
 import Sidebar from "../../../components/Sidebar/Sidebar";
 import { useUserState } from "../../../hooks/useUserStore";
 import { useSession } from "next-auth/react";
+import { Metadata } from "next";
 
 
 
+// export const metadata: Metadata = {
+//   title: "Profile",
+// };
 // interface Address {
 //   street: string;
 //   city: string;

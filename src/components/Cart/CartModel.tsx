@@ -3,16 +3,18 @@
 import Image from "next/image";
 import { useCartStore } from "../../hooks/useCartStore";
 
-import React from 'react'
+import React, { RefObject } from 'react'
 import Link from "next/link";
+import useGloabalContext from "../../context/GlobalProvider";
 
 interface Props {
   setIsCartOpen: (isOpen: boolean) => void;
+  
 }
 
 const CartModel:React.FC<Props> = (props) => {
   const { setIsCartOpen } = props
-
+   const { cartRef} =  useGloabalContext()
     const { cart, isLoading,subTotal,pendingTotal, removeItem } = useCartStore()
     
 
@@ -21,7 +23,8 @@ const CartModel:React.FC<Props> = (props) => {
 
   return (
     <>
-      <div className="w-max absolute p-4 rounded-md shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-white top-12 right-0 flex flex-col gap-6 z-20">
+      <div className="w-max absolute p-4 rounded-md shadow-[0_3px_10px_rgb(0,0,0,0.2)] bg-white top-12 right-0 flex flex-col gap-6 z-20"
+      ref= {cartRef}>
       {!cart || cart.length === 0 ||  pendingTotal === 0 ? (
         <div className="">Cart is Empty</div>
       ) : (
