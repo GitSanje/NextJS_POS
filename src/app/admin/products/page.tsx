@@ -21,9 +21,11 @@ const page = () => {
     <>
       <div className="container mx-auto flex justify-between items-center gap-4">
         <PageHeader>All Products</PageHeader>
+        <Button asChild>
+          <Link href="/admin/products/new">Add Product</Link></Button>
 
 
-        <ProductModel/>
+        {/* <ProductModel/> */}
             
         
       </div>

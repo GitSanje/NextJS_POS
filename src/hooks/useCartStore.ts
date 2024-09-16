@@ -28,7 +28,8 @@ export const useCartStore = create<CartState>((set) => ({
     set({ isLoading: true});
     try {
         const response = await fetch(`/api/cart/?userId=${userId}`, {
-            method: 'GET'
+            method: 'GET',
+            // cache:'force-cache'
         });
         const data = await response.json()
         

@@ -5,6 +5,7 @@ import { prisma } from "@/src/vendor/prisma";
 import { z } from "zod";
 import fs from "fs/promises";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 
 const writeImageToDisk = async (data:any) => {
@@ -42,8 +43,8 @@ export const addProduct = async (payload: z.infer<typeof productSchema>) => {
     data: {
       name: data.name,
       image: imagepath,
-      costPrice: data.costPrice,
-      quantityInStock: data.quantityInStock,
+      costPrice:parseFloat( data.costPrice),
+      quantityInStock: parseFloat(data.quantityInStock),
       categoryId: (
         await prisma.category.findFirst({
           where: { categoryName: "Electronics" },
@@ -52,13 +53,15 @@ export const addProduct = async (payload: z.infer<typeof productSchema>) => {
       description: data.description,
       validity: data.validity,
       discount: data.discount,
-      salePrice: data.salePrice,
+      salePrice: parseFloat(data.salePrice),
       margin: data.margin,
     },
   });
 
   // redirect("/admin/prodcuts")
   if (product) {
+
+    revalidatePath('/admin/products')
     return response({
       success: true,
       code: 201,

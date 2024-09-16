@@ -32,6 +32,7 @@ export default async function Home() {
     <>
     
       <h2> HOME</h2>
+      
     
      </>
   

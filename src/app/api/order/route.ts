@@ -37,7 +37,8 @@ export async function GET(req: NextRequest) {
     if (!orders) {
       return NextResponse.json(
         { error: "Orders are not found!" },
-        { status: 404 }
+        { status: 404 },
+   
       );
     }
 

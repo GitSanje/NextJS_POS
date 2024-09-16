@@ -25,21 +25,41 @@ export const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   image: imageSchema,
   description: z.string().optional(),
-  costPrice: z.string().min(1, "Cost Price required"),
-  quantityInStock: z.string().min(1, "Quantity is required"),
+  costPrice: z
+    .string({
+      required_error: "required field",
+      invalid_type_error: "Cost price is required",
+    })
+    .min(1),
+  quantityInStock: z
+    .string({
+      required_error: "required field",
+      invalid_type_error: "Quantity  is required",
+    })
+    .min(1),
   validity: z.string().optional(),
   discount: z.string().optional(),
-  salePrice: z.string().min(1, "Cost Price required"),
+  salePrice: z
+    .string({
+      required_error: "required field",
+      invalid_type_error: "Sale price is required",
+    })
+    .min(1),
   margin: z.string().optional(),
 
-  status: z.string(),
-  category: z
-    .string()
-    .refine((val) => val !== "Choose category", {
-      message: "Please select a valid city",
-    }),
+  status: z.enum(["AVAILABLE", "NOTAVAILABLE"], {
+    message: "Status is required",
+  }),
+  category: z.string().refine((val) => val !== "", {
+    message: "Please select a valid category",
+  }),
 
-  // suppliers: z
-  // .array(z.string().min(1, { message: "Supplier is required" }))
-  // .nonempty({ message: "At least one supplier is required" }),
+  suppliers: z
+  .array(
+    z.object({
+      supplier: z.string().min(1, { message: "Supplier is required" }),
+    })
+  )
+  .nonempty({ message: "At least one supplier is required" }),
+
 });

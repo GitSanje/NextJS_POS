@@ -1,4 +1,5 @@
 import { Product, Variant } from "@prisma/client";
+import next from "next";
 import { create } from "zustand";
 
 
@@ -51,7 +52,9 @@ orders:[],
     try {
       const res = await fetch(`api/order?userId=${userId}`, {
         method: "GET",
-      });
+        cache:'force-cache'
+        
+      } );
       const data = await res.json();
 
       set({
