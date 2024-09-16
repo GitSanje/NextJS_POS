@@ -57,6 +57,7 @@ export const productSchema = z.object({
   suppliers: z
   .array(
     z.object({
+      id: z.string().min(1, { message: "Supplier is required" }),
       supplier: z.string().min(1, { message: "Supplier is required" }),
     })
   )

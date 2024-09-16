@@ -36,6 +36,7 @@ export const addProduct = async (payload: z.infer<typeof productSchema>) => {
 
   const data = validatedFields.data;
   const imagepath = await writeImageToDisk(data);
+  const supplierIds = data.suppliers.map((sup) => sup.id);
 
 
     
@@ -52,9 +53,12 @@ export const addProduct = async (payload: z.infer<typeof productSchema>) => {
       )?.id!,
       description: data.description,
       validity: data.validity,
-      discount: data.discount,
+      discount: data.discount || null,
       salePrice: parseFloat(data.salePrice),
-      margin: data.margin,
+      margin: data.margin || null,
+      suppliers: {
+        connect: supplierIds.map((id) => ({ id })),
+      }
     },
   });
 

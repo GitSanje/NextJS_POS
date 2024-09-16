@@ -10,7 +10,7 @@ type FormSelectProps<T extends FieldValues> = {
   control: Control<T>;
   name: Path<T>;
   label: string;
-  options: { label: string; value: string }[];
+  options: {id?:string; label: string; value: string }[];
   isPending?: boolean;
   disabled?: boolean;
   defaultValue?: string;

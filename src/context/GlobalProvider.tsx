@@ -26,7 +26,7 @@ export const GlobalProvider: React.FC<Props> = (props) => {
 
   const [isCartOpen, setCartOpen] = useState<boolean>(false);
   const cartRef = useRef<HTMLDivElement>(null);
-
+ 
   
   const cartToogle = () => setCartOpen(!isCartOpen)
 

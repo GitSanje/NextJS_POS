@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["omitApi"]
 }
 
@@ -73,7 +73,7 @@ enum ProductStatus {
 }
 
 model Product {
-  id              String  @id @default(cuid())
+  id              String        @id @default(cuid())
   name            String
   description     String?
   image           String?
@@ -144,7 +144,17 @@ model Category {
   categoryName String
   description  String?
 
-  products Product[]
+  products    Product[]
+  SubCategory SubCategory[]
+}
+
+model SubCategory {
+  id          String  @id @default(cuid())
+  subName     String
+  description String?
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
 }
 
 model Inventory {
@@ -186,7 +196,7 @@ model Order {
   city          String
   status        OrderStatus @default(PENDING)
 
-  products Product[] @relation("ProductOrders") 
+  products Product[] @relation("ProductOrders")
 
   // variants Variant[] @relation("OrderVariants")
 

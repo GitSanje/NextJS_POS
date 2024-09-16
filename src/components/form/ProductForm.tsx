@@ -2,26 +2,18 @@
 //https://www.freecodecamp.org/news/react-form-validation-zod-react-hook-form/
 import { productSchema } from "@/src/schemas";
 
-import { FormEvent, useState, useTransition } from "react";
-import {
-  Controller,
-  SubmitErrorHandler,
-  SubmitHandler,
-  useForm,
-  useFieldArray,
-} from "react-hook-form";
+import { FormEvent, useEffect, useId, useState, useTransition } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
-import * as Select from "@radix-ui/react-select";
 import FormInput from "./FormInput";
-import Modal from "@/components/ui/model";
+
 import { Spinner } from "@/components/ui/Spinner";
-import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
+
 import { SelectModel } from "@/components/ui/select";
 import { addProduct } from "@/src/server-actions/product/product";
 import { toast } from "react-toastify";
@@ -29,11 +21,9 @@ import { useRouter } from "next/navigation";
 import ImageInput from "./ImageInput";
 import { Minus, Plus } from "lucide-react";
 
-const suppliersList = [
-  { label: "supplier1", value: "Supplier 1" },
-  { label: "supplier2", value: "Supplier 2" },
-  { label: "supplier3", value: "Supplier 3" },
-];
+import { useSession } from "next-auth/react";
+import { useFetchValues } from "@/src/hooks/useFetchValues";
+
 const categories = [
   { label: "category1", value: "Category 1" },
   { label: "category2", value: "Category 2" },
@@ -42,8 +32,27 @@ const productstatus = [
   { label: "Available", value: "AVAILABLE" },
   { label: "Not Available", value: "NOTAVAILABLE" },
 ];
-const ProductForm: React.FC = () => {
+
+type Supplier = {
+  id: string;
+  label: string;
+  value: string;
+};
+
+type SupplierPros = Supplier[];
+const ProductForm: React.FC = async () => {
   const router = useRouter();
+  const { data: session } = useSession();
+  const { categories, suppliers, isLoading, getValues } = useFetchValues();
+
+ 
+  const userId = session?.user?.id;
+
+  useEffect(() => {
+    if (userId) {
+      getValues();
+    }
+  }, [userId]);
 
   const [isPending, startTransition] = useTransition();
 
@@ -62,7 +71,7 @@ const ProductForm: React.FC = () => {
       margin: "",
       status: undefined,
       category: "",
-      suppliers: [{ supplier: "" }],
+      suppliers: [{ id: "", supplier: "" }],
     },
   });
   const { control } = form;
@@ -77,52 +86,38 @@ const ProductForm: React.FC = () => {
       .filter((_, i) => i !== index)
       .map((supplier) => supplier?.supplier);
 
-    return suppliersList.filter(
+    return suppliers.filter(
       (option) => !selectedSupplierIds.includes(option.value)
     );
   };
 
   let [saving, setSaving] = useState(false);
+  console.log(saving);
 
   const handleSubmit = form.handleSubmit((values) => {
     console.log(values, "values");
 
     setSaving(true);
-    // startTransition(() => {
-    //   addProduct(values)
-    //     .then((data) => {
-    //       if (!data) return;
-    //       if (!data.success) {
-    //         return toast.error(data.error.message);
-    //       }
-    //       return router.push("/admin/products");
-    //     })
-    //     .catch(() => toast.error("Something went wrong."));
-    // });
+    startTransition(() => {
+      addProduct(values)
+        .then((data) => {
+          if (!data) return;
+          if (!data.success) {
+            return toast.error(data.error.message);
+          }
+          toast.success("product added sucsesfully", {
+            autoClose: 2000,
+          });
+          return router.push("/admin/products");
+        })
+        .catch(() => toast.error("Something went wrong."));
+    });
   });
-  // const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
-  //   console.log(Object.fromEntries(new FormData(event.currentTarget)));
-  // };
-
-  type FormData = z.infer<typeof productSchema>;
-  // const onSubmit = (data: FormData) => {
-  //   console.log(data);
-  // };
-
-  const onSubmit: SubmitHandler<FormData> = (data) => {
-    setSaving(true);
-    console.log("Submitted Data:", data);
-  };
-
-  const onInvalid: SubmitErrorHandler<FormData> = (errors) => {
-    console.log("Validation Errors:", errors);
-  };
 
   return (
     <div className="container mx-auto flex items-center justify-center">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)}>
+        <form onSubmit={handleSubmit}>
           <fieldset disabled={saving} className="group">
             <ImageInput
               control={form.control}
@@ -253,7 +248,7 @@ const ProductForm: React.FC = () => {
                       </div>
                     );
                   })}
-                  {selectedSuppliers.length === suppliersList.length ? (
+                  {selectedSuppliers.length === suppliers.length ? (
                     <div className="rounded-md p-2 cursor-pointer text-indigo-500 hover:text-indigo-700">
                       No more supplier
                     </div>
@@ -261,7 +256,7 @@ const ProductForm: React.FC = () => {
                     <Button
                       asChild
                       variant={"outline"}
-                      onClick={() => append({ supplier: "" })}
+                      onClick={() => append({ id: "", supplier: "" })}
                       className="mt-4"
                     >
                       <div className="flex cursor-pointer text-indigo-500 hover:text-indigo-700">
