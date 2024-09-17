@@ -14,6 +14,9 @@ type FormSelectProps<T extends FieldValues> = {
   isPending?: boolean;
   disabled?: boolean;
   defaultValue?: string;
+  id?:boolean
+  idx?:number
+  onValueChange?: (idx:number, value:string) => void
 };
 
 const SelectModel = <T extends FieldValues>  (props: FormSelectProps<T>) => {
@@ -24,7 +27,13 @@ const SelectModel = <T extends FieldValues>  (props: FormSelectProps<T>) => {
     options,
     isPending,
     disabled,
-    defaultValue} = props;
+    defaultValue,
+    idx,
+    id=false,
+
+    onValueChange} = props;
+
+    const validOptions = options.filter((option) => option.value !== "");
 
   return (
     <FormField
@@ -39,7 +48,13 @@ const SelectModel = <T extends FieldValues>  (props: FormSelectProps<T>) => {
           <Select.Root 
            {...field}
            
-           onValueChange={field.onChange}
+           onValueChange={(value) => {
+            if (onValueChange && idx !== undefined && id) {
+              onValueChange(idx, value);
+            } else {
+              field.onChange(value);
+            }
+          }}
            disabled={isPending || disabled}
           
             
@@ -64,11 +79,13 @@ const SelectModel = <T extends FieldValues>  (props: FormSelectProps<T>) => {
                   <Select.Label className="px-2 py-1 text-xs text-gray-500">
                     {label || ""}
                   </Select.Label>
-                  {options.map((option) => (
+                  {validOptions.map((option) => (
                     <Select.Item
                       key={option.value}
                       value={option.value}
+                    
                       className="p-2 rounded-md text-sm text-gray-700 hover:bg-indigo-500 hover:text-white cursor-pointer"
+                      
                     >
                       <Select.ItemText>{option.label}</Select.ItemText>
                     </Select.Item>

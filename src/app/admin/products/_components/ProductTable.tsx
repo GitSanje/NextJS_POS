@@ -23,7 +23,7 @@ import Link from "next/link";
 
 const ProductTable = async () => {
   const products = await getProducts();
-  console.log(products, "products");
+
 
   if (products?.length === 0) return <p>No products found</p>;
   return (
@@ -85,13 +85,12 @@ const ProductTable = async () => {
                       </Link>
                     </DropdownMenuItem>
 
-                   
                     <DropdownMenuSeparator />
-                     {/* <ActiveToggleDropdownItem
+                    {/* <ActiveToggleDropdownItem
                     id={product.id}
                     isAvailableForPurchase={product.isAvailableForPurchase}
                   /> */}
-                  {/* <DeleteDropdownItem
+                    {/* <DeleteDropdownItem
                     id={product.id}
                     disabled={product._count.orders > 0}
                   /> */}

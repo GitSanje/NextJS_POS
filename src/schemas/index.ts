@@ -26,25 +26,34 @@ export const productSchema = z.object({
   image: imageSchema,
   description: z.string().optional(),
   costPrice: z
-    .string({
-      required_error: "required field",
-      invalid_type_error: "Cost price is required",
-    })
-    .min(1),
+  .preprocess((value) => {
+    if (typeof value === "string") {
+      return parseFloat(value);
+    }
+    return value;
+  }, z.number({
+    required_error: "Cost price is required",
+  })),
+
   quantityInStock: z
-    .string({
-      required_error: "required field",
-      invalid_type_error: "Quantity  is required",
-    })
-    .min(1),
+  .preprocess((value) => {
+    if (typeof value === "string") {
+      return parseFloat(value);
+    }
+    return value;
+  }, z.number({
+    required_error: "quantity  is required",
+  })),
   validity: z.string().optional(),
   discount: z.string().optional(),
-  salePrice: z
-    .string({
-      required_error: "required field",
-      invalid_type_error: "Sale price is required",
-    })
-    .min(1),
+  salePrice: z.preprocess((value) => {
+    if (typeof value === "string") {
+      return parseFloat(value);
+    }
+    return value;
+  }, z.number({
+    required_error: "Sale price is required",
+  })),
   margin: z.string().optional(),
 
   status: z.enum(["AVAILABLE", "NOTAVAILABLE"], {

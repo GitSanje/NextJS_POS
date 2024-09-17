@@ -45,7 +45,7 @@ const ImageInput = <T extends FieldValues>(props: ImageInputProps<T>) => {
       name={name}
       render={({ field, fieldState }) => (
         <>
-          <FormItem>
+          <FormItem {...field}>
             <FormLabel>{label}</FormLabel>
             <FormControl>
               <div className={"relative flex items-center  gap-16"}>

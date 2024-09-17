@@ -1,3 +1,4 @@
+"use server"
 import { cache } from "@/lib/cache";
 import { prisma } from "@/src/vendor/prisma";
 
