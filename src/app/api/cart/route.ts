@@ -20,7 +20,8 @@ export async function GET(request:  NextRequest) {
     // Calculate the subtotal
     const subtotal = cartItems.reduce((total, item) => {
       
-      const price = item.status==="PENDING" ? item.variant?.salePrice ?? 0: 0 ;
+      const price =  item.variant&&item.status==="PENDING" ? item.variant?.salePrice ?? 0: !item.variant&&item.status==="PENDING" ?item.product?.salePrice ?? 0: 0 ;
+      
       return total + (price * (item.quantity || 0))
     },0)
 
@@ -42,47 +43,47 @@ export async function GET(request:  NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { userEmail, productName, variantName, quantity } = await req.json();
+  const { userId, productId, variantId, quantity } = await req.json();
   try {
-    // Fetch the user by email
-    const user = await prisma.user.findUnique({
-      where: { email: userEmail },
-    });
-    if (!user) {
-      // If the user is not found, return a 404 error
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-    }
+    // // Fetch the user by email
+    // const user = await prisma.user.findUnique({
+    //   where: { email: userEmail },
+    // });
+    // if (!user) {
+    //   // If the user is not found, return a 404 error
+    //   return NextResponse.json({ message: "User not found" }, { status: 404 });
+    // }
 
     // Fetch the product by name
-    const product = await prisma.product.findFirst({
-      where: {
-         name: {equals: productName, mode:'insensitive'}
+    // const product = await prisma.product.findFirst({
+    //   where: {
+    //      name: {equals: productName, mode:'insensitive'}
         
-        },
-    });
+    //     },
+    // });
 
-    if (!product) {
-      // If the product is not found, return a 404 error
-      return NextResponse.json({ message: "Product not found" }, { status: 404 });
-    }
-    // Fetch the variant by name and product ID
-    const variant = await prisma.variant.findFirst({
-      where: {
-        name: { equals: variantName, mode: 'insensitive'},
-        productId: product.id,
-      },
-    });
+    // if (!product) {
+    //   // If the product is not found, return a 404 error
+    //   return NextResponse.json({ message: "Product not found" }, { status: 404 });
+    // }
+    // // Fetch the variant by name and product ID
+    // const variant = await prisma.variant.findFirst({
+    //   where: {
+    //     name: { equals: variantName, mode: 'insensitive'},
+    //     productId: product.id,
+    //   },
+    // });
 
-    if (!variant) {
-      // If the variant is not found, return a 404 error
-      return NextResponse.json({ message: "Variant not found" }, { status: 404 });
-    }
+    // if (!variant) {
+    //   // If the variant is not found, return a 404 error
+    //   return NextResponse.json({ message: "Variant not found" }, { status: 404 });
+    // }
     // Create the cart item
     const cartItems = await prisma.cart.create({
       data: {
-        userId: user.id,
-        productId: product.id,
-        variantId: variant.id,
+        userId: userId,
+        productId: productId,
+        variantId: variantId,
         quantity,
       },
     });

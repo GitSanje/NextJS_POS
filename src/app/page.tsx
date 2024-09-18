@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/options";
 import { User } from "./user";
 import { LoginButton, LogoutButton } from './auth'
+import ProductList from "../components/Product/ProductList";
 
 
 // import { useEffect } from "react";
@@ -31,7 +32,7 @@ export default async function Home() {
   return (
     <>
     
-      <h2> HOME</h2>
+      <ProductList/>
       
     
      </>

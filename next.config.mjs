@@ -9,6 +9,9 @@ const nextConfig = {
         // appDir: true,
         serverComponentsExternalPackages: ['@prisma/client', 'bcrypt','fs/promises']
     },
+    images:{
+        domains: ['images.pexels.com'],
+    }
 
 };
 

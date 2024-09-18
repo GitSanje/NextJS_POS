@@ -62,12 +62,12 @@ if(isLoading){
                         {item.product.name}
                       </h3>
                       <div className="p-1 bg-gray-50 rounded-sm flex items-center gap-2">
-                        {item.quantity && item.quantity > 1 && (
+                        {item.quantity  && (
                           <div className="text-xs text-green-500">
                             {item.quantity} x{" "}
                           </div>
                         )}
-                        ${item.variant.salePrice}
+                        ${item.variant  ? item.variant.salePrice : item.product.salePrice}
                       </div>
                     </div>
                     <div className="text-sm text-gray-500">

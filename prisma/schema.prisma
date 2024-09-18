@@ -72,6 +72,10 @@ enum ProductStatus {
   NOTAVAILABLE
 }
 
+//product.media?.items
+// product.media?.mainMedia?.image?.url
+// product options
+// additionalInfosection => title === "shortDesc", , description, 
 model Product {
   id              String        @id @default(cuid())
   name            String
@@ -84,6 +88,8 @@ model Product {
   salePrice       Float?
   margin          String?
   status          ProductStatus @default(AVAILABLE)
+  // isFeatured      Boolean?  @default(false)
+  // slug           String?
 
   inventory Inventory?
 
@@ -94,6 +100,7 @@ model Product {
   orders    Order[]    @relation("ProductOrders")
   carts     Cart[]
   Variants  Variant[]
+  
 }
 
 enum CartStatus {
@@ -111,7 +118,7 @@ model Cart {
   product   Product @relation(fields: [productId], references: [id])
 
   variantId String?
-  variant   Variant? @relation(fields: [variantId], references: [id])
+  variant   VariantOption? @relation(fields: [variantId], references: [id])
 
   userId String? // User ID for authenticated users
   user   User?   @relation(fields: [userId], references: [id])
@@ -121,12 +128,10 @@ model Cart {
 }
 
 model Variant {
-  id              String  @id @default(uuid())
-  name            String
-  salePrice       Float
-  priceDifference Float?
-  status          String?
-  costPrice       Float?
+  id   String @id @default(uuid())
+  name String
+
+  status String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -134,9 +139,26 @@ model Variant {
   productId String
   product   Product @relation(fields: [productId], references: [id])
 
-  carts Cart[]
-
   // orders Order[] @relation("OrderVariants")
+  VariantOption VariantOption[]
+}
+
+model VariantOption {
+  id              String  @id @default(uuid())
+  name            String
+  var_id          String
+  variant         Variant @relation(fields: [var_id], references: [id])
+  variantName     String?
+  var_img         String?
+  salePrice       Float
+  stock           Int?
+  status          String?
+  priceDifference Float?
+  costPrice       Float?
+
+  carts Cart[]
+  productId String
+
 }
 
 model Category {
@@ -145,17 +167,17 @@ model Category {
   description  String?
 
   products    Product[]
-  SubCategory SubCategory[]
+  // SubCategory SubCategory[]
 }
 
-model SubCategory {
-  id          String  @id @default(cuid())
-  subName     String
-  description String?
+// model SubCategory {
+//   id          String  @id @default(cuid())
+//   subName     String
+//   description String?
 
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
-}
+//   categoryId String
+//   category   Category @relation(fields: [categoryId], references: [id])
+// }
 
 model Inventory {
   id          String   @id @default(cuid())

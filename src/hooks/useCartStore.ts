@@ -11,7 +11,7 @@ type CartState = {
     subTotal: number;
     pendingTotal: number;
     getCart: (userId: string) => void;
-    addItem: (userEmail: string, productName: string, variantName: string, quantity: number) => void;
+    addItem: (userId: string, productId: string, variantId?: string, quantity?: number) => void;
     removeItem: (cartId: string) => void;
 
 }
@@ -47,13 +47,13 @@ export const useCartStore = create<CartState>((set) => ({
     }
 
     },
-    addItem: async (userEmail, productName, variantName, quantity) => {
+    addItem: async (userId, productId, variantId, quantity) => {
         set({ isLoading: true });
         try {
           const response = await fetch('/api/cart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userEmail, productName, variantName, quantity }),
+            body: JSON.stringify({ userId, productId, variantId, quantity }),
           });
           const data = await response.json();
           set({
@@ -61,6 +61,10 @@ export const useCartStore = create<CartState>((set) => ({
             counter: data?.cartItems.length || 0,
             isLoading: false,
           });
+          toast.success("product added to cart successfully", {
+            autoClose:2000
+
+          })
         } catch (error) {
           console.error('Failed to add item to cart:', error);
           set({ isLoading: false });

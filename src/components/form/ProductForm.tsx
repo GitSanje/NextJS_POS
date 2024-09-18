@@ -2,8 +2,13 @@
 //https://www.freecodecamp.org/news/react-form-validation-zod-react-hook-form/
 import { productSchema } from "@/src/schemas";
 
-import { FormEvent,useEffect,  useRef,  useState, useTransition } from "react";
-import { useForm, useFieldArray, SubmitHandler, SubmitErrorHandler } from "react-hook-form";
+import { FormEvent, useEffect, useRef, useState, useTransition } from "react";
+import {
+  useForm,
+  useFieldArray,
+  SubmitHandler,
+  SubmitErrorHandler,
+} from "react-hook-form";
 import { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,11 +44,10 @@ const productstatus = [
 type Supplier = {
   id: string;
   supplier: string;
-  
 };
 
 // type SupplierPros = Supplier[];
-const ProductForm: React.FC =   () => {
+const ProductForm: React.FC = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const { categories, suppliers, isLoading, getValues } = useFetchValues();
@@ -53,18 +57,16 @@ const ProductForm: React.FC =   () => {
   const userId = session?.user?.id;
 
   useEffect(() => {
-   
     if (userId) {
-      const fetchValues = async() => {
-          return  await getValues();
-      }
-      fetchValues()
+      const fetchValues = async () => {
+        return await getValues();
+      };
+      fetchValues();
     }
   }, [userId]);
- 
 
   const [isPending, startTransition] = useTransition();
-  const [ saving, setSaving] = useState<boolean>(false)
+  const [saving, setSaving] = useState<boolean>(false);
   type productType = z.infer<typeof productSchema>;
   const form = useForm<productType>({
     resolver: zodResolver(productSchema),
@@ -84,14 +86,13 @@ const ProductForm: React.FC =   () => {
       suppliers: [{ id: "", supplier: "" }],
     },
   });
-  const { control,setValue } = form;
+  const { control, setValue } = form;
   const { fields, append, remove } = useFieldArray({
     name: "suppliers",
     control,
   });
   const selectedSuppliers = form.watch("suppliers") || [];
 
-  
   const getAvailableSuppliers = (index: string | number) => {
     const selectedSupplierIds = selectedSuppliers
       .filter((_, i) => i !== index)
@@ -102,9 +103,10 @@ const ProductForm: React.FC =   () => {
     );
   };
 
-  
   const handleSelectChange = (idx: number, value: string) => {
-    const selectedSupplier = suppliers.find((supplier) => supplier.value === value);
+    const selectedSupplier = suppliers.find(
+      (supplier) => supplier.value === value
+    );
     if (selectedSupplier) {
       // Update the supplier ID and value in the form state
       setValue(`suppliers.${idx}.id`, selectedSupplier.id);
@@ -112,48 +114,44 @@ const ProductForm: React.FC =   () => {
     }
   };
 
-// const onSubmit: SubmitHandler<productType> = (data:productType) => {
-//      setSaving(true);
-//     console.log("Submitted Data:", data);
-//   };
-//   const onInvalid: SubmitErrorHandler<FormData> = (errors) => {
-//     console.log("Validation Errors:", errors);
-//   };
+  // const onSubmit: SubmitHandler<productType> = (data:productType) => {
+  //      setSaving(true);
+  //     console.log("Submitted Data:", data);
+  //   };
+  //   const onInvalid: SubmitErrorHandler<FormData> = (errors) => {
+  //     console.log("Validation Errors:", errors);
+  //   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
 
-
-const fileToBase64 = (file:File):Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      resolve(reader.result as string);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-};
-
-
-  const onSubmit =async  (values: productType) => {
+  const onSubmit = async (values: productType) => {
     const formData = new FormData();
     if (values.image) {
-      formData.append('image', values.image);
+      formData.append("image", values.image);
     }
 
     // Append other form fields
     for (const [key, value] of Object.entries(values)) {
-        if (key !== 'image' && !Array.isArray(value)) {
-          formData.append(key,value as string)
-
-        } else if (Array.isArray(value) ) {
-          // Convert arrays to JSON string
-          formData.append(key, JSON.stringify(value) );
-        }
+      if (key !== "image" && !Array.isArray(value)) {
+        formData.append(key, value as string);
+      } else if (Array.isArray(value)) {
+        // Convert arrays to JSON string
+        formData.append(key, JSON.stringify(value));
       }
+    }
     console.log(formData);
-    
-    startTransition(  async () => {
-       await addProduct(formData)
+
+    startTransition(async () => {
+      await addProduct(formData)
         .then((data) => {
           if (!data) return;
           if (!data.success) {
@@ -162,30 +160,30 @@ const fileToBase64 = (file:File):Promise<string> => {
           toast.success("product added sucsesfully", {
             autoClose: 2000,
           });
-       
+
           return router.push("/admin/products");
         })
         .catch((error) => {
           console.log(error);
-          
-          toast.error("Something went wrong.",{
-          autoClose: 2000,
-        })});
+
+          toast.error("Something went wrong.", {
+            autoClose: 2000,
+          });
+        });
     });
+  };
 
-  }
-
-
-const formRef = useRef<HTMLFormElement>(null)
+  const formRef = useRef<HTMLFormElement>(null);
 
   return (
     <div className="container mx-auto flex items-center justify-center">
       <Form {...form}>
-        <form 
-        // ref={formRef}
-        // action={action}
-        onSubmit={form.handleSubmit(onSubmit)} >
-          <fieldset  disabled = {saving}className="group">
+        <form
+          // ref={formRef}
+          // action={action}
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <fieldset disabled={saving} className="group">
             <ImageInput
               control={form.control}
               name="image"
@@ -299,7 +297,7 @@ const formRef = useRef<HTMLFormElement>(null)
                           options={getAvailableSuppliers(index)}
                           isPending={isPending}
                           label={`Supplier ${index + 1}` as const}
-                          idx= { index}
+                          idx={index}
                           onValueChange={handleSelectChange}
                           id={true}
                           defaultValue="Select a supplier"
