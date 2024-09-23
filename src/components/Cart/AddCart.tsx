@@ -8,13 +8,14 @@ import React from 'react'
 
 const AddCart = ({
     productId,
-    productVariants,
+    productVariantIds,
     stockNumber,
   }: {
     productId: string;
-    productVariants?: string[] ;
+    productVariantIds?: string[] ;
     stockNumber: number;
   }) => {
+
    
     const [quantity, setQuantity] = useState(1);
     const { addItem, isLoading } = useCartStore();
@@ -30,6 +31,9 @@ const AddCart = ({
           setQuantity((prev) => prev + 1);
         }
       };
+
+     
+      
 
   return (
     <>
@@ -65,7 +69,7 @@ const AddCart = ({
           )}
         </div>
         <button
-         onClick={() => addItem( userId, productId, productVariants, quantity)}
+         onClick={() => addItem( userId, productId, productVariantIds, quantity)}
           disabled={isLoading}
           className="w-36 text-sm rounded-3xl ring-1 ring-indigo-500 text-indigo-500 py-2 px-4 hover:bg-indigo-500 hover:text-white disabled:cursor-not-allowed disabled:bg-pink-200 disabled:ring-0 disabled:text-white disabled:ring-none"
         >

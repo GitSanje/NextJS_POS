@@ -23,7 +23,7 @@ const CustomizeProducts = ({
   const productVarIds = selectedOptions.map((selectVar) => {
     return Object.values(selectVar).map((v) => {
       return productOptions?.find((product_var) => product_var.option.value === v[0])?.id;
-    });
+    })[0];
   });
   
 
@@ -157,7 +157,7 @@ const CustomizeProducts = ({
         )}
 
         <AddCart productId={productId} stockNumber={quantityInStock}
-        productVariants={productVarIds}
+        productVariantIds={productVarIds}
 
          />
       </div>

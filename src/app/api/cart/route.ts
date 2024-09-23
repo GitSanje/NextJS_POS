@@ -45,7 +45,9 @@ export async function GET(request:  NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { userId, productId, productVariants, quantity } = await req.json();
+  const { userId, productId, productVariantIds, quantity } = await req.json();
+
+  
   try {
     // // Fetch the user by email
     // const user = await prisma.user.findUnique({
@@ -86,19 +88,20 @@ export async function POST(req: NextRequest) {
       data: {
         userId: userId,
         productId: productId,
-        variantOptionId: {
+        variants: {
           connect: productVariantIds.map(id => ({ id }))
         },
         quantity,
       },
     });
     
-
+   console.log(cartItems);
+   
     // Return the created cart item as a response
     return NextResponse.json({ cartItems: cartItems }, { status: 200 });
   } catch (error) {
     // Handle any errors that occur during the process
-    console.error(error);
+    console.error(error,'error');
     return NextResponse.json({ message: "An error occured" }, { status: 500 });
   }
 }

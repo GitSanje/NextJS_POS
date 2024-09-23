@@ -11,7 +11,7 @@ type CartState = {
     subTotal: number;
     pendingTotal: number;
     getCart: (userId: string) => void;
-    addItem: (userId: string, productId: string, productVariantIds?: string, quantity?: number) => void;
+    addItem: (userId: string, productId: string, productVariantIds?: string[], quantity?: number) => void;
     removeItem: (cartId: string) => void;
 
 }

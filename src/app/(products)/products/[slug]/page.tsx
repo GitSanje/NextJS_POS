@@ -25,7 +25,7 @@ const page = async ({
   const salePrice = product?.salePrice ? product.salePrice : 0;
   const discountPrice = salePrice - (discount / 100) * salePrice;
 
-  console.log(product_varients);
+
 
   return (
     <>
