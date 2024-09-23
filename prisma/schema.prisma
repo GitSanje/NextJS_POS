@@ -3,7 +3,7 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+//https://medium.com/@kirudang/relational-database-architecture-inventory-control-system-for-e-commerce-7b678ce14398
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["omitApi"]
@@ -53,10 +53,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accounts Account[]
+  accounts          Account[]
   // sessions Session[]
-  orders   Order[]
-  Cart     Cart[]
+  orders            Order[]
+  Cart              Cart[]
+  UserPaymentMethod UserPaymentMethod[]
 }
 
 // model Session {
@@ -67,17 +68,17 @@ model User {
 //   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 // }
 
-enum ProductStatus {
-  AVAILABLE
-  NOTAVAILABLE
-}
+// enum ProductStatus {
+//   AVAILABLE
+//   NOTAVAILABLE
+// }
 
 //product.media?.items
 // product.media?.mainMedia?.image?.url
 // product options
 // additionalInfosection => title === "shortDesc", , description, 
 model Product {
-  id              String        @id @default(cuid())
+  id              String   @id @default(cuid())
   name            String
   description     String?
   image           String?
@@ -87,20 +88,19 @@ model Product {
   discount        String?
   salePrice       Float?
   margin          String?
-  status          ProductStatus @default(AVAILABLE)
-  // isFeatured      Boolean?  @default(false)
-  // slug           String?
+  status          Boolean  @default(true)
+  isFeatured      Boolean? @default(false)
+  slug            String?
 
   inventory Inventory?
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
 
-  suppliers Supplier[] @relation("ProductSuppliers")
-  orders    Order[]    @relation("ProductOrders")
+  suppliers Supplier[]      
+  orders    Order[]         @relation("ProductOrders")
   carts     Cart[]
-  Variants  Variant[]
-  
+  ProductVariant ProductVariant[]
 }
 
 enum CartStatus {
@@ -117,48 +117,52 @@ model Cart {
   productId String
   product   Product @relation(fields: [productId], references: [id])
 
-  variantId String?
-  variant   VariantOption? @relation(fields: [variantId], references: [id])
-
   userId String? // User ID for authenticated users
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id],onDelete: Cascade)
 
   orderId String?
   order   Order?  @relation(fields: [orderId], references: [id], name: "OrderCarts")
+
+  variantOptionId String?
+  varient         ProductVariant? @relation(fields: [variantOptionId], references: [id])
+}
+
+model ProductVariant {
+  id        String        @id @default(uuid())
+  var_id    String
+  variant   Variant       @relation(fields: [var_id], references: [id])
+  var_opt   String?
+  option    VariantOption? @relation(fields: [var_opt], references: [id])
+  productId String
+  Product   Product       @relation(fields: [productId], references: [id])
+
+  var_img         String?
+  salePrice       Float
+  stock           Int?
+  status          Boolean @default(true)
+  priceDifference Float?
+  costPrice       Float?
+  discount        String?
+
+  carts Cart[]
 }
 
 model Variant {
   id   String @id @default(uuid())
-  name String
+  name String //eg: size, color
 
-  status String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-
-  // orders Order[] @relation("OrderVariants")
-  VariantOption VariantOption[]
+  status         Boolean          @default(true)
+  options        VariantOption[]
+  ProductVariant ProductVariant[]
 }
 
 model VariantOption {
-  id              String  @id @default(uuid())
-  name            String
-  var_id          String
-  variant         Variant @relation(fields: [var_id], references: [id])
-  variantName     String?
-  var_img         String?
-  salePrice       Float
-  stock           Int?
-  status          String?
-  priceDifference Float?
-  costPrice       Float?
-
-  carts Cart[]
-  productId String
-
+  id          String  @id @default(uuid())
+  value       String
+  var_id      String
+  variant     Variant @relation(fields: [var_id], references: [id])
+  variantName String?
+  ProductVariant ProductVariant[]
 }
 
 model Category {
@@ -166,8 +170,7 @@ model Category {
   categoryName String
   description  String?
 
-  products    Product[]
-  // SubCategory SubCategory[]
+  products Product[]
 }
 
 // model SubCategory {
@@ -180,13 +183,13 @@ model Category {
 // }
 
 model Inventory {
-  id          String   @id @default(cuid())
-  status      String
+  id          String    @id @default(cuid())
+  status      Boolean   @default(true)
   quantity    Int
-  restockDate DateTime
+  restockDate DateTime?
   location    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   productId String  @unique
   product   Product @relation(fields: [productId], references: [id])
@@ -197,8 +200,9 @@ model Supplier {
   supplierName String
   email        String?
   phone        String?
+  address      String?
 
-  products Product[] @relation("ProductSuppliers")
+  products Product[] 
 }
 
 enum OrderStatus {
@@ -220,24 +224,31 @@ model Order {
 
   products Product[] @relation("ProductOrders")
 
-  // variants Variant[] @relation("OrderVariants")
-
   userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
-  paymentMethodId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   SalesInvoice SalesInvoice[]
 
   carts Cart[] @relation("OrderCarts")
 }
 
-model PaymentMethod {
+model PaymentType {
   id          String @id @default(cuid())
-  paymentType String // e.g., 'Cash', 'Credit Card'
+  paymentType String
 
-  orders Order[]
+  UserPaymentMethod UserPaymentMethod[]
+}
+
+model UserPaymentMethod {
+  id             String      @id @default(cuid())
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  typeId         String
+  type           PaymentType @relation(fields: [typeId], references: [id])
+  provider       String?
+  account_number String?
+  expiry_date    DateTime?
+  is_default     Boolean     @default(true)
 }
 
 model SalesInvoice {
