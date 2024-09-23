@@ -1,17 +1,18 @@
+import PageHeader from "@/src/components/PageHeader/PageHeader";
+import SupplierTable from "./_components/SupplierTable";
+import SupplierModel from "@/src/components/Model/SupplierModel";
 
-import { getSuppliers } from '@/src/server-actions/supplier/supplier'
-import React from 'react'
-
-const page = async() => {
-    const suppliers = await getSuppliers()
-    console.log(suppliers);
-    
+const page = async () => {
+  
   return (
-    <div>
+    <>
+      <div className="container mx-auto flex justify-between items-center gap-4">
+        <PageHeader>All Suppliers</PageHeader>
+        <SupplierModel/>
+      </div>
+      <SupplierTable />
+    </>
+  );
+};
 
-      
-    </div>
-  )
-}
-
-export default page
+export default page;
