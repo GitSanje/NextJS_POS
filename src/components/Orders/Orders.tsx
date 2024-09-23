@@ -14,6 +14,9 @@ const Orders = () => {
     const { data: session } = useSession();
     const userId = session?.user?.id;
 
+    console.log(orders,'orders');
+    
+
     useEffect(() => {
         if (userId) {
             getOrder(userId);
@@ -45,7 +48,7 @@ const Orders = () => {
                                 <th className="px-6 py-3 text-left text-sm font-medium">Address</th>
                                 <th className="px-6 py-3 text-left text-sm font-medium">Status</th>
                                 <th className="px-16 py-3 text-left text-sm font-medium">Items</th>
-                                <th className="px-6 py-3 text-left text-sm font-medium">Delete</th>
+                                <th className="px-6 py-3 text-left text-sm font-medium">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
@@ -69,7 +72,7 @@ const Orders = () => {
                                     </td>
 
                                     <td className="px-6 py-4 text-sm text-gray-900  ">
-                                       <DeleteForm id={order.id} />
+                                       {/* <DeleteForm id={order.id} /> */}
                                      
                                         </td>
                                 </tr>
@@ -78,7 +81,7 @@ const Orders = () => {
                     </table>
                 </div>
             )}
-            <ToastContainer />
+
         </div>
     );
 };

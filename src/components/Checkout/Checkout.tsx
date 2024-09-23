@@ -1,22 +1,54 @@
 "use client";
 
-import { useState, useEffect, useContext, FormEvent, ChangeEvent } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import {
+  useState,
+  useEffect,
+  useContext,
+  FormEvent,
+  ChangeEvent,
+  useTransition,
+  useRef,
+  startTransition,
+} from "react";
+
+import {
+  Elements,
+  LinkAuthenticationElement,
+  PaymentElement,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
+
 import khalti_icon from "../Assets/Khalti_Logo_Color.png";
 import cash_icon from "../Assets/cash.png";
-// import { ShopContext } from "../../Context/ShopContext";
-// import { jwtDecode } from "jwt-decode";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import Image from "next/image";
-import { useFormState } from "react-dom";
+import { useFormState, useFormStatus } from "react-dom";
 import { checkout } from "../../server-actions/checkout/checkout";
-import { useSession } from "next-auth/react";
+
 import { Session } from "next-auth";
 
-import ActionButton from "../Button/ActionButton";
+import {
+  cityOptions,
+  formFields,
+  stateOptions,
+} from "@/src/data/checkoutFormData";
+import FormInput from "../form/FormInput";
+import { useForm } from "react-hook-form";
+import { checkoutSchema } from "@/src/server-actions/checkout/definitions";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form } from "@/components/ui/form";
+import { SelectModel } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/Spinner";
+import { useCartStore } from "@/src/hooks/useCartStore";
+import { useRouter } from "next/navigation";
+
+import { Card, CardContent, CardDescription } from "@/components/ui/card";
 
 interface FormData {
   phone: string;
@@ -27,221 +59,215 @@ interface FormData {
   zipcode: string;
   city: string;
   paymentMethod: string;
-  
 }
 
-
-const stateOptions = [
-  { value: "", label: "Choose State" },
-  { value: "Bagmati", label: "Bagmati" },
-  { value: "Madhesh", label: "Madhesh" },
-  { value: "Gandaki", label: "Gandaki" },
-  { value: "Lumbini", label: "Lumbini" },
-  { value: "Karnali", label: "Karnali" },
-  { value: "Sudurpaschim", label: "Sudurpaschim" },
-];
-
-const cityOptions = [
-  { value: "", label: "Choose City" },
-  { value: "Kathmandu", label: "Kathmandu" },
-  { value: "Bhaktapur", label: "Bhaktapur" },
-  { value: "Lalitpur", label: "Lalitpur" },
-];
-
-interface Props{
-  session: Session | null
+interface Props {
+  session: Session | null;
 }
 
 const CheckoutForm: React.FC<Props> = (props) => {
-  // const {getTotalCartAmount, clearCart, cartItems} = useContext(ShopContext);
-  const {  session } = props
-  const [formData, setFormData] = useState<FormData>({
-    phone:   "",
-    email: session?.user?.email || "",
-    name:  session?.user?.name || "",
-    streetaddress: "",
-    zipcode: "",
-    city: "",
-    paymentMethod: "cash",
-    state: "",
+  const { pendingTotal, isLoading, subTotal } = useCartStore();
+  const router = useRouter();
+  const { session } = props;
+  const [stripeError, setStripeError] = useState<string>("");
+  // const [state, checkoutaction] = useFormState(checkout, undefined);
+
+  const stripe = useStripe();
+  const elements = useElements();
+
+  type checkoutType = z.infer<typeof checkoutSchema>;
+  const [isPending, startTransition] = useTransition();
+ const [email, setEmail] = useState<string>("")
+  const form = useForm<checkoutType>({
+    resolver: zodResolver(checkoutSchema),
+    mode: "onChange",
+    defaultValues: {
+      name: session?.user?.name ?? "",
+      phone: session?.user?.phone ?? "",
+      email: session?.user?.email ?? "",
+      streetaddress: "",
+      state: "",
+      city: "",
+      paymentMethod: undefined,
+    },
   });
+  const selectedPaymentMethod = form.watch("paymentMethod");
 
-
+  const onSubmit = async (values: checkoutType) => {
+    const formData = new FormData();
+    Object.entries(values).forEach(([key, value]) => formData.append(key, value));
   
-
-   const [ state, action]= useFormState(checkout, undefined)
-
-
+    const handleCheckout = async () => {
+      try {
+        const data = await checkout(formData);
+        if (!data) return;
+        if (!data.success) {
+          return toast.error(data.error.message);
+        }
+        toast.success(data.message, { autoClose: 2000 });
+        router.push("/order");
+      } catch (error) {
+        toast.error("Something went wrong.", { autoClose: 2000 });
+      }
+    };
   
+    if (selectedPaymentMethod === "cash") {
+      startTransition(handleCheckout);
+    } else {
+      if (!stripe || !elements || !email) return;
   
-  const handleChange = (e: ChangeEvent<HTMLInputElement| HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
-
-   
+      const { error } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${process.env.NEXT_PUBLIC_SERVICE_URL}/stripe/success`,
+        },
+      });
+  
+      if (error) {
+        const errorMessage =
+          error.type === "card_error" || error.type === "validation_error"
+            ? error.message
+            : "An unknown error occurred";
+        setStripeError(errorMessage);
+      } else {
+        startTransition(handleCheckout);
+      }
+    }
   };
+  
+  
+
+  // const onSubmit = async (values: checkoutType) => {
+  //   console.log(values);
+  // };
+  const formRef = useRef<HTMLFormElement>(null);
+
 
   return (
-    <div className=" d-flex justify-content-center align-items-center ">
-      <div className="col-md-6">
-        <h2 className="text-center mb-4">Delivery Address</h2>
-        <form
-        method="POST"
-        action={action}>
-          {/* <input
-            type="hidden"
-            id="totalAmount"
-            name="totalAmount"
-            value={formData.totalAmount}
-          />
-          <input
-            type="hidden"
-            id="cartData"
-            name="cartData"
-            value={formData.cartData}
-          /> */}
-
-          <div className="form-group">
-            <label htmlFor="phoneNumber">Name:</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="phoneNumber">Phone Number:</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
-            
-          </div>
-          <div className="form-group">
-            <label htmlFor="email">Email Address:</label>
-            <input
-              type="email"
-              className="form-control"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="address">Street Address:</label>
-            <input
-              type="text"
-              className="form-control"
-              id="streetaddress"
-              name="streetaddress"
-              value={formData.streetaddress}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="state">State:</label>
-            <select
-              className="form-control"
-              id="state"
-              name="state"
-              value={formData.state}
-              onChange={handleChange}
-              required
+    <div className="container mx-auto flex flex-col items-center justify-center">
+      {pendingTotal && pendingTotal > 0 ? (
+        <>
+          <h2 className=" text-xl font-bold text-center mb-4">
+            Delivery Address
+          </h2>
+          <Form {...form}>
+            <form
+              //  ref={formRef}
+              // action={checkoutaction}
+              onSubmit={form.handleSubmit(onSubmit)}
             >
-              {stateOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+              <fieldset disabled={isPending} className="group">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {formFields.map((field) => (
+                    <FormInput
+                      control={form.control}
+                      name={field.name as string}
+                      label={field.label}
+                      type={field.type}
+                      placeholder={field.placeholder}
+                      isPending={isPending}
+                    />
+                  ))}
+                  {/* State Select */}
 
-          <div className="form-group">
-            <label htmlFor="city">City:</label>
-            <select
-              className="form-control"
-              id="city"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              required
-            >
-              {cityOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+                  <SelectModel
+                    control={form.control}
+                    name="state"
+                    options={stateOptions}
+                    isPending={isPending}
+                    label="State"
+                    defaultValue="Select a state"
+                  />
+                  <SelectModel
+                    control={form.control}
+                    name="city"
+                    options={cityOptions}
+                    isPending={isPending}
+                    label="City"
+                    defaultValue="Select a city"
+                  />
+                  <div className="form-check">
+                    <FormInput
+                      control={form.control}
+                      name="paymentMethod"
+                      label="Cash On Delivery"
+                      value="cash"
+                      type="radio"
+                      isPending={isPending}
+                    />
+                    <label className="form-check-label" htmlFor="cash">
+                      <Image
+                        src="/cash.png"
+                        alt="Cash"
+                        width={80}
+                        height={80}
+                        style={{ marginRight: "10px" }}
+                      />{" "}
+                    </label>
+                  </div>
 
-          <div className="form-group">
-            <h3>Payment Method</h3>
-            <div className="form-check">
-              <input
-                className="form-check-input  border-2 border-black"
-                type="radio"
-                name="paymentMethod"
-                id="cash"
-                value="cash"
-                checked={formData.paymentMethod === "cash"}
-                onChange={handleChange}
-              />
-              <label className="form-check-label" htmlFor="cash">
-                <Image
-                  src="/cash.png"
-                  alt="Cash"
-                  width={80}
-                  height={80}
-                  style={{ marginRight: "10px" }}
-                />{" "}
-                Cash On Delivary
-              </label>
-            </div>
-            <div className="form-check">
-              <input
-                className="form-check-input border-2 border-black"
-                type="radio"
-                name="paymentMethod"
-                id="khalti"
-                value="khalti"
-                checked={formData.paymentMethod === "khalti"}
-                onChange={handleChange}
-              />
-              <label
-                className="form-check-label font-weight-bold"
-                htmlFor="khalti"
-              >
-                <Image
-                  src="/Khalti_Logo_Color.png"
-                  alt="khalti"
-                  width={120}
-                  height={120}
-                  style={{ marginRight: "10px" }}
-                />
-                Khalti
-              </label>
-            </div>
-          </div>
+                  <div className="form-check">
+                    <FormInput
+                      control={form.control}
+                      name="paymentMethod" // Same name for both radios
+                      label="Online payment"
+                      value="online" // Value for the "online" option
+                      type="radio"
+                      isPending={isPending}
+                    />
+                    <label className="form-check-label" htmlFor="khalti">
+                      <Image
+                        src="/Khalti_Logo_Color.png"
+                        alt="Khalti"
+                        width={120}
+                        height={120}
+                        style={{ marginRight: "10px" }}
+                      />
+                    </label>
+                  </div>
+                </div>
 
-        <ActionButton title="Checkout"/>
-            
-          
+                {selectedPaymentMethod === "online" && (
+                  <>
+                    <Card>
+                      {stripeError && (
+                        <CardDescription className="text-destructive">
+                          {stripeError}
+                        </CardDescription>
+                      )}
 
-        </form>
-      </div>
+                      <CardContent>
+                        <PaymentElement />
+                        <div className="mt-4">
+                        <LinkAuthenticationElement
+              onChange={e => setEmail(e.value.email)}
+            />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </>
+                )}
+
+                <div className="mt-8 space-x-6 text-center mb-5">
+                  <Button
+                    type="submit"
+                    className="inline-flex items-center justify-center rounded bg-indigo-500 px-12 py-4 text-sm font-medium text-white hover:bg-indigo-600 group-disabled:pointer-events-none"
+                  >
+                    <Spinner className="absolute h-4 group-enabled:opacity-0" />
+                    <span className="group-disabled:opacity-0">
+                      Checkout - &#8377;{subTotal}
+                    </span>
+                  </Button>
+                </div>
+              </fieldset>
+            </form>
+          </Form>
+        </>
+      ) : (
+        <div className="text-xl">
+          No carts are found, please place itmes in cart and proced to checkout
+        </div>
+      )}
     </div>
   );
 };

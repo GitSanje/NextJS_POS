@@ -148,7 +148,7 @@ const ProductForm: React.FC = () => {
         formData.append(key, JSON.stringify(value));
       }
     }
-    console.log(formData);
+
 
     startTransition(async () => {
       await addProduct(formData)

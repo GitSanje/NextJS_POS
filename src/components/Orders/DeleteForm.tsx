@@ -5,6 +5,7 @@ import Button from '../Button/Button'
 
 interface Props{
     id: string 
+    action: (formData: FormData) => Promise<any>
 }
 const DeleteForm: React.FC<Props>= (props) => {
     const { id} = props
