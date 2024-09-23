@@ -1,6 +1,7 @@
 import { Product, Variant } from "@prisma/client";
 import next from "next";
 import { create } from "zustand";
+import { getAOrder } from "../server-actions/order/order";
 
 
 
@@ -12,8 +13,8 @@ interface Cart{
 }
 interface Order {
   id: string;
-  orderDate: string;
-  deliveryDate: string;
+  orderDate: Date;
+  deliveryDate: Date;
   quantity: number;
   streetAddress: string;
   city: string;
@@ -50,16 +51,18 @@ orders:[],
     set({ isLoading: true });
 
     try {
-      const res = await fetch(`api/order?userId=${userId}`, {
-        method: "GET",
-        cache:'force-cache'
+
+      const userOrders = await getAOrder(userId)
+      // const res = await fetch(`api/order?userId=${userId}`, {
+      //   method: "GET",
+     
         
-      } );
-      const data = await res.json();
+      // } );
+      // const data = await res.json();
 
       set({
-        orders: data?.orders,
-        counter: data?.orders.length || 0,
+        orders:userOrders ?? [],
+        counter: userOrders?.length || 0,
         isLoading: false,
         
       });

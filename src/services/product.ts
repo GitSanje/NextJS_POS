@@ -32,5 +32,5 @@ export const getProducts = cache(
     }
   },
   ["/admin/products", "getProducts"],
-  { revalidate: 60 * 60 * 24 }
+  { revalidate: 2 }
 );

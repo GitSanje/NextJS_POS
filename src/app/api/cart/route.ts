@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../vendor/prisma";
+import { revalidatePath } from "next/cache";
 
 
 // Handle GET request: Fetch the cart
@@ -15,7 +16,7 @@ export async function GET(request:  NextRequest) {
 
     const cartItems = await prisma.cart.findMany({
       where: { userId: userId as string },
-      include: { product: true, variant: true },
+      include: { product: true, varient: true },
     });
     // Calculate the subtotal
     const subtotal = cartItems.reduce((total, item) => {
@@ -30,7 +31,7 @@ export async function GET(request:  NextRequest) {
       return total + status
 
     },0 )
-
+     
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ message: "Cart not found" }, { status: 404 });
     }
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
       data: {
         userId: userId,
         productId: productId,
-        variantId: variantId,
+        variantOptionId: variantId,
         quantity,
       },
     });
@@ -99,7 +100,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const { cartId } = await req.json();
-  console.log(req);
+
   
   try {
     if (!cartId) {
@@ -122,6 +123,8 @@ export async function DELETE(req: NextRequest) {
         variant: true,
       },
     });
+
+    revalidatePath('/')
 
     return NextResponse.json({ cartItems: cartItems }, {status: 200});
   } catch (error) {

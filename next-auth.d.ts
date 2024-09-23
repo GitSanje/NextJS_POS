@@ -15,6 +15,7 @@ declare module 'next-auth' {
         user: User & {
             id: UserId
             role:UserRole
+            phone: string | undefined
         }
 
     }
