@@ -8,11 +8,11 @@ import React from 'react'
 
 const AddCart = ({
     productId,
-    variantId,
+    productVariants,
     stockNumber,
   }: {
     productId: string;
-    variantId?: string;
+    productVariants?: string[] ;
     stockNumber: number;
   }) => {
    
@@ -65,7 +65,7 @@ const AddCart = ({
           )}
         </div>
         <button
-         onClick={() => addItem( userId, productId, variantId, quantity)}
+         onClick={() => addItem( userId, productId, productVariants, quantity)}
           disabled={isLoading}
           className="w-36 text-sm rounded-3xl ring-1 ring-indigo-500 text-indigo-500 py-2 px-4 hover:bg-indigo-500 hover:text-white disabled:cursor-not-allowed disabled:bg-pink-200 disabled:ring-0 disabled:text-white disabled:ring-none"
         >

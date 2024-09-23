@@ -11,7 +11,7 @@ type CartState = {
     subTotal: number;
     pendingTotal: number;
     getCart: (userId: string) => void;
-    addItem: (userId: string, productId: string, variantId?: string, quantity?: number) => void;
+    addItem: (userId: string, productId: string, productVariantIds?: string, quantity?: number) => void;
     removeItem: (cartId: string) => void;
 
 }
@@ -47,13 +47,13 @@ export const useCartStore = create<CartState>((set) => ({
     }
 
     },
-    addItem: async (userId, productId, variantId, quantity) => {
+    addItem: async (userId, productId, productVariantIds, quantity) => {
         set({ isLoading: true });
         try {
           const response = await fetch('/api/cart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, productId, variantId, quantity }),
+            body: JSON.stringify({ userId, productId, productVariantIds, quantity }),
           });
           const data = await response.json();
           set({

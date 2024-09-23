@@ -55,19 +55,20 @@ const page = async ({
      
            {varients && varients.length> 0? (
           <CustomizeProducts
+          quantityInStock= {product.quantityInStock}
             productId={product.id}
             variants={varients}
             productOptions={product_varients}
           />
         ) : (
-            "")}
-
           <AddCart
-            productId={product.id}
-            stockNumber={product.quantityInStock}
+          productId={product.id}
+          stockNumber={product.quantityInStock}
 
-            // variantId={null}
-          />
+          // variantId={null}
+        />)}
+
+          
          
           {/* <Add
         //     productId={product._id!}

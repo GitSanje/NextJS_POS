@@ -97,9 +97,9 @@ model Product {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
 
-  suppliers Supplier[]      
-  orders    Order[]         @relation("ProductOrders")
-  carts     Cart[]
+  suppliers      Supplier[]
+  orders         Order[]          @relation("ProductOrders")
+  carts          Cart[]
   ProductVariant ProductVariant[]
 }
 
@@ -118,23 +118,23 @@ model Cart {
   product   Product @relation(fields: [productId], references: [id])
 
   userId String? // User ID for authenticated users
-  user   User?   @relation(fields: [userId], references: [id],onDelete: Cascade)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   orderId String?
   order   Order?  @relation(fields: [orderId], references: [id], name: "OrderCarts")
 
-  variantOptionId String?
-  varient         ProductVariant? @relation(fields: [variantOptionId], references: [id])
+  variants         ProductVariant[]
+ 
 }
 
 model ProductVariant {
-  id        String        @id @default(uuid())
+  id        String         @id @default(uuid())
   var_id    String
-  variant   Variant       @relation(fields: [var_id], references: [id])
+  variant   Variant        @relation(fields: [var_id], references: [id])
   var_opt   String?
   option    VariantOption? @relation(fields: [var_opt], references: [id])
   productId String
-  Product   Product       @relation(fields: [productId], references: [id])
+  Product   Product        @relation(fields: [productId], references: [id])
 
   var_img         String?
   salePrice       Float
@@ -157,11 +157,11 @@ model Variant {
 }
 
 model VariantOption {
-  id          String  @id @default(uuid())
-  value       String
-  var_id      String
-  variant     Variant @relation(fields: [var_id], references: [id])
-  variantName String?
+  id             String           @id @default(uuid())
+  value          String
+  var_id         String
+  variant        Variant          @relation(fields: [var_id], references: [id])
+  variantName    String?
   ProductVariant ProductVariant[]
 }
 
@@ -202,7 +202,7 @@ model Supplier {
   phone        String?
   address      String?
 
-  products Product[] 
+  products Product[]
 }
 
 enum OrderStatus {

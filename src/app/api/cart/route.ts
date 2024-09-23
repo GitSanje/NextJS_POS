@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../vendor/prisma";
 import { revalidatePath } from "next/cache";
+import { connect } from "http2";
 
 
 // Handle GET request: Fetch the cart
@@ -44,7 +45,7 @@ export async function GET(request:  NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { userId, productId, variantId, quantity } = await req.json();
+  const { userId, productId, productVariants, quantity } = await req.json();
   try {
     // // Fetch the user by email
     // const user = await prisma.user.findUnique({
@@ -79,15 +80,19 @@ export async function POST(req: NextRequest) {
     //   // If the variant is not found, return a 404 error
     //   return NextResponse.json({ message: "Variant not found" }, { status: 404 });
     // }
+
     // Create the cart item
-    const cartItems = await prisma.cart.create({
+    const cartItems = await prisma.cart.create({ 
       data: {
         userId: userId,
         productId: productId,
-        variantOptionId: variantId,
+        variantOptionId: {
+          connect: productVariantIds.map(id => ({ id }))
+        },
         quantity,
       },
     });
+    
 
     // Return the created cart item as a response
     return NextResponse.json({ cartItems: cartItems }, { status: 200 });
