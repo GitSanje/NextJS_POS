@@ -17,12 +17,39 @@ export async function GET(request:  NextRequest) {
 
     const cartItems = await prisma.cart.findMany({
       where: { userId: userId as string },
-      include: { product: true, varient: true },
+      include: {
+        product: true,  // Include product details
+        variants: {
+          include:{
+            option:true,
+            variant:true
+          }
+        }
+      }
     });
+    
+    console.log(JSON.stringify(cartItems, null, 2));
+    
+
+    
     // Calculate the subtotal
-    const subtotal = cartItems.reduce((total, item) => {
-      
-      const price =  item.variant&&item.status==="PENDING" ? item.variant?.salePrice ?? 0: !item.variant&&item.status==="PENDING" ?item.product?.salePrice ?? 0: 0 ;
+    const subtotal =  cartItems.reduce( (total, item) => {
+      let var_opt;
+      if(item.variants.length > 0 && item.status ==="PENDING"){
+         item.variants.map((var_product) => {
+          if(var_product.variant.name === "Size"){
+            var_opt = var_product.salePrice
+          }
+          var_opt = var_product.salePrice
+        })
+      }
+      console.log(var_opt,'var_product');
+      const price = var_opt !== undefined ? var_opt :
+      item.variants.length==0 &&item.status==="PENDING" ?item.product?.salePrice ?? 0: 0 ;
+
+      // const price =  item.variants.length > 0 &&item.status==="PENDING" ?
+      //  item.variants[0]?.salePrice ?? 0:
+      //   item.variants.length==0 &&item.status==="PENDING" ?item.product?.salePrice ?? 0: 0 ;
       
       return total + (price * (item.quantity || 0))
     },0)
