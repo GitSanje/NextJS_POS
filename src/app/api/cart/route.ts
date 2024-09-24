@@ -27,8 +27,7 @@ export async function GET(request:  NextRequest) {
         }
       }
     });
-    
-    console.log(JSON.stringify(cartItems, null, 2));
+
     
 
     
@@ -43,7 +42,7 @@ export async function GET(request:  NextRequest) {
           var_opt = var_product.salePrice
         })
       }
-      console.log(var_opt,'var_product');
+      
       const price = var_opt !== undefined ? var_opt :
       item.variants.length==0 &&item.status==="PENDING" ?item.product?.salePrice ?? 0: 0 ;
 

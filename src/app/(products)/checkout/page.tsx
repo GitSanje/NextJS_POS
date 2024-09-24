@@ -12,19 +12,35 @@ const page: React.FC = async () => {
   const userId = session?.user?.id;
   const cartItems = await prisma.cart.findMany({
     where: { userId: userId as string },
-    include: { product: true, variant: true },
+    include: {
+      product: true,  // Include product details
+      variants: {
+        include:{
+          option:true,
+          variant:true
+        }
+      }
+    }
   });
   // Calculate the subtotal
-  const subtotal = cartItems.reduce((total, item) => {
-    const price =
-      item.variant && item.status === "PENDING"
-        ? item.variant?.salePrice ?? 0
-        : !item.variant && item.status === "PENDING"
-        ? item.product?.salePrice ?? 0
-        : 0;
+  const subtotal =  cartItems.reduce( (total, item) => {
+    let var_opt;
+    if(item.variants.length > 0 && item.status ==="PENDING"){
+       item.variants.map((var_product) => {
+        if(var_product.variant.name === "Size"){
+          var_opt = var_product.salePrice
+        }
+        var_opt = var_product.salePrice
+      })
+    }
+    
+    const price = var_opt !== undefined ? var_opt :
+    item.variants.length==0 &&item.status==="PENDING" ?item.product?.salePrice ?? 0: 0 ;
 
-    return total + price * (item.quantity || 0);
-  }, 0);
+   
+    
+    return total + (price * (item.quantity || 0))
+  },0)
   // const carts = await getCarts(userId);
   // console.log(carts);
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);

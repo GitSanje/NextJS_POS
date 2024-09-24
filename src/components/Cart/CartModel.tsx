@@ -16,7 +16,7 @@ const CartModel:React.FC<Props> = (props) => {
   const { setIsCartOpen } = props
    const { cartRef} =  useGloabalContext()
     const { cart, isLoading,subTotal,pendingTotal, removeItem } = useCartStore()
-    console.log(cart);
+
 
 if(isLoading){
   return (

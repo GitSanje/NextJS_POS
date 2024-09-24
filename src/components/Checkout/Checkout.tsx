@@ -2,13 +2,9 @@
 
 import {
   useState,
-  useEffect,
-  useContext,
-  FormEvent,
-  ChangeEvent,
+
   useTransition,
-  useRef,
-  startTransition,
+ 
 } from "react";
 
 import {
@@ -50,17 +46,6 @@ import { useRouter } from "next/navigation";
 
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 
-interface FormData {
-  phone: string;
-  state: string;
-  email: string;
-  name: string;
-  streetaddress: string;
-  zipcode: string;
-  city: string;
-  paymentMethod: string;
-}
-
 interface Props {
   session: Session | null;
 }
@@ -70,14 +55,14 @@ const CheckoutForm: React.FC<Props> = (props) => {
   const router = useRouter();
   const { session } = props;
   const [stripeError, setStripeError] = useState<string>("");
-  // const [state, checkoutaction] = useFormState(checkout, undefined);
+;
 
   const stripe = useStripe();
   const elements = useElements();
 
   type checkoutType = z.infer<typeof checkoutSchema>;
   const [isPending, startTransition] = useTransition();
- const [email, setEmail] = useState<string>("")
+  const [email, setEmail] = useState<string>("");
   const form = useForm<checkoutType>({
     resolver: zodResolver(checkoutSchema),
     mode: "onChange",
@@ -95,24 +80,39 @@ const CheckoutForm: React.FC<Props> = (props) => {
 
   const onSubmit = async (values: checkoutType) => {
     const formData = new FormData();
-    Object.entries(values).forEach(([key, value]) => formData.append(key, value));
   
+    // Convert and append all entries to FormData
+    for (const [key, value] of Object.entries(values)) {
+    
+      formData.append(key, value);
+    }
+    console.log(formData,'formData');
+    
+  
+
     const handleCheckout = async () => {
-      try {
-        const data = await checkout(formData);
+      
+        await checkout(formData).then((data) => { 
         if (!data) return;
         if (!data.success) {
           return toast.error(data.error.message);
         }
         toast.success(data.message, { autoClose: 2000 });
         router.push("/order");
-      } catch (error) {
-        toast.error("Something went wrong.", { autoClose: 2000 });
+      } ) 
+      .catch((error) => {
+        console.log(error);
+
+        toast.error("Something went wrong.", {
+          autoClose: 2000,
+        });
+      });
       }
-    };
+    
   
+    // Handle different payment methods
     if (selectedPaymentMethod === "cash") {
-      startTransition(handleCheckout);
+      startTransition( handleCheckout)
     } else {
       if (!stripe || !elements || !email) return;
   
@@ -135,14 +135,6 @@ const CheckoutForm: React.FC<Props> = (props) => {
     }
   };
   
-  
-
-  // const onSubmit = async (values: checkoutType) => {
-  //   console.log(values);
-  // };
-  const formRef = useRef<HTMLFormElement>(null);
-
-
   return (
     <div className="container mx-auto flex flex-col items-center justify-center">
       {pendingTotal && pendingTotal > 0 ? (
@@ -239,9 +231,9 @@ const CheckoutForm: React.FC<Props> = (props) => {
                       <CardContent>
                         <PaymentElement />
                         <div className="mt-4">
-                        <LinkAuthenticationElement
-              onChange={e => setEmail(e.value.email)}
-            />
+                          {/* <LinkAuthenticationElement
+                            onChange={(e) => setEmail(e.value.email)}
+                          /> */}
                         </div>
                       </CardContent>
                     </Card>

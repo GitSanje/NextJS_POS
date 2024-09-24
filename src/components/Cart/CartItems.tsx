@@ -64,11 +64,19 @@ const CartItems = () => {
               <div className="cartitems-format cartitems-format-main">
                 {/* <img src={e.image} alt="" className="carticon-product-icon" /> */}
                 <p>{item.product.name}</p>
-                <p>{item.variants ? item.variants[0].variant.name : ""}</p>
+                <p>{item.variants.length > 0 ?
+                          item.variants.map(var_product => 
+                            var_product.option.value
+                          ).join(','):
+                          "No variant"}</p>
                 <p>Rs {item.product.salePrice}</p>
-                <p>Rs {item.variants ? item.variants[0].salePrice: item.product.salePrice}</p>
+                ${ item.variants.length > 0 
+                          ? item.variants.find(var_product => var_product.variant.name === "Size")?.salePrice || item.product.salePrice
+                          : item.product.salePrice
+                        }
                 <button className="cartitems-quantity">{item.quantity}</button>
-                <p>Rs {item.variant ? item.variant.salePrice * item.quantity:
+                <p>Rs {item.variants.length > 0 ? item.variants.find(var_product => var_product.variant.name === "Size")?.salePrice || item.product.salePrice
+                          :
                   item.product.salePrice * item.quantity}</p>
                 <p>
                   <Image

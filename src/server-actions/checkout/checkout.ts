@@ -18,7 +18,8 @@ export async function checkout(
     streetaddress: formData.get("streetaddress"),
     paymentMethod: formData.get("paymentMethod"),
   });
-
+ console.log(validatedFields.data,'validatedFields');
+ 
   if (!validatedFields.success) {
     return response( {
       success: false,
@@ -54,12 +55,12 @@ export async function checkout(
   }
 
   // Find or create payment method
-  let paymentMethodRecord = await prisma.paymentMethod.findFirst({
+  let paymentMethodRecord = await prisma.paymentType.findFirst({
     where: { paymentType: paymentMethod },
   });
 
   if (!paymentMethodRecord) {
-    paymentMethodRecord = await prisma.paymentMethod.create({
+    paymentMethodRecord = await prisma.paymentType.create({
       data: { paymentType: paymentMethod },
     });
   }
@@ -74,13 +75,14 @@ export async function checkout(
       streetAddress: streetaddress,
       city,
       userId: user.id,
-      paymentMethodId: paymentMethodRecord.id,
+
       products: {
         connect: pendingCarts.map(cart => ({ id: cart.productId })),
       },
       carts: {
         connect: pendingCarts.map(cart => ({ id: cart.id })),
-      },
+      }
+      
     },
   });
 
