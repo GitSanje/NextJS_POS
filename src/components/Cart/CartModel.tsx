@@ -16,7 +16,7 @@ const CartModel:React.FC<Props> = (props) => {
   const { setIsCartOpen } = props
    const { cartRef} =  useGloabalContext()
     const { cart, isLoading,subTotal,pendingTotal, removeItem } = useCartStore()
-    
+    console.log(cart);
 
 if(isLoading){
   return (
@@ -59,15 +59,30 @@ if(isLoading){
                   <div className="">
                     <div className="flex items-center justify-between gap-8">
                       <h3 className="font-semibold">
-                        {item.product.name}
-                      </h3>
+                        {item.product.name} 
+                        <p className="text-gray-500"> {
+                          item.variants.length > 0 ?
+                          item.variants.map(var_product => 
+                            var_product.option.value
+                          ).join(','):
+                          "No variant"
+
+                        }
+                        </p>
+                        </h3>
+                        
+                      
                       <div className="p-1 bg-gray-50 rounded-sm flex items-center gap-2">
                         {item.quantity  && (
                           <div className="text-xs text-green-500">
                             {item.quantity} x{" "}
                           </div>
                         )}
-                        ${item.variant  ? item.variant.salePrice : item.product.salePrice}
+
+                        ${ item.variants.length > 0 
+                          ? item.variants.find(var_product => var_product.variant.name === "Size")?.salePrice || item.product.salePrice
+                          : item.product.salePrice
+                        }
                       </div>
                     </div>
                     <div className="text-sm text-gray-500">

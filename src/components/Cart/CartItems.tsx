@@ -10,6 +10,7 @@ const CartItems = () => {
   const { cart, counter, removeItem, subTotal,pendingTotal, isLoading } = useCartStore();
   const { data: session } = useSession();
 
+  
   const handleRemoveItem = (id: string) => {
     // Confirm before removing item
     confirmAlert({
@@ -63,9 +64,9 @@ const CartItems = () => {
               <div className="cartitems-format cartitems-format-main">
                 {/* <img src={e.image} alt="" className="carticon-product-icon" /> */}
                 <p>{item.product.name}</p>
-                <p>{item.variant ? item.variant.name : ""}</p>
+                <p>{item.variants ? item.variants[0].variant.name : ""}</p>
                 <p>Rs {item.product.salePrice}</p>
-                <p>Rs {item.variant ? item.variant.salePrice: item.product.salePrice}</p>
+                <p>Rs {item.variants ? item.variants[0].salePrice: item.product.salePrice}</p>
                 <button className="cartitems-quantity">{item.quantity}</button>
                 <p>Rs {item.variant ? item.variant.salePrice * item.quantity:
                   item.product.salePrice * item.quantity}</p>

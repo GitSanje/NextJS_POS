@@ -10,28 +10,26 @@ const CustomizeProducts = ({
   variants,
   productOptions,
   quantityInStock,
+  setVarPriceDiscout,
 }: {
   productId: string;
   variants: any[];
   productOptions?: any[];
   quantityInStock: number;
+  setVarPriceDiscout: (priceDiscount: [string, number]) => void;
 }) => {
-  const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string[] }[]
+  const [selectedOptions, setSelectedOptions] = useState<
+    { [key: string]: string[] }[]
   >([]);
-
 
   const productVarIds = selectedOptions.map((selectVar) => {
     return Object.values(selectVar).map((v) => {
-      return productOptions?.find((product_var) => product_var.option.value === v[0])?.id;
+      return productOptions?.find(
+        (product_var) => product_var.option.value === v[0]
+      )?.id;
     })[0];
   });
-  
 
-  
-  
-
-   
- 
   const presentVarient = (var_opt: string): boolean => {
     return !productOptions?.find(
       (product_var) => product_var.option.value === var_opt
@@ -41,10 +39,14 @@ const CustomizeProducts = ({
   const handleClick = (var_name: string, var_opt: string) => {
     setSelectedOptions((prevOptions) => {
       const options = [...prevOptions]; // Copy previous options
+      const productVar = productOptions?.find(
+        (product_var) =>
+          product_var.option.value === var_opt &&
+          product_var.variant.name === "Size"
+      );
       const index = options.findIndex(
         (option) => Object.keys(option)[0] === var_name
       );
-
 
       if (index > -1) {
         // Create a shallow copy of the object at index
@@ -56,12 +58,15 @@ const CustomizeProducts = ({
           optionCopy[var_name] = optionCopy[var_name].filter(
             (opt_name) => opt_name !== var_opt
           );
+          // setVarPriceDiscout(["", 0])
         } else {
           // If the option is not present, add it
           optionCopy[var_name] = [
             ...optionCopy[var_name].filter((opt_name) => opt_name !== var_opt),
             var_opt,
           ];
+
+          // setVarPriceDiscout([productVar?.discount , productVar?.salePrice ])
         }
 
         // Update the object at the correct index
@@ -69,7 +74,26 @@ const CustomizeProducts = ({
       } else {
         // If the key doesn't exist, create a new object
         options.push({ [var_name]: [var_opt] });
+        //setVarPriceDiscout([productVar?.discount , productVar?.salePrice ])
       }
+
+      options.forEach((selectVar) => {
+        for (const [key, value] of Object.entries(selectVar)) {
+          if (key === "Size") {
+            const opt_value = value[value.length - 1]; // Get the last element
+            const productVar = productOptions?.find(
+              (product_var) => product_var.option.value === opt_value
+            );
+
+
+            if (productVar) {
+              setVarPriceDiscout([productVar.discount, productVar.salePrice]);
+            } else {
+              setVarPriceDiscout(["", 0]);
+            }
+          }
+        }
+      });
 
       return options;
     });
@@ -114,7 +138,11 @@ const CustomizeProducts = ({
                       boxShadow: presentVarient(option.value) ? "none" : "",
                     }}
                     key={varient.id}
-                    onClick={() => handleClick(varient.name, option.value)}
+                    onClick={() => {
+                      if (!presentVarient(option.value)) {
+                        handleClick(varient.name, option.value);
+                      }
+                    }}
                   >
                     {option.value}
                   </li>
@@ -136,7 +164,7 @@ const CustomizeProducts = ({
                           ? "not-allowed"
                           : "pointer",
                         backgroundColor: option.value,
-                        // color:  presentVarient(option.value) ? "white" : "#f35c7a",
+
                         boxShadow: presentVarient(option.value) ? "none" : "",
                       }}
                       key={varient.id}
@@ -156,10 +184,11 @@ const CustomizeProducts = ({
           )
         )}
 
-        <AddCart productId={productId} stockNumber={quantityInStock}
-        productVariantIds={productVarIds}
-
-         />
+        <AddCart
+          productId={productId}
+          stockNumber={quantityInStock}
+          productVariantIds={productVarIds}
+        />
       </div>
     </>
   );
