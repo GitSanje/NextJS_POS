@@ -14,8 +14,6 @@ const Orders = () => {
     const { data: session } = useSession();
     const userId = session?.user?.id;
 
-    console.log(orders,'orders');
-    
     
     useEffect(() => {
         if (userId) {

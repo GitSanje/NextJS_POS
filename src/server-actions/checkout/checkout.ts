@@ -3,11 +3,15 @@ import { CheckoutState, checkoutSchema } from "./definitions";
 import { prisma } from "../../vendor/prisma";
 import { revalidatePath } from "next/cache";
 import { response } from "@/lib/utils";
+import { generateInvoiceId } from "@/src/lib/utils";
 
 export async function checkout(
   // prevState: CheckoutState,
   formData: FormData
 ) {
+  console.log('====================================');
+  console.log(formData,'from server');
+  console.log('====================================');
   // Validate form fields using Zod schema
   const validatedFields = checkoutSchema.safeParse({
     name: formData.get("name"),
@@ -17,6 +21,7 @@ export async function checkout(
     city: formData.get("city"),
     streetaddress: formData.get("streetaddress"),
     paymentMethod: formData.get("paymentMethod"),
+    subtotal: formData.get("subtotal"),
   });
  console.log(validatedFields.data,'validatedFields');
  
@@ -31,7 +36,7 @@ export async function checkout(
   }
 
 
-  const { name, phone, email, streetaddress, state, city, paymentMethod } =
+  const { name, phone, email, streetaddress, state, city, paymentMethod, subtotal } =
     validatedFields.data;
 
   // Find the user by email
@@ -47,7 +52,7 @@ export async function checkout(
   // Find pending carts for the user
   const pendingCarts = await prisma.cart.findMany({
     where: { status: "PENDING", userId: user.id },
-    include: { product: true },
+    include: { product: true},
   });
 
   if (pendingCarts.length === 0) {
@@ -64,7 +69,9 @@ export async function checkout(
       data: { paymentType: paymentMethod },
     });
   }
+  const taxtIds = pendingCarts.map((cart) => cart.product.taxId)
 
+  
   // Create order
   const order = await prisma.order.create({
     data: {
@@ -90,6 +97,18 @@ export async function checkout(
   await prisma.cart.updateMany({
     where: { id: { in: pendingCarts.map(cart => cart.id) } },
     data: { status: "CHECKOUT" },
+  });
+
+ await prisma.salesInvoice.create({
+    data: {
+      InvoiceId: generateInvoiceId(),
+      orderId: order.id,
+      totalAmount: subtotal,
+      tax: {
+        connect: taxtIds.map(id => {{id}})
+      }
+      
+    },
   });
 
   revalidatePath("/order");

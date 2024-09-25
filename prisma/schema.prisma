@@ -229,11 +229,11 @@ model Order {
   paymentType   PaymentType? @relation(fields: [paymentId], references: [id])
 
   products Product[] @relation("ProductOrders")
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  SalesInvoice SalesInvoice[]
+  
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  saleinvoice SalesInvoice? 
 
   carts Cart[] @relation("OrderCarts")
 }
@@ -261,11 +261,11 @@ model UserPaymentMethod {
 model SalesInvoice {
   id          String   @id @default(cuid())
   invoiceDate DateTime @default(now())
-  taxId       String?
-  tax         Tax?     @relation(fields: [taxId], references: [id])
+  InvoiceId   String   @unique
+  tax         Tax[]
   totalAmount Float?
+  orderId     String   @unique
   order       Order    @relation(fields: [orderId], references: [id])
-  orderId     String
 }
 
 model Tax {

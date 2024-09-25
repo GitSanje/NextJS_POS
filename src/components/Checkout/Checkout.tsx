@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useState,
-
-  useTransition,
- 
-} from "react";
+import { useState, useTransition } from "react";
 
 import {
   Elements,
@@ -55,8 +50,6 @@ const CheckoutForm: React.FC<Props> = (props) => {
   const router = useRouter();
   const { session } = props;
   const [stripeError, setStripeError] = useState<string>("");
-;
-
   const stripe = useStripe();
   const elements = useElements();
 
@@ -74,55 +67,52 @@ const CheckoutForm: React.FC<Props> = (props) => {
       state: "",
       city: "",
       paymentMethod: undefined,
+      subtotal: subTotal,
     },
   });
   const selectedPaymentMethod = form.watch("paymentMethod");
 
   const onSubmit = async (values: checkoutType) => {
     const formData = new FormData();
-  
+
     // Convert and append all entries to FormData
     for (const [key, value] of Object.entries(values)) {
-    
       formData.append(key, value);
     }
-    console.log(formData,'formData');
-    
-  
+    console.log(formData, "from client");
 
     const handleCheckout = async () => {
-      
-        await checkout(formData).then((data) => { 
-        if (!data) return;
-        if (!data.success) {
-          return toast.error(data.error.message);
-        }
-        toast.success(data.message, { autoClose: 2000 });
-        router.push("/order");
-      } ) 
-      .catch((error) => {
-        console.log(error);
+      await checkout(formData)
+        .then((data) => {
+          if (!data) return;
+          if (!data.success) {
+            return toast.error(data.error.message);
+          }
+          toast.success(data.message, { autoClose: 2000 });
+          router.push("/order");
+        })
+        .catch((error) => {
+          console.log(error);
 
-        toast.error("Something went wrong.", {
-          autoClose: 2000,
+          toast.error("Something went wrong.", {
+            autoClose: 2000,
+          });
         });
-      });
-      }
-    
-  
+    };
+
     // Handle different payment methods
     if (selectedPaymentMethod === "cash") {
-      startTransition( handleCheckout)
+      startTransition(handleCheckout);
     } else {
       if (!stripe || !elements || !email) return;
-  
+
       const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
           return_url: `${process.env.NEXT_PUBLIC_SERVICE_URL}/stripe/success`,
         },
       });
-  
+
       if (error) {
         const errorMessage =
           error.type === "card_error" || error.type === "validation_error"
@@ -134,7 +124,7 @@ const CheckoutForm: React.FC<Props> = (props) => {
       }
     }
   };
-  
+
   return (
     <div className="container mx-auto flex flex-col items-center justify-center">
       {pendingTotal && pendingTotal > 0 ? (
@@ -143,13 +133,20 @@ const CheckoutForm: React.FC<Props> = (props) => {
             Delivery Address
           </h2>
           <Form {...form}>
+
             <form
               //  ref={formRef}
               // action={checkoutaction}
               onSubmit={form.handleSubmit(onSubmit)}
             >
+               
               <fieldset disabled={isPending} className="group">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  
+
+                
+                 
+                    
                   {formFields.map((field) => (
                     <FormInput
                       control={form.control}
@@ -160,6 +157,7 @@ const CheckoutForm: React.FC<Props> = (props) => {
                       isPending={isPending}
                     />
                   ))}
+
                   {/* State Select */}
 
                   <SelectModel

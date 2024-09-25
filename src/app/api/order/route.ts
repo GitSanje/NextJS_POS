@@ -1,4 +1,4 @@
-import { error, log } from "console";
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../vendor/prisma";
 

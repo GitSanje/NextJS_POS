@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "../../vendor/prisma";
 import { cache } from "@/lib/cache";
 import { notFound } from "next/navigation";
-import { json } from "stream/consumers";
 
 export const getAllOrders = cache(
   async () => {
@@ -84,11 +83,8 @@ export const getAOrder = cache(
           id: id as string,
         },
         include: {
-          user:{
-            select:{
-
-            }
-          },
+          user:true
+          ,
           carts: {
             select: {
               quantity: true,

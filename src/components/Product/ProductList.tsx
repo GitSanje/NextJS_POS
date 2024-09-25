@@ -7,21 +7,40 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect } from "react";
 
-const ProductList = () => {
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
-  const { fetchProducts, products } = useFetchValues();
-  useEffect(() => {
-    if (userId) {
-      fetchProducts();
-    }
-  }, [userId]);
-  console.log(products);
+interface Product {
+  
+    name: string;
+    id: string;
+    category: {
+        categoryName: string;
+    };
+    description: string | null;
+    costPrice: number;
+    quantityInStock: number;
+    salePrice: number | null;
+    status: boolean;
+
+}
+const ProductList = ({
+  products
+}: {
+  products: Product[] | null
+}) => {
+
+  // const { data: session } = useSession();
+  // const userId = session?.user?.id;
+  // const { fetchProducts, products } = useFetchValues();
+  // useEffect(() => {
+  //   if (userId) {
+  //     fetchProducts();
+  //   }
+  // }, [userId]);
+  // console.log(products);
 
   return (
     <>
       <div className="container mx-auto mt-12 flex gap-x-8 gap-y-16 justify-between flex-wrap">
-        {products.map((product) => (
+        {products?.map((product) => (
           <Link
             href={"/products/" + product.id}
             className="w-full flex flex-col gap-4 sm:w-[45%] lg:w-[22%]"
@@ -29,7 +48,7 @@ const ProductList = () => {
           >
             <div className="relative w-full h-80">
               <Image
-                src={product.image || "/product.png"}
+                src={product?.image || "/product.png"}
                 alt=""
                 fill
                 sizes="25vw"

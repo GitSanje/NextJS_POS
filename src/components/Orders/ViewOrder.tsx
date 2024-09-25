@@ -7,7 +7,7 @@ import React from 'react'
 const ViewOrder = ({order}: {
     order: any[]
 }) => {
-
+      
 
     const totalamount = order.carts.reduce((total, cart) => {
         return total + cart.amount

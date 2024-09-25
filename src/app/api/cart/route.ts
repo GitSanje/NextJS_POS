@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../vendor/prisma";
 import { revalidatePath } from "next/cache";
-import { connect } from "http2";
+
 
 
 // Handle GET request: Fetch the cart

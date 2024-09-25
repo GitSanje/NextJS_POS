@@ -75,7 +75,7 @@ const CartItems = () => {
                           : item.product.salePrice
                         }
                 <button className="cartitems-quantity">{item.quantity}</button>
-                <p>Rs {item.variants.length > 0 ? item.variants.find(var_product => var_product.variant.name === "Size")?.salePrice || item.product.salePrice
+                <p>Rs {item.variants.length > 0 ? item.variants.find(var_product => var_product.variant.name === "Size")?.salePrice * item.quantity|| item.product.salePrice * item.quantity
                           :
                   item.product.salePrice * item.quantity}</p>
                 <p>
