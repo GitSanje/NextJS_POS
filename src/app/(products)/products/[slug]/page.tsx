@@ -1,8 +1,4 @@
 
-import { authOptions } from "@/src/app/api/auth/[...nextauth]/options";
-import AddCart from "@/src/components/Cart/AddCart";
-import CustomizeProducts from "@/src/components/Product/CustomizedProducts";
-import ProductImages from "@/src/components/Product/ProductImages";
 import SingleDisplay from "@/src/components/Product/SingleDisplay";
 import { getallOptions, getallVarients, productgetById } from "@/src/lib/dal";
 import { getServerSession } from "next-auth";

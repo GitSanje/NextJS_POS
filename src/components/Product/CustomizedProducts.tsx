@@ -11,12 +11,14 @@ const CustomizeProducts = ({
   productOptions,
   quantityInStock,
   setVarPriceDiscout,
+  amount
 }: {
   productId: string;
   variants: any[];
   productOptions?: any[];
   quantityInStock: number;
   setVarPriceDiscout: (priceDiscount: [string, number]) => void;
+  amount:number
 }) => {
   const [selectedOptions, setSelectedOptions] = useState<
     { [key: string]: string[] }[]
@@ -188,6 +190,7 @@ const CustomizeProducts = ({
           productId={productId}
           stockNumber={quantityInStock}
           productVariantIds={productVarIds}
+          amount= { amount}
         />
       </div>
     </>

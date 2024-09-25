@@ -58,6 +58,7 @@ const SingleDisplay: React.FC<Props> = (props) => {
             variants={varients}
             productOptions={product_varients}
             setVarPriceDiscout={setVarPriceDiscout}
+            amount ={discountPrice}
           />
         ) : (
           <AddCart

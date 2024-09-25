@@ -71,7 +71,7 @@ export async function GET(request:  NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { userId, productId, productVariantIds, quantity } = await req.json();
+  const { userId, productId, productVariantIds, quantity,amount } = await req.json();
 
   
   try {
@@ -118,10 +118,12 @@ export async function POST(req: NextRequest) {
           connect: productVariantIds.map(id => ({ id }))
         },
         quantity,
+        amount: amount * quantity
+        
       },
     });
     
-   console.log(cartItems);
+
    
     // Return the created cart item as a response
     return NextResponse.json({ cartItems: cartItems }, { status: 200 });

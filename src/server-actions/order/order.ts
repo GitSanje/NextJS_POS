@@ -4,7 +4,54 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "../../vendor/prisma";
 import { cache } from "@/lib/cache";
 import { notFound } from "next/navigation";
+import { json } from "stream/consumers";
 
+export const getAllOrders = cache(
+  async () => {
+    try {
+      const orders = await prisma.order.findMany({
+        
+        include: {
+          carts: {
+            select: {
+              quantity: true,
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  salePrice: true,
+                },
+              },
+              variants: {
+                select: {
+                  salePrice: true,
+                  variant:true,
+                  option: {
+                    select: {
+                      value: true,
+                    },
+                    
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return orders;
+    } catch (error) {
+      console.log(error);
+
+      return null;
+    }
+  },
+  ["/admin/orders", "getAllOrders"],
+
+  {
+    revalidate: 2,
+  }
+);
 export async function deleteOrder(formData: FormData): Promise<any> {
   try {
     const data = {
@@ -25,15 +72,79 @@ export async function deleteOrder(formData: FormData): Promise<any> {
 }
 
 export const getAOrder = cache(
-  async (userId: string | undefined) => {
+  async (id: string | undefined) => {
+    
+    
     try {
-      if( userId === undefined ) return null;
+      if (id === undefined) return null;
+    
+      
+      const order = await prisma.order.findUnique({
+        where: {
+          id: id as string,
+        },
+        include: {
+          user:{
+            select:{
+
+            }
+          },
+          carts: {
+            select: {
+              quantity: true,
+              amount:true,
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  salePrice: true,
+                },
+              },
+              variants: {
+                select: {
+                  salePrice: true,
+                  variant:true,
+                  option: {
+                    select: {
+                      value: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+     console.log('====================================');
+     console.log(JSON.stringify(order,null,2));
+     console.log('====================================');
+
+      if (order == null) return notFound();
+      return order;
+    } catch (error) {
+      console.log(error);
+
+      return null;
+    }
+  },
+  ["/admin/orders/view/[id]", "getAOrder"],
+
+  { revalidate: 2}
+);
+export const getUserOrder = cache(
+  async (userId: string | undefined) => {
+    
+    
+    try {
+      if (userId === undefined) return null;
+      console.log(userId);
+      
       const orders = await prisma.order.findMany({
         where: {
           userId: userId as string,
         },
         include: {
-    
           carts: {
             select: {
               quantity: true,
@@ -44,22 +155,32 @@ export const getAOrder = cache(
                   salePrice: true,
                 },
               },
-              variant: {
+              variants: {
                 select: {
-                  id: true,
-                  name: true,
                   salePrice: true,
+                  option: {
+                    select: {
+                      value: true,
+                    },
+                  },
                 },
               },
             },
           },
         },
       });
+
+      console.log(JSON.stringify(orders, null, 2),'order from server');
+
       if (orders == null) return notFound();
       return orders;
-    } catch (error) {}
-  },
-  ["/order", "/checkout", "getAOrder"],
+    } catch (error) {
+      console.log(error);
 
-  { revalidate: 24 * 60 * 60 }
+      return null;
+    }
+  },
+  ["/order", "getUserOrder"],
+
+  { revalidate: 2}
 );

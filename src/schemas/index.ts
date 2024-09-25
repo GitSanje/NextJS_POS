@@ -20,7 +20,7 @@ const imageSchema = z
     "File size should be less than 5MB."
   );
 
-const ProductStatusSchema = z.enum(["AVAILABLE", "NOTAVAILABLE"]);
+
 export const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   image: imageSchema,

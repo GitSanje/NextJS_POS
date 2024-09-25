@@ -1,7 +1,7 @@
 import { Product, Variant } from "@prisma/client";
 import next from "next";
 import { create } from "zustand";
-import { getAOrder } from "../server-actions/order/order";
+import { getUserOrder } from "../server-actions/order/order";
 
 
 
@@ -52,7 +52,7 @@ orders:[],
 
     try {
 
-      const userOrders = await getAOrder(userId)
+      const userOrders = await getUserOrder(userId)
       // const res = await fetch(`api/order?userId=${userId}`, {
       //   method: "GET",
      

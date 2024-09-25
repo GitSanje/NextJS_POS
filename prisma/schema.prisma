@@ -91,6 +91,8 @@ model Product {
   status          Boolean  @default(true)
   isFeatured      Boolean? @default(false)
   slug            String?
+  taxId           String? // Optional: product-specific tax
+  tax             Tax?     @relation(fields: [taxId], references: [id])
 
   inventory Inventory?
 
@@ -114,6 +116,7 @@ model Cart {
   quantity Int
   status   CartStatus @default(PENDING)
 
+  amount    Float?
   productId String
   product   Product @relation(fields: [productId], references: [id])
 
@@ -123,8 +126,7 @@ model Cart {
   orderId String?
   order   Order?  @relation(fields: [orderId], references: [id], name: "OrderCarts")
 
-  variants         ProductVariant[]
- 
+  variants ProductVariant[]
 }
 
 model ProductVariant {
@@ -213,14 +215,18 @@ enum OrderStatus {
 }
 
 model Order {
-  id            String      @id @default(cuid())
-  orderDate     DateTime    @default(now())
+  id            String       @id @default(cuid())
+  orderDate     DateTime     @default(now())
   quantity      Int
   deliveryDate  DateTime?
+  amount        Float?
   streetAddress String
   state         String
   city          String
-  status        OrderStatus @default(PENDING)
+  status        OrderStatus  @default(PENDING)
+  paymentStatus Boolean      @default(false)
+  paymentId     String?
+  paymentType   PaymentType? @relation(fields: [paymentId], references: [id])
 
   products Product[] @relation("ProductOrders")
 
@@ -237,6 +243,7 @@ model PaymentType {
   paymentType String
 
   UserPaymentMethod UserPaymentMethod[]
+  Order             Order[]
 }
 
 model UserPaymentMethod {
@@ -253,9 +260,20 @@ model UserPaymentMethod {
 
 model SalesInvoice {
   id          String   @id @default(cuid())
-  invoiceDate DateTime // e.g., 'Cash', 'Credit Card'
-
-  totalAmount Float
-  order       Order  @relation(fields: [orderId], references: [id])
+  invoiceDate DateTime @default(now())
+  taxId       String?
+  tax         Tax?     @relation(fields: [taxId], references: [id])
+  totalAmount Float?
+  order       Order    @relation(fields: [orderId], references: [id])
   orderId     String
+}
+
+model Tax {
+  id          String  @id @default(cuid())
+  name        String
+  rate        Float
+  description String?
+
+  SalesInvoice SalesInvoice[]
+  Product      Product[]
 }
