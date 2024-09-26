@@ -9,7 +9,8 @@ import {
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
-
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import khalti_icon from "../Assets/Khalti_Logo_Color.png";
 import cash_icon from "../Assets/cash.png";
 import { ToastContainer, toast } from "react-toastify";
@@ -40,6 +41,8 @@ import { useCartStore } from "@/src/hooks/useCartStore";
 import { useRouter } from "next/navigation";
 
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
+import useGloabalContext from "@/src/context/GlobalProvider";
+import SalesInvoice from "../Invoice/SaleInvoice";
 
 interface Props {
   session: Session | null;
@@ -52,6 +55,11 @@ const CheckoutForm: React.FC<Props> = (props) => {
   const [stripeError, setStripeError] = useState<string>("");
   const stripe = useStripe();
   const elements = useElements();
+  const { refPdf} = useGloabalContext()
+
+  console.log('====================================');
+  console.log(refPdf,'ref from checkout');
+  console.log('====================================');
 
   type checkoutType = z.infer<typeof checkoutSchema>;
   const [isPending, startTransition] = useTransition();
@@ -89,6 +97,9 @@ const CheckoutForm: React.FC<Props> = (props) => {
             return toast.error(data.error.message);
           }
           toast.success(data.message, { autoClose: 2000 });
+          
+          <SalesInvoice order ={ data.order}/>
+          
           router.push("/order");
         })
         .catch((error) => {
@@ -125,8 +136,38 @@ const CheckoutForm: React.FC<Props> = (props) => {
     }
   };
 
+  const handleGeneratePdf = async () => {
+    const inputData = pdfRef.current;
+    if (inputData) {
+      try {
+        const canvas = await html2canvas(inputData);
+        const imgData = canvas.toDataURL('image/png');
+
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'px',
+          format: 'a4',
+        });
+
+        const width = pdf.internal.pageSize.getWidth();
+        const height = (canvas.height * width) / canvas.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+        pdf.save('invoice.pdf');
+      } catch (error) {
+        console.error('Error generating PDF:', error);
+      }
+    } else {
+      console.error('No content found in pdfRef');
+    }
+  };
+
+
   return (
     <div className="container mx-auto flex flex-col items-center justify-center">
+       <div>
+      <button onClick={handleGeneratePdf}>Download Invoice as PDF</button>
+    </div>
       {pendingTotal && pendingTotal > 0 ? (
         <>
           <h2 className=" text-xl font-bold text-center mb-4">

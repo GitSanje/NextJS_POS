@@ -21,7 +21,29 @@ export const formatOrderDate = (dateString: string | undefined) => {
   };
   
 
-  
+  // Convert Uint8Array to String
+export const uint8ArrayToString = (uint8Array: ArrayBuffer) => {
+  const decoder = new TextDecoder('utf-8'); 
+  return decoder.decode(uint8Array);
+};
+
+// Convert String to Uint8Array
+export const stringToUint8Array = (stringBuffer: string) => {
+  const encoder = new TextEncoder(); // Default encoding is 'utf-8'
+  return encoder.encode(stringBuffer);
+};
+
+
+export const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+};
+
 export  function generateInvoiceId() {
   const now = new Date();
   const year = now.getFullYear();

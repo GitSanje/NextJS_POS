@@ -9,6 +9,9 @@ import { authOptions } from "./api/auth/[...nextauth]/options";
 import { User } from "./user";
 import { LoginButton, LogoutButton } from './auth'
 import ProductList from "../components/Product/ProductList";
+import { compileWelcomeTemplate, sendMail } from "../lib/mail";
+import { Button } from "@/components/ui/button";
+
 
 
 // import { useEffect } from "react";
@@ -28,12 +31,24 @@ export default async function Home() {
   //     });
   //   }
   // }, [isLoggedIn]);
-  const session = await getServerSession(authOptions)
+ 
+  const send = async () => {
+    "use server";
+    await sendMail({
+      to: "santzukarki37@gmail.com",
+      name: "Sanjay",
+      subject: "Test Mail",
+      body:'ll',
+    });
+
+  };
   return (
     <>
     
-      <ProductList/>
       
+    <form>
+        <Button formAction={send}>test</Button>
+      </form>
     
      </>
   

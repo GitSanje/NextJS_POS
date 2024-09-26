@@ -52,7 +52,7 @@ export async function checkout(
   // Find pending carts for the user
   const pendingCarts = await prisma.cart.findMany({
     where: { status: "PENDING", userId: user.id },
-    include: { product: true},
+    include: { product: true, variants:true},
   });
 
   if (pendingCarts.length === 0) {
@@ -71,12 +71,12 @@ export async function checkout(
   }
   const taxtIds = pendingCarts.map((cart) => cart.product.taxId)
 
-  
+  const quantity = pendingCarts.reduce((sum, cart) => sum + cart.quantity, 0)
   // Create order
   const order = await prisma.order.create({
     data: {
       orderDate: new Date(),
-      quantity: pendingCarts.reduce((sum, cart) => sum + cart.quantity, 0),
+      quantity: quantity,
       deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days ahead
       state,
       streetAddress: streetaddress,
@@ -99,7 +99,7 @@ export async function checkout(
     data: { status: "CHECKOUT" },
   });
 
- await prisma.salesInvoice.create({
+  const salesInvoice = await prisma.salesInvoice.create({
     data: {
       InvoiceId: generateInvoiceId(),
       orderId: order.id,
@@ -114,12 +114,32 @@ export async function checkout(
   revalidatePath("/order");
   revalidatePath("/view-cart");
   revalidatePath("/");
-
+  
   return response({
     success: true,
     code: 201,
     message: "Order placed successfully",
-  });
+    data: {
+
+      
+      order: {
+        order: order.id,
+        state: state,
+        orderDate:order.orderDate,
+      streetAddress: streetaddress,
+      city: city,
+      email: email,
+      name: name,
+      quantity: quantity,
+      InvoiceId: salesInvoice.id,
+      carts: pendingCarts,
+
+      },
+
+
+    }
+  }, 
+);
 }
 
 

@@ -7,7 +7,10 @@ const nextConfig = {
     },
     experimental:{
         // appDir: true,
-        serverComponentsExternalPackages: ['@prisma/client', 'bcrypt','fs/promises']
+        serverComponentsExternalPackages: ['@prisma/client', 'bcrypt','fs/promises'],
+        serverActions:{
+            bodySizeLimit: '6mb'
+        }
     },
     images:{
         domains: ['images.pexels.com'],
