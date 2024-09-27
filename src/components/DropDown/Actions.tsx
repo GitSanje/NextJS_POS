@@ -19,11 +19,20 @@ import { MoreVertical } from "lucide-react";
 interface deleteProps {
   id: string;
   disabled?: boolean;
+  deleteFun: (id: string) => Promise<any>;
 }
 
 export const DeleteDropdownItem: React.FC<deleteProps> = (props) => {
-  const removeItem = async (id: string) => {
-    await deleteSupplier(id)
+  const { id, disabled, deleteFun } = props;
+
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const removeItem = async (
+    id: string,
+    deleteFun: (id: string) => Promise<any>
+  ) => {
+    await deleteFun(id)
       .then((data) => {
         if (!data) return null;
         if (!data.success) {
@@ -51,7 +60,7 @@ export const DeleteDropdownItem: React.FC<deleteProps> = (props) => {
       buttons: [
         {
           label: "Yes",
-          onClick: () => removeItem(id),
+          onClick: () => removeItem(id, deleteFun),
         },
         {
           label: "No",
@@ -60,11 +69,6 @@ export const DeleteDropdownItem: React.FC<deleteProps> = (props) => {
       ],
     });
   };
-
-  const { id, disabled } = props;
-
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   return (
     <DropdownMenuItem
@@ -115,11 +119,11 @@ export const DropDownTable = ({ supplier }: { supplier: Supplier }) => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent>
-        <DropdownMenuItem asChild>
-          <DeleteDropdownItem id={supplier.id} />
-        </DropdownMenuItem>
-{/* 
-        <span onClick={() =>   closeDropdownWithDelay(2000)}> */}
+        
+          <DeleteDropdownItem id={supplier.id}
+          deleteFun={deleteSupplier} />
+        
+
           <EditDropdownItem supplier={supplier} />
         {/* </span> */}
       </DropdownMenuContent>

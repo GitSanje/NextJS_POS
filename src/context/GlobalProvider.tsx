@@ -22,7 +22,10 @@ interface GlobalContextType {
     pdfRef: RefObject<HTMLDivElement>;
     refPdf: HTMLDivElement | null;
     setRefPdf: (refPdf: HTMLDivElement | null) => void;
-    handleGeneratePdf: ( inputData: HTMLDivElement, invoiceId:string) => void;
+    handleGeneratePdf: ( inputData: HTMLDivElement, invoiceId:string, download: boolean ) =>  Promise<void>;
+
+    order: {},
+    setOrder: ( order: {} ) => void
 }
 
 const globalContext = createContext<GlobalContextType | null>(null);
@@ -37,7 +40,7 @@ export const GlobalProvider: React.FC<Props> = (props) => {
   const [refPdf, setRefPdf] = useState<HTMLDivElement | null>(null);
   
   const cartRef = useRef<HTMLDivElement>(null);
- 
+  const [ order, setOrder ] = useState(null)
   
   const cartToogle = () => setCartOpen(!isCartOpen)
 
@@ -58,9 +61,12 @@ export const GlobalProvider: React.FC<Props> = (props) => {
   }, [cartRef]);
   const pdfRef = useRef(null);
 
- const handleGeneratePdf = async (inputData: HTMLDivElement, invoiceId:string,toEmail: string = "karkisanjay2002@gmail.com", download=false ) => {
+ const handleGeneratePdf = async (inputData: HTMLDivElement | null, invoiceId:string,toEmail: string = "karkisanjay2002@gmail.com", download:boolean) => {
   // const inputData = pdfRef.current;
   try {
+    if(!inputData){
+      return 
+    }
     const canvas = await html2canvas(inputData);
     const imgData = canvas.toDataURL("image/png");
 
@@ -76,7 +82,6 @@ export const GlobalProvider: React.FC<Props> = (props) => {
     pdf.addImage(imgData, "PNG", 0, 0, width, height);
     const buffer = pdf.output('arraybuffer')
   
-   
     // const bufferStr = uint8ArrayToString(buffer)
     const bufferStr = arrayBufferToBase64(buffer);
     // console.log(bufferStr,buffer);
@@ -109,7 +114,7 @@ export const GlobalProvider: React.FC<Props> = (props) => {
 };
   return (
     <>
-      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,pdfRef,setRefPdf,refPdf ,handleGeneratePdf}}>
+      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,pdfRef,setRefPdf,refPdf ,handleGeneratePdf, order, setOrder}}>
         {children}
       </globalContext.Provider>
     </>

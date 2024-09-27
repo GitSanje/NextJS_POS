@@ -83,6 +83,7 @@ const PHONE_SCHEMA = z
 export const supplierSchema = z.object({
   suppliername: z.string().min(1,"suppliername is required"),
   email: EMAIL_SCHEMA,
-  phone: PHONE_SCHEMA.optional()
+  phone: PHONE_SCHEMA.optional(),
+  addres: z.string().optional(),
 
 })

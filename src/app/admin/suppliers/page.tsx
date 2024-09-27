@@ -6,7 +6,7 @@ const page = async () => {
   
   return (
     <>
-      <div className="container mx-auto flex justify-between items-center gap-4">
+      <div className="container mx-auto flex justify-between items-center gap-4 py-8">
         <PageHeader>All Suppliers</PageHeader>
         <SupplierModel/>
       </div>

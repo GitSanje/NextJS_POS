@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { forwardRef, useState, useTransition } from "react";
 
 import {
   Elements,
@@ -48,17 +48,18 @@ interface Props {
   session: Session | null;
 }
 
-const CheckoutForm: React.FC<Props> = (props) => {
+const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, refPdf) => {
   const { pendingTotal, isLoading, subTotal } = useCartStore();
+
   const router = useRouter();
   const { session } = props;
   const [stripeError, setStripeError] = useState<string>("");
   const stripe = useStripe();
   const elements = useElements();
-  const { refPdf} = useGloabalContext()
+  const { setOrder,order,pdfRef,handleGeneratePdf} = useGloabalContext()
 
   console.log('====================================');
-  console.log(refPdf,'ref from checkout');
+  console.log(refPdf,'ref from checkout',order);
   console.log('====================================');
 
   type checkoutType = z.infer<typeof checkoutSchema>;
@@ -75,17 +76,22 @@ const CheckoutForm: React.FC<Props> = (props) => {
       state: "",
       city: "",
       paymentMethod: undefined,
-      subtotal: subTotal,
+      subtotal: subTotal
     },
   });
+   
+
+  
   const selectedPaymentMethod = form.watch("paymentMethod");
+
 
   const onSubmit = async (values: checkoutType) => {
     const formData = new FormData();
-
+   
     // Convert and append all entries to FormData
     for (const [key, value] of Object.entries(values)) {
-      formData.append(key, value);
+    
+      formData.append(key, value as string);
     }
     console.log(formData, "from client");
 
@@ -93,14 +99,28 @@ const CheckoutForm: React.FC<Props> = (props) => {
       await checkout(formData)
         .then((data) => {
           if (!data) return;
+
           if (!data.success) {
+            console.log('====================================');
+            console.log(data);
+            console.log('====================================');
             return toast.error(data.error.message);
           }
           toast.success(data.message, { autoClose: 2000 });
+          setOrder(data.data)
           
-          <SalesInvoice order ={ data.order}/>
+        
+           
           
-          router.push("/order");
+          // if(pdfRef.current){
+          //   handleGeneratePdf(pdfRef.current,data.data.InvoiceId)
+          // }
+          setTimeout(() => {
+           
+            router.push("/order");
+          }, 2000);
+
+          
         })
         .catch((error) => {
           console.log(error);
@@ -113,6 +133,8 @@ const CheckoutForm: React.FC<Props> = (props) => {
 
     // Handle different payment methods
     if (selectedPaymentMethod === "cash") {
+      
+      
       startTransition(handleCheckout);
     } else {
       if (!stripe || !elements || !email) return;
@@ -135,39 +157,11 @@ const CheckoutForm: React.FC<Props> = (props) => {
       }
     }
   };
-
-  const handleGeneratePdf = async () => {
-    const inputData = pdfRef.current;
-    if (inputData) {
-      try {
-        const canvas = await html2canvas(inputData);
-        const imgData = canvas.toDataURL('image/png');
-
-        const pdf = new jsPDF({
-          orientation: 'landscape',
-          unit: 'px',
-          format: 'a4',
-        });
-
-        const width = pdf.internal.pageSize.getWidth();
-        const height = (canvas.height * width) / canvas.width;
-
-        pdf.addImage(imgData, 'PNG', 0, 0, width, height);
-        pdf.save('invoice.pdf');
-      } catch (error) {
-        console.error('Error generating PDF:', error);
-      }
-    } else {
-      console.error('No content found in pdfRef');
-    }
-  };
-
+ 
 
   return (
     <div className="container mx-auto flex flex-col items-center justify-center">
-       <div>
-      <button onClick={handleGeneratePdf}>Download Invoice as PDF</button>
-    </div>
+
       {pendingTotal && pendingTotal > 0 ? (
         <>
           <h2 className=" text-xl font-bold text-center mb-4">
@@ -293,6 +287,8 @@ const CheckoutForm: React.FC<Props> = (props) => {
               </fieldset>
             </form>
           </Form>
+
+          { order &&  <SalesInvoice order ={ order} hidden={ true} />}
         </>
       ) : (
         <div className="text-xl">
@@ -301,6 +297,6 @@ const CheckoutForm: React.FC<Props> = (props) => {
       )}
     </div>
   );
-};
+});
 
 export default CheckoutForm;

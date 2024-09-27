@@ -9,7 +9,7 @@ import { authOptions } from "./api/auth/[...nextauth]/options";
 import { User } from "./user";
 import { LoginButton, LogoutButton } from './auth'
 import ProductList from "../components/Product/ProductList";
-import { compileWelcomeTemplate, sendMail } from "../lib/mail";
+// import { compileWelcomeTemplate, sendMail } from "../lib/mail";
 import { Button } from "@/components/ui/button";
 
 
@@ -32,24 +32,24 @@ export default async function Home() {
   //   }
   // }, [isLoggedIn]);
  
-  const send = async () => {
-    "use server";
-    await sendMail({
-      to: "santzukarki37@gmail.com",
-      name: "Sanjay",
-      subject: "Test Mail",
-      body:'ll',
-    });
+  // const send = async () => {
+  //   "use server";
+  //   await sendMail({
+  //     to: "santzukarki37@gmail.com",
+  //     name: "Sanjay",
+  //     subject: "Test Mail",
+  //     body:'ll',
+  //   });
 
-  };
+
   return (
     <>
     
       
-    <form>
+    {/* <form>
         <Button formAction={send}>test</Button>
       </form>
-    
+     */}
      </>
   
   );

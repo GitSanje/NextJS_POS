@@ -124,7 +124,7 @@ model Cart {
   user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   orderId String?
-  order   Order?  @relation(fields: [orderId], references: [id], name: "OrderCarts")
+  order   Order?  @relation(fields: [orderId], references: [id], name: "OrderCarts", onDelete: Cascade)
 
   variants ProductVariant[]
 }
@@ -265,7 +265,7 @@ model SalesInvoice {
   tax         Tax[]
   totalAmount Float?
   orderId     String   @unique
-  order       Order    @relation(fields: [orderId], references: [id])
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model Tax {

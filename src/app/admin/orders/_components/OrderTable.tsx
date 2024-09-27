@@ -20,8 +20,9 @@ import { getProducts } from "@/src/services/product";
 
 import { CheckCircle2, MoreVertical, XCircle } from "lucide-react";
 import Link from "next/link";
-import { getAllOrders } from "@/src/server-actions/order/order";
+import { deleteOrder, getAllOrders } from "@/src/server-actions/order/order";
 import OrderStatusCell from "./OrderStatus";
+import { DeleteDropdownItem } from "@/src/components/DropDown/Actions";
 
 const OrderTable = async () => {
   const orders = await getAllOrders();
@@ -91,11 +92,13 @@ const OrderTable = async () => {
                         Download
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link href={`/admin/orders/${order.id}/edit`}>
                         Edit
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link href={`/admin/orders/view/${order.id}`}>
                         View
@@ -103,14 +106,10 @@ const OrderTable = async () => {
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator />
-                    {/* <ActiveToggleDropdownItem
-                    id={product.id}
-                    isAvailableForPurchase={product.isAvailableForPurchase}
-                  /> */}
-                    {/* <DeleteDropdownItem
-                    id={product.id}
-                    disabled={product._count.orders > 0}
-                  /> */}
+                    
+                    <DeleteDropdownItem
+                    id={order.id} deleteFun={deleteOrder}
+                  />
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

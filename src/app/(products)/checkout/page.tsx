@@ -41,11 +41,14 @@ const page: React.FC = async () => {
     
     return total + (price * (item.quantity || 0))
   },0)
+
+  
+  
   // const carts = await getCarts(userId);
   // console.log(carts);
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: subtotal,
+    amount: subtotal? subtotal : 50 ,
     currency: "USD",
     // metadata: { productId: product.id },
   });

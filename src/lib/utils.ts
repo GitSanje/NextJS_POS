@@ -44,7 +44,7 @@ export const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
   return window.btoa(binary);
 };
 
-export  function generateInvoiceId() {
+export async function generateInvoiceId() {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
