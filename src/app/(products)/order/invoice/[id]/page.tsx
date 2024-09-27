@@ -14,7 +14,9 @@ const page = async ({
 }) => {
   const Invoicedata: InvoiceType  = await getInvoice(params.id);
   
-
+  console.log('====================================');
+  console.log(Invoicedata,'invoiceData');
+  console.log('====================================');
   return (
     <>
       <SalesInvoice invoice={Invoicedata} hidden={false} />

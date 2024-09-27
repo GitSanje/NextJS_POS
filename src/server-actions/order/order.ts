@@ -158,7 +158,7 @@ export const getUserOrder = cache(
         },
       });
 
-      console.log(JSON.stringify(orders, null, 2), "order from server");
+     
 
       if (orders == null) return notFound();
       return orders;
@@ -225,12 +225,16 @@ export const getInvoice = async (orderId: string) => {
       orderDate: invoice?.order.orderDate,
       streetAddress: invoice?.order.streetAddress,
       city: invoice?.order.city,
-      email: invoice?.order.user.email,
-      name: invoice?.order.user.name,
+      user: {
+        email:invoice?.order.user.email,
+         name: invoice?.order.user.name,
+      },
       carts: invoice?.order.carts,
       InvoiceId: invoice?.InvoiceId,
     };
-
+  console.log('====================================');
+  console.log(Invoicedata,invoice,orderId,'Invoicedata from server');
+  console.log('====================================');
 
     return  Invoicedata
   } catch (error) {

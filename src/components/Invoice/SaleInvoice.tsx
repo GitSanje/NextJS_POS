@@ -43,15 +43,15 @@ const SalesInvoice: React.FC<SalesInvoiceProps> = ({
 
   const { setRefPdf, refPdf, handleGeneratePdf, pdfRef } = useGloabalContext();
 
-  useEffect(() => {
-    if (pdfRef.current) {
-      setRefPdf(pdfRef.current);
-      console.log("====================================");
-      console.log(invoice, "from sale invoice", pdfRef.current);
-      console.log("====================================");
-      handleGeneratePdf(pdfRef.current, invoice.InvoiceId,false);
-    }
-  }, [pdfRef, setRefPdf]);
+  // useEffect(() => {
+  //   if (pdfRef.current) {
+  //     setRefPdf(pdfRef.current);
+  //     console.log("====================================");
+  //     console.log(invoice, "from sale invoice", pdfRef.current);
+  //     console.log("====================================");
+  //     handleGeneratePdf(pdfRef.current, invoice.InvoiceId,false);
+  //   }
+  // }, [pdfRef, setRefPdf]);
 
   return (
     <>
@@ -65,7 +65,7 @@ const SalesInvoice: React.FC<SalesInvoiceProps> = ({
           type="button"
           onClick={() => {
             pdfRef.current
-              ? handleGeneratePdf(pdfRef.current, invoice.id,true)
+              ? handleGeneratePdf(pdfRef.current, invoice.id, true)
               : null;
           }}
           className="inline-flex items-center justify-center px-4 py-3 text-xs font-bold text-gray-900 transition-all duration-200 bg-gray-100 binvoice binvoice-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 hover:bg-gray-200"

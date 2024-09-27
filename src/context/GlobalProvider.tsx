@@ -22,7 +22,7 @@ interface GlobalContextType {
     pdfRef: RefObject<HTMLDivElement>;
     refPdf: HTMLDivElement | null;
     setRefPdf: (refPdf: HTMLDivElement | null) => void;
-    handleGeneratePdf: ( inputData: HTMLDivElement, invoiceId:string, download: boolean ) =>  Promise<void>;
+    handleGeneratePdf: ( inputData: HTMLDivElement,toEmail: string, invoiceId:string, download: boolean ) =>  Promise<void>;
 
     order: {},
     setOrder: ( order: {} ) => void
@@ -61,7 +61,7 @@ export const GlobalProvider: React.FC<Props> = (props) => {
   }, [cartRef]);
   const pdfRef = useRef(null);
 
- const handleGeneratePdf = async (inputData: HTMLDivElement | null, invoiceId:string,toEmail: string = "karkisanjay2002@gmail.com", download:boolean) => {
+ const handleGeneratePdf = async (inputData: HTMLDivElement | null, invoiceId:string, toEmail: string = "karkisanjay2002@gmail.com", download:boolean ) => {
   // const inputData = pdfRef.current;
   try {
     if(!inputData){
@@ -88,6 +88,7 @@ export const GlobalProvider: React.FC<Props> = (props) => {
     if(download){
       pdf.save(`invoice-${invoiceId}.pdf`);
     }
+
     else{
         "use server"
         
