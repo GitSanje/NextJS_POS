@@ -104,9 +104,7 @@ export const getAOrder = cache(
         },
       });
 
-      console.log("====================================");
-      console.log(JSON.stringify(order, null, 2));
-      console.log("====================================");
+     
 
       if (order == null) return notFound();
       return order;
@@ -198,12 +196,17 @@ export const getInvoice = async (orderId: string) => {
                     salePrice: true,
                     discount: true,
                     taxId: true,
-                    tax: true,
+                    tax: {
+                      select:{
+                        rate:true
+                      }
+                    },
                     name:true
                   },
                 },
                 variants: {
                   select: {
+                    discount: true,
                     salePrice: true,
                     variant: true,
                     option: {
@@ -231,10 +234,9 @@ export const getInvoice = async (orderId: string) => {
       },
       carts: invoice?.order.carts,
       InvoiceId: invoice?.InvoiceId,
+      invoiceDate: invoice?.invoiceDate
     };
-  console.log('====================================');
-  console.log(Invoicedata,invoice,orderId,'Invoicedata from server');
-  console.log('====================================');
+ 
 
     return  Invoicedata
   } catch (error) {

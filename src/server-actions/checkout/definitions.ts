@@ -20,12 +20,7 @@ export const checkoutSchema = z.object({
     .string()
     .refine((val) => val !== "", { message: 'Please select a valid city' }),
     paymentMethod: z.enum(['cash', 'online'], { message: 'Invalid payment method.' }),
-    subtotal:z.preprocess((value) => {
-      if (typeof value === "string") {
-        return parseFloat(value);
-      }
-      return value;
-    }, z.number())
+   
 
 
 })

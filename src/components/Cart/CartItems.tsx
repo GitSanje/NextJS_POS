@@ -5,11 +5,27 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
+import useGloabalContext from "@/src/context/GlobalProvider";
 
 const CartItems = () => {
-  const { cart, counter, removeItem, subTotal,pendingTotal, isLoading } = useCartStore();
-  const { data: session } = useSession();
+  const {  counter, removeItem,  isLoading } = useCartStore();
 
+ const { cartDetails} =  useGloabalContext()
+ const { cart ,subTotal,totaltax} = cartDetails
+  
+  const { data: session } = useSession();
+  // const subTotal = cart.length > 0?  cart.reduce((sum, cart) => {
+  //   return sum + cart.amount
+  //  },0 ) : 0
+  // const totaltax = cart.length > 0?  cart.reduce((sum, item) => {
+  //   const productPrice =
+  //           item.variants.length > 0
+  //             ? item.variants.find(
+  //                 (var_p) => var_p.variant.name === "Size"
+  //               )?.salePrice || item.product.salePrice
+  //             : item.product.salePrice;
+  //   return sum + item.product.tax.rate/ 100 * productPrice
+  //  },0 ) : 0
   
   const handleRemoveItem = (id: string) => {
     // Confirm before removing item
@@ -35,7 +51,7 @@ const CartItems = () => {
       </div>
     );
   }
-  if (pendingTotal === 0) {
+  if (cart.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen text-xl">
          No Cart Found
@@ -43,58 +59,77 @@ const CartItems = () => {
     );
   }
 
+  
   return (
     <div className="cartitems">
-      <div className="cartitems-format-main">
-        <p>Name</p>
-        <p>Variant </p>
-        <p> Base Price</p>
-        <p> Price</p>
-        <p>Quantity</p>
-        <p>Total</p>
-        <p>Remove</p>
-      </div>
-      <hr />
+      <div className="w-full">
+  <div className="grid grid-cols-8 gap-4 py-4 text-center font-semibold border-b">
+    <p>Name</p>
+    <p>Variant</p>
+    <p>Base Price</p>
+    <p>Price</p>
+    <p>Discount</p>
+    <p>Quantity</p>
+    <p>Total</p>
+    <p>Remove</p>
+  </div>
 
-      {
-        cart
-          .filter((item) => item.status === "PENDING")
-          .map((item) => (
-            <div key={item.id}>
-              <div className="cartitems-format cartitems-format-main">
-                {/* <img src={e.image} alt="" className="carticon-product-icon" /> */}
-                <p>{item.product.name}</p>
-                <p>{item.variants.length > 0 ?
-                          item.variants.map(var_product => 
-                            var_product.option.value
-                          ).join(','):
-                          "No variant"}</p>
-                <p>Rs {item.product.salePrice}</p>
-                ${ item.variants.length > 0 
-                          ? item.variants.find(var_product => var_product.variant.name === "Size")?.salePrice || item.product.salePrice
-                          : item.product.salePrice
-                        }
-                <button className="cartitems-quantity">{item.quantity}</button>
-                <p>Rs {item.variants.length > 0 ? item.variants.find(var_product => var_product.variant.name === "Size")?.salePrice * item.quantity|| item.product.salePrice * item.quantity
-                          :
-                  item.product.salePrice * item.quantity}</p>
-                <p>
-                  <Image
-                    className="cartitems-remove-icon"
-                    src="/cart_cross_icon.png"
-                    width={20}
-                    height={20}
-                    onClick={() => {
-                      handleRemoveItem(item.id);
-                    }}
-                    alt=""
-                  />
-                </p>
-              </div>
-              <hr />
-            </div>
-          ))
-      }
+  {cart.map((item) => {
+    const productPrice =
+      item.variants.length > 0
+        ? item.variants.find((var_p) => var_p.variant.name === "Size")?.salePrice ||
+          item.product.salePrice
+        : item.product.salePrice;
+
+    const discount =
+      item.variants.length > 0
+        ? (item.variants.find((var_p) => var_p.variant.name === "Size")?.discount ?? 0) ||
+          (item.product.discount ?? 0)
+        : item.product.discount ?? 0;
+
+    const finalPrice =
+      discount > 0 ? productPrice - (discount / 100) * productPrice : productPrice;
+
+    const discountPrice = discount > 0 ? (discount / 100) * productPrice : 0;
+
+    return (
+      <div key={item.id}>
+        <div className="grid grid-cols-8 gap-4 py-4 items-center text-center border-b">
+          <p>{item.product.name}</p>
+          <p>
+            {item.variants.length > 0
+              ? item.variants.map((var_product) => var_product.option.value).join(", ")
+              : "No variant"}
+          </p>
+
+          <p>${item.product.salePrice}</p>
+
+          <p>${productPrice}</p>
+
+          <p>${discountPrice}</p>
+
+          <button className="border px-4 py-1">{item.quantity}</button>
+
+          <p>${finalPrice * item.quantity}</p>
+
+          <p>
+            <Image
+              className="cursor-pointer"
+              src="/cart_cross_icon.png"
+              width={20}
+              height={20}
+              onClick={() => {
+                handleRemoveItem(item.id);
+              }}
+              alt="Remove"
+            />
+          </p>
+        </div>
+      </div>
+    );
+  })}
+</div>
+
 
       <div className="cartitems-down">
         <div className="cartitems-total">
@@ -102,7 +137,11 @@ const CartItems = () => {
           <div>
             <div className="cartitems-total-item">
               <p>SubTotal</p>
-              <p>Rs {subTotal}</p>
+              <p>$ {subTotal}</p>
+            </div>
+            <div className="cartitems-total-item">
+              <p>Total tax</p>
+              <p>$ {totaltax}</p>
             </div>
             <hr />
             <div className="cartitems-total-item">
@@ -112,7 +151,7 @@ const CartItems = () => {
             <hr />
             <div className="cartitems-total-item">
               <h3>Total</h3>
-              <h3>Rs {subTotal}</h3>
+              <h3>$ {subTotal + totaltax}</h3>
             </div>
           </div>
           {session ? (

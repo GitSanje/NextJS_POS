@@ -69,7 +69,9 @@ type Product = {
   salePrice: number;
   discount?: number | null;
   taxId?: string | null;
-  tax?: number | null;
+  tax?:{
+    rate: number
+  };
   name: string
 };
 
@@ -85,11 +87,13 @@ type User = {
 // type for Variant
 type Variant = {
   salePrice: number;
+  
   variant: {
     id: string;
     name: string;
     status: boolean;
   };
+  discount: number | null;
   option: VariantOption;
 }
 
@@ -124,4 +128,5 @@ export type InvoiceType = OrderType &{
   InvoiceId: string;
   invoiceDate: string;
   totalAmount: number; 
+  
 };

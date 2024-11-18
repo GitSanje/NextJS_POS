@@ -13,6 +13,9 @@ import React, {
 import { sendInvoiceEmail } from "../lib/mail";
 import { toast } from "react-toastify";
 import { arrayBufferToBase64, uint8ArrayToString } from "../lib/utils";
+import { useCartStore } from "../hooks/useCartStore";
+import { useSession } from "next-auth/react";
+import { InvoiceType } from "../types";
 
 interface GlobalContextType {
     cartRef: RefObject<HTMLDivElement>;
@@ -22,10 +25,15 @@ interface GlobalContextType {
     pdfRef: RefObject<HTMLDivElement>;
     refPdf: HTMLDivElement | null;
     setRefPdf: (refPdf: HTMLDivElement | null) => void;
-    handleGeneratePdf: ( inputData: HTMLDivElement,toEmail: string, invoiceId:string, download: boolean ) =>  Promise<void>;
+    handleGeneratePdf: ( inputData: HTMLDivElement, invoiceId:string, download: boolean,toEmail?: string ) =>  Promise<void>;
 
-    order: {},
-    setOrder: ( order: {} ) => void
+    order: InvoiceType | null,
+    setOrder: ( order: InvoiceType ) => void
+    cartDetails: {
+      subTotal: number,
+      totaltax: number,
+      cart: any[]
+    }
 }
 
 const globalContext = createContext<GlobalContextType | null>(null);
@@ -40,7 +48,7 @@ export const GlobalProvider: React.FC<Props> = (props) => {
   const [refPdf, setRefPdf] = useState<HTMLDivElement | null>(null);
   
   const cartRef = useRef<HTMLDivElement>(null);
-  const [ order, setOrder ] = useState(null)
+  const [ order, setOrder ] = useState<InvoiceType| null>(null)
   
   const cartToogle = () => setCartOpen(!isCartOpen)
 
@@ -61,7 +69,7 @@ export const GlobalProvider: React.FC<Props> = (props) => {
   }, [cartRef]);
   const pdfRef = useRef(null);
 
- const handleGeneratePdf = async (inputData: HTMLDivElement | null, invoiceId:string, toEmail: string = "karkisanjay2002@gmail.com", download:boolean ) => {
+ const handleGeneratePdf = async (inputData: HTMLDivElement | null, invoiceId:string,  download:boolean,toEmail?: string  ) => {
   // const inputData = pdfRef.current;
   try {
     if(!inputData){
@@ -95,13 +103,13 @@ export const GlobalProvider: React.FC<Props> = (props) => {
          await sendInvoiceEmail(toEmail="santzukarki37@gmail.com",invoiceId,bufferStr ).then(data => {
           if(!data.success){
             toast.error(data.error.message,{
-              autoClose:200})
+              autoClose:2000})
               return
 
           }
           
           toast.success(data.message,{
-            autoClose:200})
+            autoClose:2000})
 
          }) 
         
@@ -113,9 +121,37 @@ export const GlobalProvider: React.FC<Props> = (props) => {
     console.log("====================================");
   }
 };
+
+const { getCart, cart } = useCartStore();
+const { data: session } = useSession();
+useEffect (() => {
+  if(session?.user){
+    getCart(session?.user.id)
+  }
+
+}, [session])
+// const { data: session } = useSession();
+const subTotal = cart.length > 0?  cart.reduce((sum, cart) => {
+  return sum + cart.amount
+ },0 ) : 0
+const totaltax = cart.length > 0?  cart.reduce((sum, item) => {
+  const productPrice =
+          item.variants.length > 0
+            ? item.variants.find(
+                (var_p) => var_p.variant.name === "Size"
+              )?.salePrice || item.product.salePrice
+            : item.product.salePrice;
+  return sum + item.product.tax.rate/ 100 * productPrice
+ },0 ) : 0
+
+
+ const cartDetails = { subTotal, totaltax, cart}
   return (
     <>
-      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,pdfRef,setRefPdf,refPdf ,handleGeneratePdf, order, setOrder}}>
+      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,pdfRef,setRefPdf,refPdf ,handleGeneratePdf, 
+      order, setOrder,
+        cartDetails
+      }}>
         {children}
       </globalContext.Provider>
     </>

@@ -13,6 +13,7 @@ import CheckoutForm from "./Checkout";
 type CheckoutFormProps = {
   clientSecret: string;
   session: any;
+  
 };
 
 const stripePromise = loadStripe(
@@ -20,6 +21,7 @@ const stripePromise = loadStripe(
 );
 const PaymentForm: React.FC<CheckoutFormProps> = (props) => {
   const { session, clientSecret } = props;
+  
   return (
     <>
       <Elements options={{ clientSecret }} stripe={stripePromise}>

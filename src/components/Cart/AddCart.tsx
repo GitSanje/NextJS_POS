@@ -17,11 +17,13 @@ const AddCart = ({
     stockNumber: number;
     amount:number
   }) => {
-
+ 
    
     const [quantity, setQuantity] = useState(1);
     const { addItem, isLoading } = useCartStore();
-   
+    console.log('====================================');
+    console.log(amount,quantity,quantity* amount);
+    console.log('====================================');
 
     const { data:session} = useSession()
   const userId = session?.user.id as string

@@ -19,7 +19,7 @@ const page = async ({
   console.log('====================================');
   return (
     <>
-      <SalesInvoice invoice={Invoicedata} hidden={false} />
+      <SalesInvoice invoiceProp={Invoicedata} hidden={false} />
     </>
   );
 };

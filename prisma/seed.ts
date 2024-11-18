@@ -199,7 +199,7 @@ await prisma.productVariant.createMany({
       var_img: "https://example.com/smartphone_red.jpg",
       stock: 20,
       salePrice: 700,
-      discount: "5%",
+      discount:5,
     },
     {
       var_id: colorVariant.id,
@@ -208,7 +208,7 @@ await prisma.productVariant.createMany({
       var_img: "https://example.com/smartphone_blue.jpg",
       stock: 20,
       salePrice: 700,
-      discount: "5%",
+      discount: 10
     },
 
     // Variants for T-shirt
@@ -219,7 +219,7 @@ await prisma.productVariant.createMany({
       var_img: "https://example.com/tshirt_red.jpg",
       stock: 100,
       salePrice: 15,
-      discount: "10%",
+      discount: 20,
     },
     {
       var_id: sizeVariant.id,
@@ -228,7 +228,7 @@ await prisma.productVariant.createMany({
       var_img: "https://example.com/tshirt_medium.jpg",
       stock: 100,
       salePrice: 15,
-      discount: "10%",
+      discount: 12,
     },
 
     // Variants for Office Chair
@@ -239,7 +239,7 @@ await prisma.productVariant.createMany({
       var_img: "https://example.com/chair_small.jpg",
       stock: 20,
       salePrice: 150,
-      discount: "15%",
+      discount: 16,
     },
     {
       var_id: sizeVariant.id,
@@ -248,7 +248,7 @@ await prisma.productVariant.createMany({
       var_img: "https://example.com/chair_large.jpg",
       stock: 20,
       salePrice: 150,
-      discount: "15%",
+      discount: 20,
     },
   ],
 });
@@ -294,44 +294,44 @@ await prisma.productVariant.createMany({
   // });
 
 // Create Carts
-const cart = await prisma.cart.createMany({
-  data: [
-    {
-      userId: (await prisma.user.findUnique({ where: { email: "test@test.com" } }))?.id!,
-      quantity: 2,
-      productId: productsList[0].id, // Smartphone
-      variantOptionId: (await prisma.productVariant.findFirst({
-        where: {
-          productId: productsList[0].id,
-          var_opt: (await prisma.variantOption.findFirst({ where: { value: 'B' } }))?.id, 
-        },
-      }))?.id!, // Get variant ID for Smartphone
-    },
-    {
-      userId: (await prisma.user.findUnique({ where: { email: "test@test.com" } }))?.id!,
-      quantity: 1,
-      productId: productsList[1].id, // T-shirt
-      variantOptionId: (await prisma.productVariant.findFirst({
-        where: {
-          productId: productsList[1].id,
-          var_opt: (await prisma.variantOption.findFirst({ where: { value: 'lg' } }))?.id, // Example for size
-        },
-      }))?.id!, // Get variant ID for T-shirt
-    },
-    {
-      userId: (await prisma.user.findUnique({ where: { email: "sanjay@gmail.com" } }))?.id!,
-      quantity: 1,
-      productId: productsList[2].id, // Office Chair
-      variantOptionId: (await prisma.productVariant.findFirst({
-        where: {
-          productId: productsList[2].id,
-          var_opt: (await prisma.variantOption.findFirst({ where: { value: 'B' } }))?.id, // Example for color
-        },
-      }))?.id!, // Get variant ID for Office Chair
-    },
+// const cart = await prisma.cart.createMany({
+//   data: [
+//     {
+//       userId: (await prisma.user.findUnique({ where: { email: "test@test.com" } }))?.id!,
+//       quantity: 2,
+//       productId: productsList[0].id, // Smartphone
+//       variantOptionId: (await prisma.productVariant.findFirst({
+//         where: {
+//           productId: productsList[0].id,
+//           var_opt: (await prisma.variantOption.findFirst({ where: { value: 'B' } }))?.id, 
+//         },
+//       }))?.id!, // Get variant ID for Smartphone
+//     },
+//     {
+//       userId: (await prisma.user.findUnique({ where: { email: "test@test.com" } }))?.id!,
+//       quantity: 1,
+//       productId: productsList[1].id, // T-shirt
+//       variantOptionId: (await prisma.productVariant.findFirst({
+//         where: {
+//           productId: productsList[1].id,
+//           var_opt: (await prisma.variantOption.findFirst({ where: { value: 'lg' } }))?.id, // Example for size
+//         },
+//       }))?.id!, // Get variant ID for T-shirt
+//     },
+//     {
+//       userId: (await prisma.user.findUnique({ where: { email: "sanjay@gmail.com" } }))?.id!,
+//       quantity: 1,
+//       productId: productsList[2].id, // Office Chair
+//       variantOptionId: (await prisma.productVariant.findFirst({
+//         where: {
+//           productId: productsList[2].id,
+//           var_opt: (await prisma.variantOption.findFirst({ where: { value: 'B' } }))?.id, // Example for color
+//         },
+//       }))?.id!, // Get variant ID for Office Chair
+//     },
     
-  ],
-});
+//   ],
+// });
 
 
 

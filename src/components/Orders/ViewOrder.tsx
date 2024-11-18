@@ -37,6 +37,14 @@ const ViewOrder = ({ order }: { order: OrderType }) => {
 
                       <div>
                         <p className="text-sm font-medium text-gray-500">
+                          Quantity
+                        </p>
+                        <p className="text-sm font-bold text-gray-900 mt-0.5">
+                          {order?.quantity}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">
                           Total Amount
                         </p>
                         <p className="text-sm font-bold text-gray-900 mt-0.5">

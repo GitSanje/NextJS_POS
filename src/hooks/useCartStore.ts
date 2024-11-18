@@ -9,7 +9,7 @@ type CartState = {
     isLoading: boolean;
     counter: number;
     subTotal: number;
-    pendingTotal: number;
+    
     getCart: (userId: string) => void;
     addItem: (userId: string, productId: string, amount?:number,productVariantIds?: string[], quantity?: number,) => void;
     removeItem: (cartId: string) => void;
@@ -21,7 +21,7 @@ export const useCartStore = create<CartState>((set) => ({
     isLoading: true,
     counter: 0,
     subTotal: 0,
-    pendingTotal: 0,
+ 
 
 
     getCart: async (userId: string) => {
@@ -37,8 +37,8 @@ export const useCartStore = create<CartState>((set) => ({
             cart: data?.cartItems || [],
             isLoading: false,
             counter: data?.cartItems.length || 0,
-            subTotal: data?.subtotal || 0,
-            pendingTotal: data?.pendingTotal || 0
+            
+           
         });
         
     } catch (error) {

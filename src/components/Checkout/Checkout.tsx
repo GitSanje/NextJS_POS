@@ -29,7 +29,7 @@ import {
   stateOptions,
 } from "@/src/data/checkoutFormData";
 import FormInput from "../form/FormInput";
-import { useForm } from "react-hook-form";
+import { useForm , SubmitHandler, SubmitErrorHandler} from "react-hook-form";
 import { checkoutSchema } from "@/src/server-actions/checkout/definitions";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,21 +46,23 @@ import SalesInvoice from "../Invoice/SaleInvoice";
 
 interface Props {
   session: Session | null;
+
 }
 
 const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, refPdf) => {
-  const { pendingTotal, isLoading, subTotal } = useCartStore();
-
+ 
+ 
   const router = useRouter();
   const { session } = props;
   const [stripeError, setStripeError] = useState<string>("");
   const stripe = useStripe();
   const elements = useElements();
-  const { setOrder,order,pdfRef,handleGeneratePdf} = useGloabalContext()
+  const { setOrder,order,pdfRef,handleGeneratePdf,cartDetails} = useGloabalContext()
+  const {subTotal, totaltax } = cartDetails
 
   console.log('====================================');
-  console.log(refPdf,'ref from checkout',order);
-  console.log('====================================');
+          console.log(order,'invoicedatafrom checkout');
+          console.log('====================================');
 
   type checkoutType = z.infer<typeof checkoutSchema>;
   const [isPending, startTransition] = useTransition();
@@ -75,8 +77,7 @@ const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, 
       streetaddress: "",
       state: "",
       city: "",
-      paymentMethod: undefined,
-      subtotal: subTotal
+      paymentMethod: undefined
     },
   });
    
@@ -86,6 +87,7 @@ const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, 
 
 
   const onSubmit = async (values: checkoutType) => {
+  
     const formData = new FormData();
    
     // Convert and append all entries to FormData
@@ -93,7 +95,7 @@ const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, 
     
       formData.append(key, value as string);
     }
-    console.log(formData, "from client");
+
 
     const handleCheckout = async () => {
       await checkout(formData)
@@ -101,22 +103,21 @@ const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, 
           if (!data) return;
 
           if (!data.success) {
-            console.log('====================================');
-            console.log(data);
-            console.log('====================================');
+           
             return toast.error(data.error.message);
           }
-          toast.success(data.message, { autoClose: 2000 });
+    
           setOrder(data.data)
           
-        
+         
            
           
           // if(pdfRef.current){
           //   handleGeneratePdf(pdfRef.current,data.data.InvoiceId)
           // }
           setTimeout(() => {
-           
+            toast.success(data.message+"\n There will be invoice sent to your email ", 
+              { autoClose: 3000 });
             router.push("/order");
           }, 2000);
 
@@ -157,12 +158,12 @@ const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, 
       }
     }
   };
- 
 
+ 
   return (
     <div className="container mx-auto flex flex-col items-center justify-center">
 
-      {pendingTotal && pendingTotal > 0 ? (
+      
         <>
           <h2 className=" text-xl font-bold text-center mb-4">
             Delivery Address
@@ -280,7 +281,7 @@ const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, 
                   >
                     <Spinner className="absolute h-4 group-enabled:opacity-0" />
                     <span className="group-disabled:opacity-0">
-                      Checkout - &#8377;{subTotal}
+                      Checkout - ${subTotal + totaltax}
                     </span>
                   </Button>
                 </div>
@@ -288,13 +289,11 @@ const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, 
             </form>
           </Form>
 
-          { order &&  <SalesInvoice order ={ order} hidden={ true} />}
+          { order &&  <SalesInvoice hidden={true} />}
         </>
-      ) : (
-        <div className="text-xl">
-          No carts are found, please place itmes in cart and proced to checkout
-        </div>
-      )}
+  
+      
+      
     </div>
   );
 });

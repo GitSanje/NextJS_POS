@@ -16,9 +16,23 @@ export async function GET(request:  NextRequest) {
   
 
     const cartItems = await prisma.cart.findMany({
-      where: { userId: userId as string },
+      where: { userId: userId as string,
+        status: "PENDING"
+       },
       include: {
-        product: true,  // Include product details
+        product: {
+
+          select: {
+            discount:true,
+            salePrice:true,
+            name:true,
+            tax:{
+              select:{
+                rate:true
+              }
+            }
+          }
+        },  
         variants: {
           include:{
             option:true,
@@ -27,44 +41,17 @@ export async function GET(request:  NextRequest) {
         }
       }
     });
-
-    
-
-    
-    // Calculate the subtotal
-    const subtotal =  cartItems.reduce( (total, item) => {
-      let var_opt;
-      if(item.variants.length > 0 && item.status ==="PENDING"){
-         item.variants.map((var_product) => {
-          if(var_product.variant.name === "Size"){
-            var_opt = var_product.salePrice
-          }
-          var_opt = var_product.salePrice
-        })
-      }
-      
-      const price = var_opt !== undefined ? var_opt :
-      item.variants.length==0 &&item.status==="PENDING" ?item.product?.salePrice ?? 0: 0 ;
-
-      // const price =  item.variants.length > 0 &&item.status==="PENDING" ?
-      //  item.variants[0]?.salePrice ?? 0:
-      //   item.variants.length==0 &&item.status==="PENDING" ?item.product?.salePrice ?? 0: 0 ;
-      
-      return total + (price * (item.quantity || 0))
-    },0)
-
-    const pendingTotal = cartItems.reduce((total, item) =>{
-      const status = item.status=="PENDING" ? 1: 0
-      return total + status
-
-    },0 )
-     
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ message: "Cart not found" }, { status: 404 });
     }
+    
+
+    
+    
+
 
    // Return the cart items
-   return NextResponse.json({ cartItems:  cartItems, subtotal :subtotal, pendingTotal: pendingTotal}, { status: 200 });
+   return NextResponse.json({ cartItems:  cartItems}, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Failed to fetch cart", error }, { status: 500 });
   }

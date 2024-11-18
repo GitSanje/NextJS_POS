@@ -18,6 +18,7 @@ const SingleDisplay: React.FC<Props> = (props) => {
     0,
   ]);
   const discount =
+
     varPriceDiscout[0] !== ""
       ? parseFloat(varPriceDiscout[0])
       : product?.discount
@@ -31,7 +32,7 @@ const SingleDisplay: React.FC<Props> = (props) => {
     <>
       {/* IMG */}
       <div className="w-full lg:w-1/2 lg:sticky top-20 h-max">
-        <ProductImages items={product.image} />
+        <ProductImages items={product?.image} />
       </div>
       {/* TEXTS */}
       <div className="w-full lg:w-1/2 flex flex-col gap-6">

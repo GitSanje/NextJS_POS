@@ -29,12 +29,14 @@ export default function RootLayout({ children }:{
     <html lang="en">
 
       <body className={`${inter.className} bg-white`}>
+      <Providers>
         <GlobalProvider>
-        <Providers>
+     
           <Navbar/>
         {children}
-        </Providers>
+       
         </GlobalProvider>
+        </Providers>
         <ToastContainer/>
       </body>
     </html>

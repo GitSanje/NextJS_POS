@@ -4,11 +4,15 @@ import { prisma } from "../../vendor/prisma";
 import { revalidatePath } from "next/cache";
 import { response } from "@/lib/utils";
 import { generateInvoiceId } from "@/src/lib/utils";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/src/app/api/auth/[...nextauth]/options";
+
 
 export async function checkout(
   // prevState: CheckoutState,
   formData: FormData
 ) {
+  const session = await getServerSession(authOptions)
   // Validate form fields using Zod schema
   const validatedFields = checkoutSchema.safeParse({
     name: formData.get("name"),
@@ -41,28 +45,28 @@ export async function checkout(
       state,
       city,
       paymentMethod,
-      subtotal,
+
     } = validatedFields.data;
 
     // Find the user by email
-    const user = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true },
-    });
+    // const user = await prisma.user.findUnique({
+    //   where: { email },
+    //   select: { id: true },
+    // });
 
-    if (!user) {
-      return response({
-        success: false,
-        error: {
-          message: `User with email ${email} not found`,
-          code: 404,
-        },
-      });
-    }
+    // if (!user) {
+    //   return response({
+    //     success: false,
+    //     error: {
+    //       message: `User with email ${email} not found`,
+    //       code: 404,
+    //     },
+    //   });
+    // }
 
     // Find pending carts for the user
     const pendingCarts = await prisma.cart.findMany({
-      where: { status: "PENDING", userId: user.id },
+      where: { status: "PENDING", userId: session?.user.id },
       include: {
         product: {
           select: {
@@ -74,6 +78,7 @@ export async function checkout(
         },
         variants: {
           select: {
+            discount: true,
             salePrice: true,
             variant: true,
             option: {
@@ -87,7 +92,12 @@ export async function checkout(
     });
 
     if (pendingCarts.length === 0) {
-      return { success: false, message: "No pending carts found for the user" };
+      return response({ success: false,
+        error:{
+          code:404,
+          message: "No pending carts found for the user" }
+        }
+        );
     }
 
     // Find or create payment method
@@ -103,6 +113,7 @@ export async function checkout(
     const taxtIds = pendingCarts
       .map((cart) => cart.product.taxId)
       .filter((id): id is string => id !== null);
+
     console.log("taxtIds", taxtIds);
     const quantity = pendingCarts.reduce((sum, cart) => sum + cart.quantity, 0);
     // Create order
@@ -114,7 +125,8 @@ export async function checkout(
         state,
         streetAddress: streetaddress,
         city,
-        userId: user.id,
+        userId: session?.user.id,
+        paymentStatus:true,
 
         products: {
           connect: pendingCarts.map((cart) => ({ id: cart.productId })),
@@ -124,26 +136,18 @@ export async function checkout(
         },
       },
     });
-    const total = pendingCarts.reduce((total, item) => {
-      let var_opt;
-      if (item.variants.length > 0 && item.status === "PENDING") {
-        item.variants.map((var_product) => {
-          if (var_product.variant.name === "Size") {
-            var_opt = var_product.salePrice;
-          }
-          var_opt = var_product.salePrice;
-        });
-      }
-
-      const price =
-        var_opt !== undefined
-          ? var_opt
-          : item.variants.length == 0 && item.status === "PENDING"
-          ? item.product?.salePrice ?? 0
-          : 0;
-
-      return total + price * (item.quantity || 0);
-    }, 0);
+    const subTotal =  pendingCarts.reduce((sum, cart) => {
+      return sum +( cart?.amount ?? 0)
+     },0 )
+    const totaltax = pendingCarts.reduce((sum, item) => {
+      const productPrice =
+              item.variants.length > 0
+                ? item.variants.find(
+                    (var_p) => var_p.variant.name === "Size"
+                  )?.salePrice || item.product.salePrice
+                : item.product.salePrice;
+      return sum + (item.product?.tax?.rate ?? 0)/ 100 *( productPrice ?? 0)
+     },0 ) 
 
     // Update cart status to "CHECKOUT"
     await prisma.cart.updateMany({
@@ -155,7 +159,7 @@ export async function checkout(
       data: {
         InvoiceId: await generateInvoiceId(),
         orderId: order.id,
-        totalAmount: total,
+        totalAmount: subTotal+ totaltax,
 
         tax: {
           connect: taxtIds.map((id) => ({ id })),
@@ -178,13 +182,17 @@ export async function checkout(
           id: order.id,
           state: state,
           orderDate: order.orderDate,
+          quantity: quantity,
           streetAddress: streetaddress,
           city: city,
-          email: email,
-          name: name,
-          quantity: quantity,
-          InvoiceId: salesInvoice.id,
+          user: {
+            email: email,
+            name: name
+
+          },
+          InvoiceId: salesInvoice.InvoiceId,
           carts: pendingCarts,
+          invoiceDate: salesInvoice.invoiceDate
         
       },
     });

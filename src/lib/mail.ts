@@ -69,7 +69,7 @@ export async function sendInvoiceEmail(
     return response({
       success: true,
       code: 200,
-      message: "successfully send invoice",
+      message: "Invoice has been send to your email",
     });
   } catch (error) {
     console.error({ error });
