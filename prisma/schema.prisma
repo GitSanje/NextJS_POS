@@ -85,7 +85,7 @@ model Product {
   costPrice       Float
   quantityInStock Int
   validity        String?
-  discount        String?
+  discount        Float?
   salePrice       Float?
   margin          String?
   status          Boolean  @default(true)

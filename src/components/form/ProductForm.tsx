@@ -1,72 +1,61 @@
 "use client";
-//https://www.freecodecamp.org/news/react-form-validation-zod-react-hook-form/
-import { productSchema } from "@/src/schemas";
 
-import { FormEvent, useEffect, useRef, useState, useTransition } from "react";
-import {
-  useForm,
-  useFieldArray,
-  SubmitHandler,
-  SubmitErrorHandler,
-} from "react-hook-form";
+import { useEffect, useState, useTransition } from "react";
+import { useForm, useFieldArray,SubmitErrorHandler } from "react-hook-form";
 import { z } from "zod";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 
-import FormInput from "./FormInput";
-
 import { Spinner } from "@/components/ui/Spinner";
 
-import { SelectModel } from "@/components/ui/select";
-import { addProduct } from "@/src/server-actions/product/product";
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import ImageInput from "./ImageInput";
 import { Minus, Plus } from "lucide-react";
 
-import { useSession } from "next-auth/react";
-import { useFetchValues } from "@/src/hooks/useFetchValues";
-import { onChange } from "react-toastify/dist/core/store";
-import { error } from "console";
-import { useFormState } from "react-dom";
+import { productSchema } from "@/src/schemas";
+import FormInput from "./FormInput";
+import { addProduct } from "@/src/server-actions/product/product";
+import { SelectModel } from "@/components/ui/select";
+import ImageInput from "./ImageInput";
+import { TaxModal } from "../Model/TaxModel";
+import { toast } from "sonner";
+import { SelectType } from "@/src/types/orderType";
 
-const categories = [
-  { label: "category1", value: "Category 1" },
-  { label: "category2", value: "Category 2" },
-];
-const productstatus = [
-  { label: "Available", value: "AVAILABLE" },
-  { label: "Not Available", value: "NOTAVAILABLE" },
-];
 
-type Supplier = {
-  id: string;
-  supplier: string;
-};
+interface Props {
+  userId: string | undefined;
+  categories: SelectType[];
+  suppliers: SelectType[];
+  taxs: SelectType[];
+}
+const ProductForm: React.FC<Props> = (props) => {
+  const { userId, categories, suppliers, taxs } = props;
 
-// type SupplierPros = Supplier[];
-const ProductForm: React.FC = () => {
   const router = useRouter();
-  const { data: session } = useSession();
-  const { categories, suppliers, isLoading, getValues } = useFetchValues();
+  // const { categories, suppliers, getValues } = useFetchValues();
 
-  // const [state, action] =  useFormState(addProduct, undefined)
-
-  const userId = session?.user?.id;
+  // useEffect(() => {
+  //   if (userId) {
+  //     getValues();
+  //   }
+  // }, [userId]);
+  const [tax, setTax] = useState<SelectType | null>(() => {
+    const taxs = localStorage.getItem("tax");
+    if (taxs) {
+      return JSON.parse(taxs);
+    } else {
+      return null;
+    }
+  });
 
   useEffect(() => {
-    if (userId) {
-      const fetchValues = async () => {
-        return await getValues();
-      };
-      fetchValues();
+    if (tax) {
+      localStorage.setItem("tax", JSON.stringify(tax));
     }
-  }, [userId]);
+  }, [tax]);
+
 
   const [isPending, startTransition] = useTransition();
-  const [saving, setSaving] = useState<boolean>(false);
   type productType = z.infer<typeof productSchema>;
   const form = useForm<productType>({
     resolver: zodResolver(productSchema),
@@ -78,21 +67,35 @@ const ProductForm: React.FC = () => {
       costPrice: undefined,
       quantityInStock: undefined,
       validity: "",
-      discount: "",
+      discount: undefined,
       salePrice: undefined,
       margin: "",
-      status: undefined,
+      tax: "",
+      taxRate: tax?.label || "",
+      imageUrl:"",
       category: "",
       suppliers: [{ id: "", supplier: "" }],
     },
   });
+
   const { control, setValue } = form;
   const { fields, append, remove } = useFieldArray({
     name: "suppliers",
     control,
   });
-  const selectedSuppliers = form.watch("suppliers") || [];
 
+
+  useEffect(() => {
+    if(tax){
+      setValue('taxRate', tax.label)
+    }
+    
+  }, [tax])
+
+  const selectedSuppliers = form.watch("suppliers") || [];
+  const imageUrl = form.watch("imageUrl") || null
+
+  
   const getAvailableSuppliers = (index: string | number) => {
     const selectedSupplierIds = selectedSuppliers
       .filter((_, i) => i !== index)
@@ -114,29 +117,12 @@ const ProductForm: React.FC = () => {
     }
   };
 
-  // const onSubmit: SubmitHandler<productType> = (data:productType) => {
-  //      setSaving(true);
-  //     console.log("Submitted Data:", data);
-  //   };
-  //   const onInvalid: SubmitErrorHandler<FormData> = (errors) => {
-  //     console.log("Validation Errors:", errors);
-  //   };
-
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        resolve(reader.result as string);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
   const onSubmit = async (values: productType) => {
     const formData = new FormData();
     if (values.image) {
       formData.append("image", values.image);
+    }else{
+      formData.append("image", '')
     }
 
     // Append other form fields
@@ -149,7 +135,6 @@ const ProductForm: React.FC = () => {
       }
     }
 
-
     startTransition(async () => {
       await addProduct(formData)
         .then((data) => {
@@ -157,39 +142,53 @@ const ProductForm: React.FC = () => {
           if (!data.success) {
             return toast.error(data.error.message);
           }
-          toast.success("product added sucsesfully", {
-            autoClose: 2000,
-          });
+          toast.success("product added sucsesfully");
 
           return router.push("/admin/products");
         })
         .catch((error) => {
           console.log(error);
 
-          toast.error("Something went wrong.", {
-            autoClose: 2000,
-          });
+          toast.error("Something went wrong.", );
         });
     });
   };
 
-  const formRef = useRef<HTMLFormElement>(null);
-
+  // const onError: SubmitErrorHandler<productType> = (error: FieldErrors) => {
+  //   console.log('====================================');
+  //   console.log(error);
+  //   console.log('====================================');
+  // }
   return (
     <div className="container mx-auto flex items-center justify-center">
       <Form {...form}>
-        <form
-          // ref={formRef}
-          // action={action}
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
-          <fieldset disabled={saving} className="group">
-            <ImageInput
-              control={form.control}
-              name="image"
-              label="Image"
-              isPending={isPending}
-            />
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <fieldset disabled={isPending} className="group">
+            <div className="flex gap-4 items-center">
+             {!imageUrl ?
+                <>
+             
+             <ImageInput
+                control={form.control}
+                name="image"
+                label="Image"
+                isPending={isPending}
+              />
+              <p className="text-gray-600"> OR </p>
+              </>:
+              " "
+             }
+              <div className="flex-grow">
+                <FormInput
+                  control={form.control}
+                  name="imageUrl"
+                  label="Image URL"
+                  type="text"
+                  placeholder="Enter image url"
+                  isPending={isPending}
+                />
+              </div>
+            </div>
 
             <div className="flex flex-col md:flex-row space-y-6 gap-4">
               <div className="space-y-4 ">
@@ -240,7 +239,7 @@ const ProductForm: React.FC = () => {
                   control={form.control}
                   name="discount"
                   label="Discount"
-                  type="text"
+                  type="number"
                   placeholder="Enter discount"
                   isPending={isPending}
                 />
@@ -261,18 +260,40 @@ const ProductForm: React.FC = () => {
                   placeholder="Enter margin"
                   isPending={isPending}
                 />
-              </div>
-              <div className="space-y-4">
-                {/* Status Select */}
 
-                <SelectModel
-                  control={form.control}
-                  name="status"
-                  options={productstatus}
-                  isPending={isPending}
-                  label="Status"
-                  defaultValue="Select a status"
-                />
+                <div className="flex flex-col gap-2 ">
+                  {
+                    !tax? <SelectModel
+                    control={form.control}
+                    name="tax"
+                    options={taxs}
+                    isPending={isPending}
+                    label="Tax"
+                    defaultValue="Select a Tax"
+                  /> : ""
+
+                  }
+                  
+
+                  {tax ? (
+                    <FormInput
+                      control={form.control}
+                      name="taxRate"
+                      label="Tax Rate"
+                      type="text"
+                      value={tax.label}
+                      isPending={isPending}
+                    />
+                  ) : (
+                    <>
+                      <p className="text-gray-600 text-center"> or </p>
+
+                      <TaxModal setTax={setTax} />
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-4 ">
                 {/* Status Category */}
 
                 <SelectModel
@@ -329,7 +350,7 @@ const ProductForm: React.FC = () => {
                     >
                       <div className="flex cursor-pointer text-indigo-500 hover:text-indigo-700">
                         <Plus className="mr-2 h-4 w-4 " />
-                        Add new supplier
+                        Add another supplier
                       </div>
                     </Button>
                   )}
@@ -344,7 +365,7 @@ const ProductForm: React.FC = () => {
 
               <Button
                 type="submit"
-                className="inline-flex items-center justify-center rounded bg-indigo-500 px-12 py-4 text-sm font-medium text-white hover:bg-indigo-600 group-disabled:pointer-events-none"
+                className=" w-full inline-flex items-center justify-center rounded bg-indigo-500 px-12 py-4 text-sm font-medium text-white hover:bg-indigo-600 group-disabled:pointer-events-none"
               >
                 <Spinner className="absolute h-4 group-enabled:opacity-0" />
                 <span className="group-disabled:opacity-0">Save</span>

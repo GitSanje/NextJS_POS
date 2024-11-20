@@ -2,11 +2,11 @@
 import { formatOrderDate } from "@/src/lib/utils";
 import Link from "next/link";
 import React from "react";
-import { OrderType } from "@/src/types";
+import { OrderWithCartsType } from "@/src/types";
 
-const ViewOrder = ({ order }: { order: OrderType }) => {
+const ViewOrder = ({ order }: { order: OrderWithCartsType }) => {
   const totalamount = order?.carts.reduce((total, cart) => {
-    return total + cart.amount;
+    return total + (cart.amount ?? 0);
   }, 0);
 
   return (
@@ -31,7 +31,7 @@ const ViewOrder = ({ order }: { order: OrderType }) => {
                           Date
                         </p>
                         <p className="text-sm font-bold text-gray-900 mt-0.5">
-                          {formatOrderDate(order?.orderDate)}
+                          {formatOrderDate(order?.orderDate )}
                         </p>
                       </div>
 
@@ -40,7 +40,7 @@ const ViewOrder = ({ order }: { order: OrderType }) => {
                           Quantity
                         </p>
                         <p className="text-sm font-bold text-gray-900 mt-0.5">
-                          {order?.quantity}
+                          {order.quantity}
                         </p>
                       </div>
                       <div>
@@ -99,12 +99,12 @@ const ViewOrder = ({ order }: { order: OrderType }) => {
                           <div className="sm:grid sm:grid-cols-2 sm:gap-x-5">
                             <div>
                               <p className="text-base font-bold text-gray-900">
-                                {cart.product.name}
+                                {cart.product?.name}
                               </p>
                               <p className="mt-1.5 text-sm font-medium text-gray-500">
                                 {cart.variants.length > 0
                                   ? cart.variants.map((var_opt) => {
-                                      return var_opt.option.value + " ";
+                                      return var_opt.option?.value + " ";
                                     })
                                   : ""}
                               </p>
@@ -117,8 +117,8 @@ const ViewOrder = ({ order }: { order: OrderType }) => {
                                   ? cart.variants.find(
                                       (var_product) =>
                                         var_product.variant.name === "Size"
-                                    )?.salePrice || cart.product.salePrice
-                                  : cart.product.salePrice}
+                                    )?.salePrice || cart.product?.salePrice
+                                  : cart.product?.salePrice}
                               </p>
                             </div>
                           </div>

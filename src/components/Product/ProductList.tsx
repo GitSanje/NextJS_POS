@@ -53,6 +53,8 @@ const ProductList = ({
                 fill
                 sizes="25vw"
                 className="absolute object-cover rounded-md z-10 hover:opacity-0 transition-opacity easy duration-500"
+                priority= {true}
+                
               />
             </div>
             <div className="flex justify-between">

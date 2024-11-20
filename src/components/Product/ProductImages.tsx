@@ -49,6 +49,7 @@ const ProductImages = ({ items }: { items: any }) => {
               fill
               sizes="30vw"
               className="object-cover rounded-md"
+              priority={true}
             />
           </div>
         ))}

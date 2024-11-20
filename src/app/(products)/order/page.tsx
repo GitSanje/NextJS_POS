@@ -8,7 +8,10 @@ import { OrderType } from "@/src/types";
 
 const page = async () => {
   const session = await getServerSession(authOptions);
-  const orders: OrderType[] = await getUserOrder(session?.user.id);
+  const orders= await getUserOrder(session?.user.id);
+  if(!orders){
+    return null;
+  }
   return (
     <>
       <div className="py-12 bg-white sm:py-16 lg:py-20">
@@ -29,8 +32,8 @@ const page = async () => {
                 products
               </p>
             </div>
-            { orders.length > 0 ? orders?.map((order) => (
-              <ViewOrder order={order} />
+            { orders.length > 0 ? orders?.map((order,index) => (
+              <ViewOrder order={order} key={index} />
             )):
             <h2 className="min-h-screen flex items-center justify-center font-bold"> There has been no order placed</h2>
           

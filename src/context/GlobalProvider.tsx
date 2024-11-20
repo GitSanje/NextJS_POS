@@ -141,7 +141,7 @@ const totaltax = cart.length > 0?  cart.reduce((sum, item) => {
                 (var_p) => var_p.variant.name === "Size"
               )?.salePrice || item.product.salePrice
             : item.product.salePrice;
-  return sum + item.product.tax.rate/ 100 * productPrice
+  return sum + item.product.tax?.rate ? item.product.tax.rate/ 100 * productPrice : productPrice;
  },0 ) : 0
 
 

@@ -52,15 +52,15 @@ const ProductTable = async () => {
               <TableCell>{product.quantityInStock}</TableCell>
 
               <TableCell>
-                {product?.status === "AVAILABLE" ? (
+                {product?.status ? (
                   <>
                     <span className="sr-only">Available</span>
-                    <CheckCircle2 />
+                    <CheckCircle2 className="text-green-500"/>
                   </>
                 ) : (
                   <>
                     <span className="sr-only">Unavailable</span>
-                    <XCircle classsName="stroke-destructive" />
+                    <XCircle className="text-red-500" />
                   </>
                 )}
               </TableCell>

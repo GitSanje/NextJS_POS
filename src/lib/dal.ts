@@ -1,9 +1,10 @@
 import "server-only";
-import { prisma } from "../vendor/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../app/api/auth/[...nextauth]/options";
+const { prisma } = await import("../vendor/prisma");
+const { getServerSession } = await import("next-auth");
+const { authOptions } = await import("../app/api/auth/[...nextauth]/options");
+
 import { cache } from "react";
-import { redirect } from "next/navigation";
+const { redirect } = await import("next/navigation");
 
 export const verifySession = cache(async () => {
   const session = await getServerSession(authOptions);

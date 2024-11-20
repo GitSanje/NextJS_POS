@@ -1,11 +1,12 @@
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { create } from "zustand";
+import { CartType } from "../types";
 
 
 type CartState = {
     
-    cart: any[];
+    cart: CartType;
     isLoading: boolean;
     counter: number;
     subTotal: number;

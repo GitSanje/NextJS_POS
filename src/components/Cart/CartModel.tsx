@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCartStore } from "../../hooks/useCartStore";
 
-import React, { RefObject } from "react";
+import React from "react";
 import Link from "next/link";
 import useGloabalContext from "../../context/GlobalProvider";
 
@@ -18,7 +18,7 @@ const CartModel: React.FC<Props> = (props) => {
   
    
   const subTotal = cart.length > 0?  cart.reduce((sum, cart) => {
-   return sum + cart.amount
+   return sum + (cart.amount ?? 0)
   },0 ) : 0
 
   if (isLoading) {
@@ -43,18 +43,20 @@ const CartModel: React.FC<Props> = (props) => {
             {/* LIST */}
             <div className="flex flex-col gap-8">
               {cart.map((item) => {
-                    const productPrice =
-                    item.variants.length > 0
-                      ? item.variants.find(
-                          (var_p) => var_p.variant.name === "Size"
-                        )?.salePrice || item.product.salePrice
-                      : item.product.salePrice;
+                const productPrice =
+                item.variants.length > 0
+                  ? item.variants.find((var_p) => var_p.variant.name === "Size")
+                      ?.salePrice ||
+                    (item.product?.salePrice ?? 0)
+                  : item.product?.salePrice ?? 0;
+
+                    
 
                       const discount = 
                       item.variants.length > 0
                         ? (item.variants.find((var_p) => var_p.variant.name === "Size")?.discount ?? 0)  || 
-                          (item.product.discount ?? 0)
-                        : (item.product.discount ?? 0) ;
+                          (item.product?.discount ?? 0)
+                        : (item.product?.discount ?? 0) ;
                  const finalPrice = discount > 0 ? productPrice - (discount/100 * productPrice)  :productPrice
              
                 return (
@@ -73,13 +75,13 @@ const CartModel: React.FC<Props> = (props) => {
                       <div className="">
                         <div className="flex items-center justify-between gap-8">
                           <h3 className="font-semibold">
-                            {item.product.name}
+                            {item.product?.name}
                             <p className="text-gray-500">
                               {" "}
                               {item.variants.length > 0
                                 ? item.variants
                                     .map(
-                                      (var_product) => var_product.option.value
+                                      (var_product) => var_product.option?.value
                                     )
                                     .join(",")
                                 : "No variant"}

@@ -5,6 +5,7 @@ import { prisma } from "../../vendor/prisma";
 import { cache } from "@/lib/cache";
 import { notFound } from "next/navigation";
 import { response } from "@/lib/utils";
+import { InvoiceDataType, InvoiceType, OrderType, OrderWithCartsType } from "@/src/types";
 
 export const getAllOrders = cache(
   async () => {
@@ -71,7 +72,7 @@ export const getAOrder = cache(
     try {
       if (id === undefined) return null;
 
-      const order = await prisma.order.findUnique({
+      const order: OrderType = await prisma.order.findUnique({
         where: {
           id: id as string,
         },
@@ -124,7 +125,7 @@ export const getUserOrder = cache(
       if (userId === undefined) return null;
       console.log(userId);
 
-      const orders = await prisma.order.findMany({
+      const orders: OrderWithCartsType[] = await prisma.order.findMany({
         where: {
           userId: userId as string,
         },
@@ -171,47 +172,59 @@ export const getUserOrder = cache(
   { revalidate: 2 }
 );
 
-export const getInvoice = async (orderId: string) => {
+export const getInvoice = async (orderId: string): Promise<InvoiceDataType | null> => {
   try {
     const invoice = await prisma.salesInvoice.findUnique({
       where: {
         orderId: orderId,
       },
       select: {
-        InvoiceId: true,
-        invoiceDate: true,
-        totalAmount: true,
+        InvoiceId: true, // Invoice ID
+        invoiceDate: true, // Invoice Date
         order: {
-          include: {
+          select: {
+            id: true, // Order ID
+            state: true, // State
+            orderDate: true, // Order Date
+            streetAddress: true, // Street Address
+            city: true, // City
             user: {
               select: {
-                name: true,
-                email: true,
+                email: true, // User's email
+                name: true, // User's name
               },
             },
             carts: {
-              include: {
+              select: {
+                quantity: true, // Fetch quantity
+                amount: true, // Fetch amount
                 product: {
                   select: {
-                    salePrice: true,
-                    discount: true,
-                    taxId: true,
+                    salePrice: true, // Product sale price
+                    discount: true, // Product discount
+                    taxId: true, // Product tax ID
                     tax: {
-                      select:{
-                        rate:true
-                      }
+                      select: {
+                        rate: true, // Tax rate
+                      },
                     },
-                    name:true
+                    name: true, // Product name
                   },
                 },
                 variants: {
                   select: {
-                    discount: true,
-                    salePrice: true,
-                    variant: true,
+                    discount: true, // Variant discount
+                    salePrice: true, // Variant sale price
+                    variant: {
+                      select: {
+                        id: true, // Variant ID
+                        name: true, // Variant name
+                        status: true, // Variant status
+                      },
+                    },
                     option: {
                       select: {
-                        value: true,
+                        value: true, // Variant option value
                       },
                     },
                   },
@@ -222,23 +235,45 @@ export const getInvoice = async (orderId: string) => {
         },
       },
     });
-    const Invoicedata = {
-      id: invoice?.order.id,
-      state: invoice?.order.state,
-      orderDate: invoice?.order.orderDate,
-      streetAddress: invoice?.order.streetAddress,
-      city: invoice?.order.city,
+
+    if (!invoice) {
+      return null;
+    }
+    const Invoicedata: InvoiceDataType = {
+      id: invoice.order?.id,
+      state: invoice.order?.state,
+      orderDate: invoice.order?.orderDate,
+      streetAddress: invoice.order?.streetAddress,
+      city: invoice.order?.city,
       user: {
-        email:invoice?.order.user.email,
-         name: invoice?.order.user.name,
+        email: invoice.order?.user.email,
+        name: invoice.order?.user.name,
       },
-      carts: invoice?.order.carts,
-      InvoiceId: invoice?.InvoiceId,
-      invoiceDate: invoice?.invoiceDate
+      carts: invoice.order?.carts.map((cart) => ({
+        quantity: cart.quantity, // Map quantity
+        amount: cart.amount ?? 0, // Map amount (default to 0 if null)
+        product: {
+          name: cart.product.name,
+          salePrice: cart.product.salePrice ?? 0, // Handle null salePrice
+          discount: cart.product.discount ?? null, // Handle null discount
+          taxId: cart.product.taxId ?? null, // Handle null taxId
+          tax: cart.product.tax,
+        },
+        variants: cart.variants.map((variant) => ({
+          discount: variant.discount ?? null,
+          salePrice: variant.salePrice,
+          variant: variant.variant,
+          option: variant.option,
+        })),
+      })),
+      InvoiceId: invoice.InvoiceId,
+      invoiceDate: invoice.invoiceDate,
     };
+
+    return Invoicedata; 
  
 
-    return  Invoicedata
+
   } catch (error) {
     return null; 
   }

@@ -12,8 +12,16 @@ const page = async ({
     id: string;
   };
 }) => {
-  const Invoicedata: InvoiceType  = await getInvoice(params.id);
+  const Invoicedata  = await getInvoice(params.id);
   
+if (!Invoicedata) {
+  // Handle the case where the invoice is not found
+  console.error("Invoice not found");
+  return;
+}
+
+// Use invoice safely here
+
   console.log('====================================');
   console.log(Invoicedata,'invoiceData');
   console.log('====================================');

@@ -6,9 +6,17 @@ import AddCart from "../Cart/AddCart";
 import { number } from "zod";
 
 interface Props {
-  product: any[];
-  varients: any[];
-  product_varients: any[];
+  product: {
+    id: string;
+    name: string;
+    description: string;
+    image: string[];
+    discount: number | null;
+    salePrice: number | null;
+    quantityInStock: number;
+  } | null;
+  varients: any[]; // Assuming 'varients' is an array
+  product_varients: any[]; // Assuming 'product_varients' is an array
 }
 const SingleDisplay: React.FC<Props> = (props) => {
   const { product, varients, product_varients } = props;
@@ -22,7 +30,7 @@ const SingleDisplay: React.FC<Props> = (props) => {
     varPriceDiscout[0] !== ""
       ? parseFloat(varPriceDiscout[0])
       : product?.discount
-      ? parseFloat(product?.discount)
+      ? product?.discount
       : 0;
   const salePrice =
     varPriceDiscout[1] > 0 ? varPriceDiscout[1] : product?.salePrice;

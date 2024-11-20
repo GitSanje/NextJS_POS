@@ -1,3 +1,8 @@
+
+
+import { Cart, User,Product, ProductVariant, VariantOption, Variant, Tax ,Order} from "@prisma/client";
+
+
 const responseStatus = {
     200: "OK",
     201: "Created",
@@ -64,69 +69,150 @@ export type ResponseWithMessage =
 
 
 
-// type for Product
-type Product = {
-  salePrice: number;
-  discount?: number | null;
-  taxId?: string | null;
-  tax?:{
-    rate: number
-  };
-  name: string
-};
 
-// type for Variant Option
-type VariantOption= {
-  value: string;
-}
-type User = {
-  name: string;
-  email: string;
-};
 
-// type for Variant
-type Variant = {
-  salePrice: number;
-  
-  variant: {
-    id: string;
+
+
+export type CartType = (Cart & {
+  product: {
     name: string;
-    status: boolean;
+    discount: number | null;
+    salePrice: number | null;
+    tax: {
+      rate: number;
+    } | null;
+  } | null; 
+  variants: (ProductVariant & {
+    option: VariantOption | null;
+    variant: Variant;
+  })[];
+})[];
+
+
+export type OrderType = (Order & {
+  user: User;
+  carts: ( {
+    quantity: number;
+    amount: number | null;
+    product: {
+      id: string;
+      name: string;
+      salePrice: number | null;
+    } | null;
+    variants: ( {
+      salePrice: number | null;
+      variant: Variant;
+      option: {
+        value: string;
+      } | null;
+    })[];
+  })[];
+}) | null;
+
+
+export type InvoiceType = {
+  InvoiceId: string; // Unique invoice identifier
+  invoiceDate: Date; // Date of the invoice
+  order: {
+    id: string; // Order ID
+    state: string; // Order state
+    orderDate: Date; // Order date
+    streetAddress: string; // Street address for delivery
+    city: string; // City for delivery
+    user: {
+      email: string | null; // User's email
+      name: string | null; // User's name
+    } ;
+    carts: {
+      quantity: number; // Quantity of items in the cart
+      amount: number | null; // Total amount for the cart item
+      product: {
+        name: string; // Product name
+        salePrice: number | null; // Sale price of the product
+        discount: number | null; // Discount on the product (nullable)
+        taxId: string | null; // Tax ID associated with the product (nullable)
+        tax: {
+          rate: number; // Tax rate applied to the product
+        } | null; // Tax details (nullable)
+      };
+      variants: {
+        discount: number | null; // Discount on the variant (nullable)
+        salePrice: number | null; // Sale price of the variant (nullable)
+        variant: {
+          id: string; // Variant ID
+          name: string; // Variant name
+          status: boolean; // Variant status (active/inactive)
+        };
+        option: {
+          value: string; // Value of the variant option
+        } | null; // Variant option (nullable)
+      }[] ;
+    }[] ;
+  } | null;
+} | null;
+
+
+export type InvoiceDataType = {
+  id: string; // Order ID
+  state: string; // Order state
+  orderDate: Date; // Order date
+  streetAddress: string; // Street address for delivery
+  city: string; // City for delivery
+  user: {
+    email: string | null; // User's email (nullable)
+    name: string | null; // User's name (nullable)
   };
-  discount: number | null;
-  option: VariantOption;
-}
-
-// type for Cart Item
-type CartItem =  {
-  quantity: number;
-  amount: number;
-  product: Product;
-  variants: Variant[] ;
-}
-
-// type for Order
-export type OrderType ={
-  id: string;
-  orderDate: string;
-  quantity: number;
-  deliveryDate: string;
-  amount: number | null;
-  streetAddress: string;
-  state: string;
-  city: string;
-  status: string;
-  paymentStatus: boolean;
-  paymentId: string | null;
-  userId: string;
-  carts: CartItem[];
-  user: User ; 
-} | null
-
-
-export type InvoiceType = OrderType &{
-  InvoiceId: string;
-  invoiceDate: string;
-  totalAmount: number; 
-  
+  carts: {
+    quantity: number; // Quantity of items in the cart
+    amount: number; // Total amount for the cart item (default to 0 if null)
+    product: {
+      name: string; // Product name
+      salePrice: number; // Sale price of the product
+      discount: number | null; // Discount on the product (nullable)
+      taxId: string | null; // Tax ID associated with the product (nullable)
+      tax: {
+        rate: number; // Tax rate applied to the product
+      } | null; // Tax details (nullable)
+    };
+    variants: {
+      discount: number | null; // Discount on the variant (nullable)
+      salePrice: number; // Sale price of the variant
+      variant: {
+        id: string; // Variant ID
+        name: string; // Variant name
+        status: boolean; // Variant status (active/inactive)
+      };
+      option: {
+        value: string; // Value of the variant option
+      } | null; // Variant option (nullable)
+    }[];
+  }[];
+  InvoiceId: string; // Invoice ID
+  invoiceDate: Date; // Invoice date
 };
+
+
+export type OrderWithCartsType = Order & {
+  
+  carts: {
+    quantity: number; // Quantity of items in the cart
+    amount: number | null; // Amount for the cart item (nullable)
+    product: {
+      id: string; // Product ID
+      name: string; // Product name
+      salePrice: number | null; // Sale price of the product (nullable)
+    } | null; // Product details (nullable)
+    variants: {
+      salePrice: number | null; // Sale price of the variant (nullable)
+      variant: {
+        id: string; // Variant ID
+        name: string; // Variant name
+        status: boolean; // Variant status (active/inactive)
+      };
+      option: {
+        value: string; // Option value for the variant
+      } | null; // Variant option (nullable)
+    }[]; // List of variants for the product
+  }[]; // List of carts for the order
+};
+

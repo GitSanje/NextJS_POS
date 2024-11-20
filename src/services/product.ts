@@ -1,10 +1,11 @@
 "use server"
 import { cache } from "@/lib/cache";
-import { prisma } from "@/src/vendor/prisma";
+import { prisma } from "../vendor/prisma";
 
 export const getProducts = cache(
   async () => {
     try {
+ 
       const products = await prisma.product.findMany({
         select: {
           id: true,

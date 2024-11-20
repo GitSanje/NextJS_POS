@@ -8,12 +8,12 @@ export function cn(...inputs: ClassValue[]){
     return twMerge(clsx(inputs))
 }
 
-export const formatOrderDate = (dateString: string | undefined) => {
+export const formatOrderDate = (dateString: Date | undefined) => {
     if (!dateString) return ''; 
     
-    const date = new Date(dateString);
+    // const date = new Date(dateString);
     
-    return date.toLocaleDateString('en-GB', {
+    return dateString.toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',

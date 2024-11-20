@@ -49,7 +49,7 @@ interface Props {
 
 }
 
-const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, refPdf) => {
+const CheckoutForm: React.FC<Props> = (props) => {
  
  
   const router = useRouter();
@@ -57,7 +57,7 @@ const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, 
   const [stripeError, setStripeError] = useState<string>("");
   const stripe = useStripe();
   const elements = useElements();
-  const { setOrder,order,pdfRef,handleGeneratePdf,cartDetails} = useGloabalContext()
+  const { setOrder,order,handleGeneratePdf,cartDetails} = useGloabalContext()
   const {subTotal, totaltax } = cartDetails
 
   console.log('====================================');
@@ -183,8 +183,9 @@ const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, 
                 
                  
                     
-                  {formFields.map((field) => (
+                  {formFields.map((field,index) => (
                     <FormInput
+                      key={index}
                       control={form.control}
                       name={field.name as string}
                       label={field.label}
@@ -296,6 +297,6 @@ const CheckoutForm: React.FC<Props> = forwardRef<HTMLDivElement, Props>((props, 
       
     </div>
   );
-});
+};
 
 export default CheckoutForm;

@@ -1,17 +1,22 @@
-
-import { NextRequest, NextResponse } from "next/server";
+export const dynamic = 'force-dynamic'
+import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../vendor/prisma";
 import { revalidatePath } from "next/cache";
 
 
+import { cookies } from 'next/headers'
+import { log } from "handlebars/runtime";
+
 
 // Handle GET request: Fetch the cart
 export async function GET(request:  NextRequest) {
- 
+  const token = request.cookies.get('token')
+  console.log(token, "token from get cart");
+  
 
   try {
     // Parse the request URL and extract the query parameters
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
     const userId = searchParams.get("userId");
   
 
@@ -41,6 +46,8 @@ export async function GET(request:  NextRequest) {
         }
       }
     });
+    console.log(cartItems);
+    
     if (!cartItems || cartItems.length === 0) {
       return NextResponse.json({ message: "Cart not found" }, { status: 404 });
     }

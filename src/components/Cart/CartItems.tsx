@@ -6,27 +6,20 @@ import { useSession } from "next-auth/react";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import useGloabalContext from "@/src/context/GlobalProvider";
+import { CartType } from "@/src/types";
+import { Session } from "next-auth/core/types";
 
-const CartItems = () => {
+type  cartItemsProps = {
+  subtotal: number,
+  totaltax: number,
+  cart : CartType
+  session: Session | null
+
+}
+const CartItems = ({subtotal, totaltax, cart, session}: cartItemsProps)  => {
   const {  counter, removeItem,  isLoading } = useCartStore();
 
- const { cartDetails} =  useGloabalContext()
- const { cart ,subTotal,totaltax} = cartDetails
-  
-  const { data: session } = useSession();
-  // const subTotal = cart.length > 0?  cart.reduce((sum, cart) => {
-  //   return sum + cart.amount
-  //  },0 ) : 0
-  // const totaltax = cart.length > 0?  cart.reduce((sum, item) => {
-  //   const productPrice =
-  //           item.variants.length > 0
-  //             ? item.variants.find(
-  //                 (var_p) => var_p.variant.name === "Size"
-  //               )?.salePrice || item.product.salePrice
-  //             : item.product.salePrice;
-  //   return sum + item.product.tax.rate/ 100 * productPrice
-  //  },0 ) : 0
-  
+
   const handleRemoveItem = (id: string) => {
     // Confirm before removing item
     confirmAlert({
@@ -76,33 +69,33 @@ const CartItems = () => {
 
   {cart.map((item) => {
     const productPrice =
-      item.variants.length > 0
+      (item.variants.length > 0
         ? item.variants.find((var_p) => var_p.variant.name === "Size")?.salePrice ||
-          item.product.salePrice
-        : item.product.salePrice;
+          item.product?.salePrice
+        : item.product?.salePrice) ?? 0;
 
     const discount =
       item.variants.length > 0
         ? (item.variants.find((var_p) => var_p.variant.name === "Size")?.discount ?? 0) ||
-          (item.product.discount ?? 0)
-        : item.product.discount ?? 0;
+          (item.product?.discount ?? 0)
+        : item.product?.discount ?? 0;
 
     const finalPrice =
-      discount > 0 ? productPrice - (discount / 100) * productPrice : productPrice;
+      discount > 0 ? productPrice ?? - (discount / 100) * productPrice : productPrice;
 
     const discountPrice = discount > 0 ? (discount / 100) * productPrice : 0;
 
     return (
       <div key={item.id}>
         <div className="grid grid-cols-8 gap-4 py-4 items-center text-center border-b">
-          <p>{item.product.name}</p>
+          <p>{item.product?.name}</p>
           <p>
             {item.variants.length > 0
-              ? item.variants.map((var_product) => var_product.option.value).join(", ")
+              ? item.variants.map((var_product) => var_product.option?.value).join(", ")
               : "No variant"}
           </p>
 
-          <p>${item.product.salePrice}</p>
+          <p>${item.product?.salePrice}</p>
 
           <p>${productPrice}</p>
 
@@ -137,7 +130,7 @@ const CartItems = () => {
           <div>
             <div className="cartitems-total-item">
               <p>SubTotal</p>
-              <p>$ {subTotal}</p>
+              <p>$ {subtotal}</p>
             </div>
             <div className="cartitems-total-item">
               <p>Total tax</p>
@@ -151,7 +144,7 @@ const CartItems = () => {
             <hr />
             <div className="cartitems-total-item">
               <h3>Total</h3>
-              <h3>$ {subTotal + totaltax}</h3>
+              <h3>$ {subtotal + totaltax}</h3>
             </div>
           </div>
           {session ? (
