@@ -3,9 +3,10 @@ import React, { useState } from "react";
 import ProductImages from "./ProductImages";
 import CustomizeProducts from "./CustomizedProducts";
 import AddCart from "../Cart/AddCart";
-import { number } from "zod";
+
 import { ProductOneType,productVariantType } from "@/src/types";
-import { useSession } from "next-auth/react";
+
+
 interface Props {
   product: ProductOneType;
   varients: productVariantType;
@@ -28,14 +29,14 @@ const SingleDisplay: React.FC<Props> = (props) => {
       : product?.discount
       ? product?.discount
       : 0;
+      
+
   const salePrice =
     varPriceDiscout[1] > 0 ? varPriceDiscout[1] : product?.salePrice;
-  const discountPrice = salePrice?? 0 - (discount / 100) * (salePrice ?? 0);
-  console.log(
-  
-    userId,
-    "from singleDisplay"
-  );
+  const discountPrice = (salePrice?? 0) - (discount / 100) * (salePrice ?? 0);
+  console.log('====================================');
+  console.log(varPriceDiscout,salePrice,discount,discountPrice, "from single display");
+  console.log('====================================');
   return (
     <>
       {/* IMG */}
@@ -69,12 +70,14 @@ const SingleDisplay: React.FC<Props> = (props) => {
             productOptions={product_varients}
             setVarPriceDiscout={setVarPriceDiscout}
             amount ={discountPrice}
+            
           />
         ) : (
           product && 
           <AddCart
           userId= { userId}
             productId={product && product.id}
+            productVariantIds={[]}
             stockNumber={product?.quantityInStock}
             amount ={discountPrice}
          

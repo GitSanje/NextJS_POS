@@ -85,8 +85,8 @@ const ViewOrder = ({ order }: { order: OrderWithCartsType }) => {
 
                 <div className="flex-1 px-4 py-6 sm:p-6 lg:p-8">
                   <ul className="space-y-7">
-                    {order?.carts.map((cart) => (
-                      <li className="relative flex pb-10 sm:pb-0">
+                    {order?.carts.map((cart, index) => (
+                      <li className="relative flex pb-10 sm:pb-0" key={index}>
                         <div className="flex-shrink-0">
                           <img
                             className="object-cover rounded-lg w-28 h-28"

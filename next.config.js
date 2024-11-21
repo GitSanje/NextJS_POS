@@ -9,14 +9,15 @@ const nextConfig = {
     },
     serverExternalPackages: ['@prisma/client', 'bcrypt','fs/promises'],
 
-    // experimental:{
+    experimental:{
         
-    //     // appDir: true,
-    //     // incrementalCacheHandlerPath: require.resolve('./app/lib/cache-handler'),
+        // appDir: true,
+        // incrementalCacheHandlerPath: require.resolve('./app/lib/cache-handler'),
         
-    //     serverActions:{
-    //         bodySizeLimit: '6mb'
-    //     }
+        serverActions:{
+            bodySizeLimit: '6mb'
+        }
+    },
     
     images:{
         domains: ['images.pexels.com'],

@@ -12,28 +12,23 @@ import React, {
 } from "react";
 import { sendInvoiceEmail } from "../lib/mail";
 import { toast } from "react-toastify";
-import { arrayBufferToBase64, uint8ArrayToString } from "../lib/utils";
+import { arrayBufferToBase64 } from "../lib/utils";
 import { useCartStore } from "../hooks/useCartStore";
 import { useSession } from "next-auth/react";
 import { InvoiceType } from "../types";
 
 interface GlobalContextType {
-    cartRef: RefObject<HTMLDivElement>;
+    cartRef: RefObject<HTMLDivElement | null>;
     isCartOpen: boolean;
     cartToogle: (isCartOpen: boolean) => void
     setCartOpen: (isCartOpen: boolean) => void
-    pdfRef: RefObject<HTMLDivElement>;
+    // pdfRef: RefObject<HTMLDivElement>;
     refPdf: HTMLDivElement | null;
     setRefPdf: (refPdf: HTMLDivElement | null) => void;
     handleGeneratePdf: ( inputData: HTMLDivElement, invoiceId:string, download: boolean,toEmail?: string ) =>  Promise<void>;
 
     order: InvoiceType | null,
     setOrder: ( order: InvoiceType ) => void
-    cartDetails: {
-      subTotal: number,
-      totaltax: number,
-      cart: any[]
-    }
 }
 
 const globalContext = createContext<GlobalContextType | null>(null);
@@ -130,28 +125,10 @@ useEffect (() => {
   }
 
 }, [session])
-// const { data: session } = useSession();
-const subTotal = cart.length > 0?  cart.reduce((sum, cart) => {
-  return sum + cart.amount
- },0 ) : 0
-const totaltax = cart.length > 0?  cart.reduce((sum, item) => {
-  const productPrice =
-          item.variants.length > 0
-            ? item.variants.find(
-                (var_p) => var_p.variant.name === "Size"
-              )?.salePrice || item.product.salePrice
-            : item.product.salePrice;
-  return sum + item.product.tax?.rate ? item.product.tax.rate/ 100 * productPrice : productPrice;
- },0 ) : 0
 
-
- const cartDetails = { subTotal, totaltax, cart}
   return (
     <>
-      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,pdfRef,setRefPdf,refPdf ,handleGeneratePdf, 
-      order, setOrder,
-        cartDetails
-      }}>
+      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,setRefPdf,refPdf ,handleGeneratePdf, order, setOrder}}>
         {children}
       </globalContext.Provider>
     </>

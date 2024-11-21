@@ -30,11 +30,14 @@ const CustomizeProducts = ({
   amount:number
 }) => {
 
-
+   
 
   const [selectedOptions, setSelectedOptions] = useState<
     { [key: string]: string[] }[]
   >([]);
+
+  console.log(selectedOptions, amount,"from customize produ");
+  
 
   const productVarIds = selectedOptions.map((selectVar) => {
     return Object.values(selectVar).map((v) => {
@@ -199,7 +202,7 @@ const CustomizeProducts = ({
         )}
 
         <AddCart
-        userId={ userId}
+          userId={ userId}
           productId={productId}
           stockNumber={quantityInStock}
           productVariantIds={productVarIds}

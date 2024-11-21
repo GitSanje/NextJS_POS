@@ -14,7 +14,7 @@ export default async function middleware(req: NextRequest){
     const isPublicRoute = publicRoutes.includes(path);
      
        // 3. Decrypt the session from the cookie
-    const session = cookies().get('next-auth.session-token')?.value;
+    const session = (await cookies()).get('next-auth.session-token')?.value;
 
     if(isProtectedRoute && !session ){
         return NextResponse.redirect(new URL('/api/auth/signin', req.nextUrl));

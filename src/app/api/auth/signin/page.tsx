@@ -33,9 +33,9 @@ interface LoginData {
   email: string;
   password: string;
 }
-const SiginIn: React.FC<Props> =  () => {
+const SiginIn: React.FC<Props> =   () => {
 
-  const searchParams = useSearchParams()
+  const searchParams =  useSearchParams()
   const tab = searchParams.get("tab") || "login";
 
 

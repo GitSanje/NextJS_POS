@@ -5,9 +5,9 @@ import { prisma } from "@/src/vendor/prisma";
 
 import { notFound } from "next/navigation";
 import { CartType } from "@/src/types";
-import { number } from "zod";
-
 import { Response } from '@/src/types'
+import { Cart } from "@prisma/client";
+import { revalidateTag } from "next/cache";
 
 export type UserCart = {
   cartItems: CartType ,
@@ -19,7 +19,7 @@ export type responseUserCart = Response &{
 
 }
 
-export const getUserCarts = async (userId: string | null): Promise<responseUserCart>=> {
+export const getUserCarts = cache( async (userId: string | null): Promise<responseUserCart>=> {
   try {
     if (!userId) {
       return notFound();
@@ -69,7 +69,7 @@ export const getUserCarts = async (userId: string | null): Promise<responseUserC
 
     const totaltax =
       cartItems.length > 0
-        ? cartItems.reduce((sum, item) => {
+        ? parseFloat(cartItems.reduce((sum, item) => {
             const productPrice =
               item.variants.length > 0
                 ? item.variants.find((var_p) => var_p.variant.name === "Size")
@@ -82,10 +82,10 @@ export const getUserCarts = async (userId: string | null): Promise<responseUserC
                 ? (item.product.tax.rate / 100) * productPrice
                 : productPrice)
             );
-          }, 0)
+          }, 0).toFixed(2))
 
 
-        : 0;
+        : 0  ;
 
         const cartdetails:UserCart = { cartItems, subtotal,totaltax}
 
@@ -108,7 +108,11 @@ export const getUserCarts = async (userId: string | null): Promise<responseUserC
       },
     });
   }
-};
+},
+["getuserCarts"],
+
+{ revalidate: 30 *30 , tags:['userCartsData']}
+);
 
 
 
@@ -137,3 +141,64 @@ export const getCarts = cache(
   ["/checkout", "getCarts"],
   { revalidate: 2 }
 );
+
+
+export type cartResponse = Response & {
+  data?: Cart
+}
+export const postCarts = async (userId:string,quantity:number, productId:string, amount: number,productVariantIds: (string | undefined)[] ): Promise<cartResponse>  => {
+
+    // Create the cart item
+   try {
+
+    console.log('====================================');
+    console.log(userId,quantity, productId, productVariantIds,amount);
+    console.log('====================================');
+     const cartItems = await prisma.cart.create({ 
+       data: {
+         userId: userId,
+         productId: productId ,
+         variants:   productVariantIds && productVariantIds.length > 0 ? {
+           connect: productVariantIds.map(id => ({ id }))
+         }: undefined,
+         quantity,
+         amount: (amount?? 0) * quantity
+         
+       },
+     });
+
+     if(!cartItems){
+      return response({
+        success: false,
+  
+        error: {
+          code: 500,
+          message: "Unknown error occurred",
+        },
+      });
+
+     }
+
+     revalidateTag("userCartsData");
+     return {
+      success:true,
+      code: 200,
+      message: "Successfully added to cart",
+      data : cartItems
+      
+     }
+ 
+   } catch (error) {
+    return response({
+      success: false,
+
+      error: {
+        code: 500,
+        message: "Unknown error occurred",
+      },
+    });
+    
+   }
+
+
+} 

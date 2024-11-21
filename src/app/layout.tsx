@@ -42,8 +42,8 @@ export default function RootLayout({ children }:{
       <body className={`${inter.className} bg-white`}>
       <Providers>
         <GlobalProvider>
-     
-          <Navbar/>
+        <Navbar/>
+      
         {children}
         <Toaster />
         <ToastContainer/>

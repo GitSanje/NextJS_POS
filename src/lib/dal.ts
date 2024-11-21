@@ -1,24 +1,24 @@
-import "server-only";
 
+import "server-only";
+import { cache } from "@/lib/cache";
 const { prisma } = await import("../vendor/prisma");
 const { getServerSession } = await import("next-auth");
 const { authOptions } = await import("../app/api/auth/[...nextauth]/options");
 
-import { cache } from "react";
 
 const { redirect } = await import("next/navigation");
 
-export const verifySession = cache(async () => {
-  const session = await getServerSession(authOptions);
+// export const verifySession = cache(async () => {
+//   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.id) {
-    redirect("/api/auth/signin");
-  }
+//   if (!session?.user?.id) {
+//     redirect("/api/auth/signin");
+//   }
 
-  return { isAuth: true, userId: session?.user.id };
-});
+//   return { isAuth: true, userId: session?.user.id };
+// });
 
-export const productgetById = async (id: string)=> {
+export const productgetById =  cache (async (id: string)=> {
   try {
     const product  = await prisma.product.findUnique({
       where: {
@@ -41,9 +41,12 @@ export const productgetById = async (id: string)=> {
     console.log(error, "Failed to fetch product");
     return null;
   }
-};
+},
+['productgetById'],
+{ revalidate: 60*60}
+);
 
-export const getallOptions = async () => {
+export const getallOptions = cache (async () => {
   try {
     const options = await prisma.variantOption.findMany({
       include: {
@@ -59,8 +62,8 @@ export const getallOptions = async () => {
     return null;
   }
 
-}
-export const getallVarients = async () => {
+}, ["getallOptions"], { revalidate: 60*60})
+export const getallVarients = cache (async () => {
   try {
     const variants = await prisma.variant.findMany({
       select: {
@@ -76,4 +79,4 @@ export const getallVarients = async () => {
     console.log(error, "Failed to fetch options");
     return null;
   }
-}
+}, ["getallVarients"],{ revalidate: 60*60} )

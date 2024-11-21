@@ -1,33 +1,30 @@
 
-import SalesInvoice from "@/src/components/Invoice/SaleInvoice";
+// import SalesInvoice from "@/src/components/Invoice/SaleInvoice";
 import {  getInvoice } from "@/src/server-actions/order/order";
-import { InvoiceType } from "@/src/types";
 
-import React from "react";
+type tParams = Promise<{ id: string }>;
 
-const page = async ({
-  params,
-}: {
-  params: {
-    id: string;
-  };
-}) => {
-  const Invoicedata  = await getInvoice(params.id);
-  
-if (!Invoicedata) {
-  // Handle the case where the invoice is not found
-  console.error("Invoice not found");
-  return;
-}
 
-// Use invoice safely here
+const page = async (props: { params: tParams }) => {
+  const params = await props.params;
+  const id =( await params).id;
+  // const Invoicedata  = await getInvoice(id);
 
-  console.log('====================================');
-  console.log(Invoicedata,'invoiceData');
-  console.log('====================================');
+  // if (!Invoicedata) {
+  //   // Handle the case where the invoice is not found
+  //   console.error("Invoice not found");
+  //   return;
+  // }
+
+  // // Use invoice safely here
+
+  // console.log('====================================');
+  // console.log(Invoicedata,'invoiceData');
+  // console.log('====================================');
   return (
     <>
-      <SalesInvoice invoiceProp={Invoicedata} hidden={false} />
+    <h2> Sale Invoice</h2>
+      {/* <SalesInvoice invoiceProp={Invoicedata} hidden={false} /> */}
     </>
   );
 };

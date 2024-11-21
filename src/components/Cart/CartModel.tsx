@@ -13,21 +13,21 @@ interface Props {
 const CartModel: React.FC<Props> = (props) => {
   const { setIsCartOpen } = props;
   const { cartRef } = useGloabalContext();
-  const { cart, isLoading, removeItem } = useCartStore();
+  const { cart, isLoading, removeItem, subTotal } = useCartStore();
   
    
-  const subTotal = cart.length > 0?  cart.reduce((sum, cart) => {
-   return sum + (cart.amount ?? 0)
-  },0 ) : 0
+  // const subTotal = cart.length > 0?  cart.reduce((sum, cart) => {
+  //  return sum + (cart.amount ?? 0)
+  // },0 ) : 0
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-40 flex items-center justify-center ">
+      <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50">
         <div className="size-16 animate-spin rounded-full border-4 border-indigo-400 border-t-indigo-600"></div>
       </div>
     );
   }
-
+  
   return (
     <>
       <div
