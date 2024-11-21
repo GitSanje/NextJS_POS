@@ -1,5 +1,6 @@
 
 
+
 import { Cart, User,Product, ProductVariant, VariantOption, Variant, Tax ,Order} from "@prisma/client";
 
 
@@ -216,3 +217,21 @@ export type OrderWithCartsType = Order & {
   }[]; // List of carts for the order
 };
 
+
+
+export type ProductOneType = Product & {
+  ProductVariant: (ProductVariant & {
+    variant: Variant;
+    option: VariantOption | null;
+  })[];
+}| null | undefined;
+
+export type productVariantType =  {
+  name: string;
+  options: {
+      id: string;
+      value: string;
+      var_id: string;
+      variantName: string | null;
+  }[];
+}[] | null | undefined;

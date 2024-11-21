@@ -1,9 +1,11 @@
 import "server-only";
+
 const { prisma } = await import("../vendor/prisma");
 const { getServerSession } = await import("next-auth");
 const { authOptions } = await import("../app/api/auth/[...nextauth]/options");
 
 import { cache } from "react";
+
 const { redirect } = await import("next/navigation");
 
 export const verifySession = cache(async () => {
@@ -13,12 +15,12 @@ export const verifySession = cache(async () => {
     redirect("/api/auth/signin");
   }
 
-  return { isAuth: true, userId: session.user.id };
+  return { isAuth: true, userId: session?.user.id };
 });
 
-export const productgetById = async (id: string) => {
+export const productgetById = async (id: string)=> {
   try {
-    const product = await prisma.product.findUnique({
+    const product  = await prisma.product.findUnique({
       where: {
         id: id,
       },

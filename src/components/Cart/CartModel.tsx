@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useCartStore } from "../../hooks/useCartStore";
 
 import React from "react";

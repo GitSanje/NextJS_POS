@@ -4,50 +4,50 @@ import ProductImages from "./ProductImages";
 import CustomizeProducts from "./CustomizedProducts";
 import AddCart from "../Cart/AddCart";
 import { number } from "zod";
-
+import { ProductOneType,productVariantType } from "@/src/types";
+import { useSession } from "next-auth/react";
 interface Props {
-  product: {
-    id: string;
-    name: string;
-    description: string;
-    image: string[];
-    discount: number | null;
-    salePrice: number | null;
-    quantityInStock: number;
-  } | null;
-  varients: any[]; // Assuming 'varients' is an array
-  product_varients: any[]; // Assuming 'product_varients' is an array
+  product: ProductOneType;
+  varients: productVariantType;
+  userId: string
+  
 }
 const SingleDisplay: React.FC<Props> = (props) => {
-  const { product, varients, product_varients } = props;
+  const { product, varients,userId } = props;
+  const product_varients = product?.ProductVariant;
 
-  const [varPriceDiscout, setVarPriceDiscout] = useState<[string, number]>([
-    "",
+
+  const [varPriceDiscout, setVarPriceDiscout] = useState<[number, number]>([
+    0,
     0,
   ]);
   const discount =
 
-    varPriceDiscout[0] !== ""
-      ? parseFloat(varPriceDiscout[0])
+    varPriceDiscout[0] !== 0
+      ? varPriceDiscout[0]
       : product?.discount
       ? product?.discount
       : 0;
   const salePrice =
     varPriceDiscout[1] > 0 ? varPriceDiscout[1] : product?.salePrice;
-  const discountPrice = salePrice - (discount / 100) * salePrice;
-
+  const discountPrice = salePrice?? 0 - (discount / 100) * (salePrice ?? 0);
+  console.log(
+  
+    userId,
+    "from singleDisplay"
+  );
   return (
     <>
       {/* IMG */}
       <div className="w-full lg:w-1/2 lg:sticky top-20 h-max">
-        <ProductImages items={product?.image} />
+        <ProductImages mainImage={product?.image } />
       </div>
       {/* TEXTS */}
       <div className="w-full lg:w-1/2 flex flex-col gap-6">
-        <h1 className="text-4xl font-medium">{product.name}</h1>
-        <p className="text-gray-500">{product.description}</p>
+        <h1 className="text-4xl font-medium">{product?.name}</h1>
+        <p className="text-gray-500">{product?.description}</p>
         <div className="h-[2px] bg-gray-100" />
-        {!discount && product.salePrice ? (
+        {!discount && product?.salePrice ? (
           <h2 className="font-medium text-2xl">${product.salePrice}</h2>
         ) : (
           <div className="flex items-center gap-4">
@@ -60,20 +60,24 @@ const SingleDisplay: React.FC<Props> = (props) => {
 
         <div className="h-[2px] bg-gray-100" />
 
-        {varients && varients.length > 0 ? (
+        {product_varients && product_varients.length > 0 ? (
           <CustomizeProducts
-            quantityInStock={product.quantityInStock}
-            productId={product.id}
+            userId={userId}
+            quantityInStock={product?.quantityInStock}
+            productId={product?.id  }
             variants={varients}
             productOptions={product_varients}
             setVarPriceDiscout={setVarPriceDiscout}
             amount ={discountPrice}
           />
         ) : (
+          product && 
           <AddCart
-            productId={product.id}
-            stockNumber={product.quantityInStock}
-
+          userId= { userId}
+            productId={product && product.id}
+            stockNumber={product?.quantityInStock}
+            amount ={discountPrice}
+         
             // variantId={null}
           />
         )}

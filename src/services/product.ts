@@ -13,6 +13,7 @@ export const getProducts = cache(
 
           description: true,
           quantityInStock: true,
+          image: true,
 
           salePrice: true,
           costPrice: true,

@@ -1,8 +1,9 @@
-import { toast } from "react-toastify";
+
 import 'react-toastify/dist/ReactToastify.css';
 import { create } from "zustand";
 import { CartType } from "../types";
-
+import { getUserCarts } from "../server-actions/cart";
+import { toast } from "sonner";
 
 type CartState = {
     
@@ -12,14 +13,14 @@ type CartState = {
     subTotal: number;
     
     getCart: (userId: string) => void;
-    addItem: (userId: string, productId: string, amount?:number,productVariantIds?: string[], quantity?: number,) => void;
+    addItem: (userId: string,quantity: number, productId: string , amount?:number,productVariantIds?: (string | undefined)[]) => void;
     removeItem: (cartId: string) => void;
 
 }
 
 export const useCartStore = create<CartState>((set) => ({
     cart: [],
-    isLoading: true,
+    isLoading: false,
     counter: 0,
     subTotal: 0,
  
@@ -28,16 +29,16 @@ export const useCartStore = create<CartState>((set) => ({
     getCart: async (userId: string) => {
     set({ isLoading: true});
     try {
-        const response = await fetch(`/api/cart/?userId=${userId}`, {
-            method: 'GET',
-            // cache:'force-cache'
-        });
-        const data = await response.json()
+        const response = await getUserCarts( userId);
         
+        if(!response.success)
+          {
+            return null;
+          }
         set({
-            cart: data?.cartItems || [],
+            cart: response.data?.cartItems || [],
             isLoading: false,
-            counter: data?.cartItems.length || 0,
+            counter: response.data?.cartItems.length || 0,
             
            
         });
@@ -48,13 +49,13 @@ export const useCartStore = create<CartState>((set) => ({
     }
 
     },
-    addItem: async (userId, productId, productVariantIds, quantity,amount) => {
+    addItem: async (userId,quantity, productId, productVariantIds,amount) => {
         set({ isLoading: true });
         try {
           const response = await fetch('/api/cart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, productId, productVariantIds, quantity,amount }),
+            body: JSON.stringify({userId,quantity, productId, productVariantIds,amount }),
           });
           const data = await response.json();
           set({
@@ -62,10 +63,7 @@ export const useCartStore = create<CartState>((set) => ({
             counter: data?.cartItems.length || 0,
             isLoading: false,
           });
-          toast.success("product added to cart successfully", {
-            autoClose:2000
-
-          })
+          toast.success("product added to cart successfully")
         } catch (error) {
           console.error('Failed to add item to cart:', error);
           set({ isLoading: false });
@@ -85,10 +83,7 @@ export const useCartStore = create<CartState>((set) => ({
             counter: data?.cartItems.length || 0,
             isLoading: false,
           });
-          toast.success("Cart removed successfully", {
-            autoClose:2000
-
-          })
+          toast.success("Cart removed successfully")
         } catch (error) {
           console.error('Failed to remove item from cart:', error);
           set({ isLoading: false });

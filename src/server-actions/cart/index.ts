@@ -5,10 +5,21 @@ import { prisma } from "@/src/vendor/prisma";
 
 import { notFound } from "next/navigation";
 import { CartType } from "@/src/types";
+import { number } from "zod";
 
+import { Response } from '@/src/types'
 
+export type UserCart = {
+  cartItems: CartType ,
+  subtotal : number,
+  totaltax: number
+}
+export type responseUserCart = Response &{
+  data?:UserCart;
 
-export const getUserCarts = async (userId: string | null) => {
+}
+
+export const getUserCarts = async (userId: string | null): Promise<responseUserCart>=> {
   try {
     if (!userId) {
       return notFound();
@@ -49,7 +60,7 @@ export const getUserCarts = async (userId: string | null) => {
       });
     }
 
-    const subTotal =
+    const subtotal =
       cartItems.length > 0
         ? cartItems.reduce((sum, cart) => {
             return sum + (cart.amount ?? 0);
@@ -76,9 +87,17 @@ export const getUserCarts = async (userId: string | null) => {
 
         : 0;
 
-        const cartdetails = { cartItems, subTotal,totaltax}
+        const cartdetails:UserCart = { cartItems, subtotal,totaltax}
 
-    return cartdetails;
+       
+
+        return {
+          success: true,
+          code: 200,
+          message: "Successfully fetched cart details",
+          data: cartdetails,
+        };
+        
   } catch (error) {
     return response({
       success: false,

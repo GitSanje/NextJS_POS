@@ -1,21 +1,28 @@
 import React from 'react'
 import CartItems from '../../../components/Cart/CartItems'
-import { getCarts, getUserCarts } from '@/src/server-actions/cart'
+import { getCarts, getUserCarts, responseUserCart } from '@/src/server-actions/cart'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '../../api/auth/[...nextauth]/options'
 import { log } from 'handlebars/runtime'
-
+import { Response } from '@/src/types'
+import { notFound } from 'next/navigation'
 
 const page =  async () => {
   const session = await getServerSession(authOptions);
  
-  const cartItemsDetails =  await getUserCarts(session?.user.id ?? null);
+  const cartItemsDetails=  await getUserCarts(session?.user.id ?? null);
+ 
+  if(!cartItemsDetails.success)
+  {
+    return notFound();
+  }
 
-  const   { cartItems, subTotal,totaltax} = cartItemsDetails;
+
+
   
   return (
     <div>
-      <CartItems totaltax={totaltax} subtotal={subTotal} cart={cartItems} session={session ?? null} />
+      <CartItems totaltax={cartItemsDetails.data?.totaltax ?? 0} subtotal={cartItemsDetails.data?.subtotal ?? 0} cart={cartItemsDetails.data?.cartItems} session={session ?? null} />
     </div>
   )
 }

@@ -14,6 +14,7 @@ interface Product {
     category: {
         categoryName: string;
     };
+    image: string | null;
     description: string | null;
     costPrice: number;
     quantityInStock: number;
@@ -27,15 +28,6 @@ const ProductList = ({
   products: Product[] | null
 }) => {
 
-  // const { data: session } = useSession();
-  // const userId = session?.user?.id;
-  // const { fetchProducts, products } = useFetchValues();
-  // useEffect(() => {
-  //   if (userId) {
-  //     fetchProducts();
-  //   }
-  // }, [userId]);
-  // console.log(products);
 
   return (
     <>

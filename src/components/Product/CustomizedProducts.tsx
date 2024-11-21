@@ -1,25 +1,37 @@
 "use client";
 import { useEffect, useState } from "react";
 // import Add from "./Add";
-import { Product, ProductVariant } from "@prisma/client";
+import { VariantOption, ProductVariant, Variant } from "@prisma/client";
 
 import AddCart from "../Cart/AddCart";
+import { productVariantType } from "@/src/types";
+
+export type productoptionType=  (ProductVariant & {
+  variant: Variant;
+  option: VariantOption | null;
+})[];
+
 
 const CustomizeProducts = ({
+  userId,
+  quantityInStock,
   productId,
   variants,
   productOptions,
-  quantityInStock,
   setVarPriceDiscout,
   amount
 }: {
-  productId: string;
-  variants: any[];
-  productOptions?: any[];
-  quantityInStock: number;
-  setVarPriceDiscout: (priceDiscount: [string, number]) => void;
+  userId: string;
+  quantityInStock: number | undefined;
+  productId: string ;
+  variants:productVariantType;
+  productOptions?: productoptionType;
+  setVarPriceDiscout: (priceDiscount: [number, number]) => void;
   amount:number
 }) => {
+
+
+
   const [selectedOptions, setSelectedOptions] = useState<
     { [key: string]: string[] }[]
   >([]);
@@ -27,14 +39,14 @@ const CustomizeProducts = ({
   const productVarIds = selectedOptions.map((selectVar) => {
     return Object.values(selectVar).map((v) => {
       return productOptions?.find(
-        (product_var) => product_var.option.value === v[0]
+        (product_var) => product_var.option?.value === v[0]
       )?.id;
     })[0];
   });
 
   const presentVarient = (var_opt: string): boolean => {
     return !productOptions?.find(
-      (product_var) => product_var.option.value === var_opt
+      (product_var) => product_var.option?.value === var_opt
     );
   };
 
@@ -43,7 +55,7 @@ const CustomizeProducts = ({
       const options = [...prevOptions]; // Copy previous options
       const productVar = productOptions?.find(
         (product_var) =>
-          product_var.option.value === var_opt &&
+          product_var.option?.value === var_opt &&
           product_var.variant.name === "Size"
       );
       const index = options.findIndex(
@@ -84,14 +96,14 @@ const CustomizeProducts = ({
           if (key === "Size") {
             const opt_value = value[value.length - 1]; // Get the last element
             const productVar = productOptions?.find(
-              (product_var) => product_var.option.value === opt_value
+              (product_var) => product_var.option?.value === opt_value
             );
 
 
-            if (productVar) {
-              setVarPriceDiscout([productVar.discount, productVar.salePrice]);
+            if (productVar && productVar.discount ) {
+              setVarPriceDiscout([productVar.discount ?? 0 , productVar.salePrice]);
             } else {
-              setVarPriceDiscout(["", 0]);
+              setVarPriceDiscout([0, 0]);
             }
           }
         }
@@ -114,13 +126,13 @@ const CustomizeProducts = ({
   return (
     <>
       <div className="flex flex-col gap-6">
-        {variants.map((varient) =>
+        {variants?.map((varient, var_index) =>
           varient.name === "Size" ? (
-            <div className="flex flex-col gap-4" key={varient.value}>
+            <div className="flex flex-col gap-4" key={var_index}>
               <h4 className="font-medium">Choose a {varient.name}</h4>
               <ul className="flex items-center gap-3">
                 {/* Size */}
-                {varient.options?.map((option) => (
+                {varient.options?.map((option, opt_index) => (
                   <li
                     className="ring-1 ring-lama text-lama rounded-md py-1 px-4 text-sm"
                     style={{
@@ -139,7 +151,7 @@ const CustomizeProducts = ({
                           : "#f35c7a",
                       boxShadow: presentVarient(option.value) ? "none" : "",
                     }}
-                    key={varient.id}
+                    key={opt_index}
                     onClick={() => {
                       if (!presentVarient(option.value)) {
                         handleClick(varient.name, option.value);
@@ -155,10 +167,10 @@ const CustomizeProducts = ({
             <>
               {/* COLOR */}
 
-              <div className="flex flex-col gap-4" key={varient.value}>
+              <div className="flex flex-col gap-4" key={var_index}>
                 <h4 className="font-medium">Choose a {varient.name}</h4>
                 <ul className="flex items-center gap-3">
-                  {varient.options?.map((option) => (
+                  {varient.options?.map((option, opt_index) => (
                     <li
                       className="w-8 h-8 rounded-full ring-1 ring-gray-300 relative flex items-center justify-center "
                       style={{
@@ -169,7 +181,7 @@ const CustomizeProducts = ({
 
                         boxShadow: presentVarient(option.value) ? "none" : "",
                       }}
-                      key={varient.id}
+                      key={opt_index}
                       onClick={() => handleClick(varient.name, option.value)}
                     >
                       {isClicked(varient.name, option.value) && (
@@ -187,6 +199,7 @@ const CustomizeProducts = ({
         )}
 
         <AddCart
+        userId={ userId}
           productId={productId}
           stockNumber={quantityInStock}
           productVariantIds={productVarIds}

@@ -4,9 +4,6 @@ import { prisma } from "../../../vendor/prisma";
 import { revalidatePath } from "next/cache";
 
 
-import { cookies } from 'next/headers'
-import { log } from "handlebars/runtime";
-
 
 // Handle GET request: Fetch the cart
 export async function GET(request:  NextRequest) {
@@ -63,9 +60,17 @@ export async function GET(request:  NextRequest) {
     return NextResponse.json({ message: "Failed to fetch cart", error }, { status: 500 });
   }
 }
+type AddItemRequest = {
+  userId: string;
+   productId: string ;
+    amount?:number;
+    productVariantIds?: (string | undefined)[];
+    quantity: number
+};
 
-export async function POST(req: NextRequest) {
-  const { userId, productId, productVariantIds, quantity,amount } = await req.json();
+
+export async function POST(req: NextRequest ) {
+  const {userId,quantity, productId, productVariantIds,amount} = await req.json() as AddItemRequest;
 
   
   try {
@@ -107,12 +112,12 @@ export async function POST(req: NextRequest) {
     const cartItems = await prisma.cart.create({ 
       data: {
         userId: userId,
-        productId: productId,
-        variants: {
+        productId: productId ,
+        variants:   productVariantIds && productVariantIds.length > 0 ? {
           connect: productVariantIds.map(id => ({ id }))
-        },
+        }: undefined,
         quantity,
-        amount: amount * quantity
+        amount: (amount?? 0) * quantity
         
       },
     });

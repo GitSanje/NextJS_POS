@@ -12,7 +12,7 @@ import { Session } from "next-auth/core/types";
 type  cartItemsProps = {
   subtotal: number,
   totaltax: number,
-  cart : CartType
+  cart : CartType | undefined
   session: Session | null
 
 }
@@ -44,7 +44,7 @@ const CartItems = ({subtotal, totaltax, cart, session}: cartItemsProps)  => {
       </div>
     );
   }
-  if (cart.length === 0) {
+  if (cart?.length === 0) {
     return (
       <div className="flex justify-center items-center h-screen text-xl">
          No Cart Found
@@ -67,7 +67,7 @@ const CartItems = ({subtotal, totaltax, cart, session}: cartItemsProps)  => {
     <p>Remove</p>
   </div>
 
-  {cart.map((item) => {
+  {cart?.map((item) => {
     const productPrice =
       (item.variants.length > 0
         ? item.variants.find((var_p) => var_p.variant.name === "Size")?.salePrice ||
