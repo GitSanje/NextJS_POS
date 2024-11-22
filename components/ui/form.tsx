@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
@@ -10,13 +8,16 @@ import {
   FieldValues,
   FormProvider,
   useFormContext,
-  
 } from "react-hook-form"
+import { cn } from "../../lib/utils"
+import { Label } from "./label"
 
-import { cn } from "@/lib/utils"
-import { Label } from "@/components/ui/label"
+//https://chatgpt.com/c/66e1a5cc-9958-8003-a9cb-beda3ab8f110
 
+
+// that allows child components to access the form state and methods using useFormContext.
 const Form = FormProvider
+
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
@@ -25,9 +26,14 @@ type FormFieldContextValue<
   name: TName
 }
 
+//to store the name of the form field
 const FormFieldContext = React.createContext<FormFieldContextValue>(
-  {} as FormFieldContextValue
-)
+    {} as FormFieldContextValue
+  )
+
+//FormField wraps the Controller component from React Hook Form,
+// which handles the form field registration and its connection to the form context.
+
 
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
@@ -42,37 +48,46 @@ const FormField = <
   )
 }
 
+// This hook uses both FormFieldContext (to get the form field's name) 
+//     and FormItemContext (to get the form item’s unique id), 
+//     as well as useFormContext (to access the form’s state and methods).
 const useFormField = () => {
-  const fieldContext = React.useContext(FormFieldContext)
-  const itemContext = React.useContext(FormItemContext)
-  const { getFieldState, formState } = useFormContext()
-
-  const fieldState = getFieldState(fieldContext.name, formState)
-
-  if (!fieldContext) {
-    throw new Error("useFormField should be used within <FormField>")
+    const fieldContext = React.useContext(FormFieldContext)
+    const itemContext = React.useContext(FormItemContext)
+    const { getFieldState, formState } = useFormContext()
+  
+    const fieldState = getFieldState(fieldContext.name, formState)
+  
+    if (!fieldContext) {
+      throw new Error("useFormField should be used within <FormField>")
+    }
+  
+    const { id } = itemContext
+  
+    return {
+      id,
+      name: fieldContext.name,
+      formItemId: `${id}-form-item`,
+      formDescriptionId: `${id}-form-item-description`,
+      formMessageId: `${id}-form-item-message`,
+      ...fieldState,
+    }
   }
 
-  const { id } = itemContext
 
-  return {
-    id,
-    name: fieldContext.name,
-    formItemId: `${id}-form-item`,
-    formDescriptionId: `${id}-form-item-description`,
-    formMessageId: `${id}-form-item-message`,
-    ...fieldState,
-  }
-}
-
+  //provides a unique id for each form item.
+  // This id is used for accessibility purposes (for example, linking the label and input field using htmlFor and id attributes).
 type FormItemContextValue = {
-  id: string
-}
-
+    id: string
+  }
+  
 const FormItemContext = React.createContext<FormItemContextValue>(
-  {} as FormItemContextValue
-)
+    {} as FormItemContextValue
+  )
+  
 
+//   This component wraps individual form items like input fields, and it provides a context for the form item,
+//    making its id available to other components within it.
 const FormItem = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -86,6 +101,7 @@ const FormItem = React.forwardRef<
   )
 })
 FormItem.displayName = "FormItem"
+
 
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
@@ -126,6 +142,7 @@ const FormControl = React.forwardRef<
 })
 FormControl.displayName = "FormControl"
 
+
 const FormDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
@@ -136,7 +153,7 @@ const FormDescription = React.forwardRef<
     <p
       ref={ref}
       id={formDescriptionId}
-      className={cn("text-[0.8rem] text-muted-foreground", className)}
+      className={cn("text-sm text-muted-foreground", className)}
       {...props}
     />
   )
@@ -158,7 +175,7 @@ const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
-      className={cn("text-[0.8rem] font-medium text-destructive", className)}
+      className={cn("text-sm font-medium text-destructive", className)}
       {...props}
     >
       {body}

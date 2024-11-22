@@ -1,48 +1,38 @@
-import { Response, ResponseWithMessage } from "@/src/types"
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+import { prisma } from "../vendor/prisma";
+import { string } from "zod";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+
+export function cn(...inputs: ClassValue[]){
+    return twMerge(clsx(inputs))
 }
 
+export const formatOrderDate = (dateString: Date | undefined) => {
+    if (!dateString) return ''; 
+    
+    // const date = new Date(dateString);
+    
+    return dateString.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+  
 
-
-
-// Overload for response status in server action
-export function response(response: ResponseWithMessage): Response;
-export function response<T extends Record<string, unknown>>(response: Response<T>): Response<T>;
-export function response<T extends object>(response: T): T {
-  return response;
-}
-
-export const fileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      resolve(reader.result as string);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+  // Convert Uint8Array to String
+export const uint8ArrayToString = (uint8Array: ArrayBuffer) => {
+  const decoder = new TextDecoder('utf-8'); 
+  return decoder.decode(uint8Array);
 };
 
-export function convertToCapitalized(str: string) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-
-export const formatOrderDate = (dateString: string | undefined) => {
-  if (!dateString) return ''; 
-  
-  const date = new Date(dateString);
-  
-  return date.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+// Convert String to Uint8Array
+export const stringToUint8Array = (stringBuffer: string) => {
+  const encoder = new TextEncoder(); // Default encoding is 'utf-8'
+  return encoder.encode(stringBuffer);
 };
+
 
 export const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
   let binary = '';
@@ -53,3 +43,12 @@ export const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
   }
   return window.btoa(binary);
 };
+
+export async function generateInvoiceId() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const uniquePart = Math.floor(1000 + Math.random() * 9000);
+  return `INV-${year}${month}-${uniquePart}`;
+}
+
