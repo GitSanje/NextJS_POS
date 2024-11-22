@@ -1,6 +1,7 @@
 import ViewOrder from "@/src/components/Orders/ViewOrder";
 
 import { getAOrder } from "@/src/server-actions/order/order";
+import { OrderType } from "@/src/types";
 
 import React from "react";
 
@@ -12,7 +13,7 @@ const page = async (
   }
 ) => {
   const params = await props.params;
-  const order = await getAOrder(params.id);
+  const order: OrderType = await getAOrder(params.id);
 
   return <ViewOrder order={order} />;
 };

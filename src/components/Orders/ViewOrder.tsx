@@ -2,9 +2,9 @@
 import { formatOrderDate } from "@/src/lib/utils";
 import Link from "next/link";
 import React from "react";
-import { OrderWithCartsType } from "@/src/types";
+import {  OrderType, OrderWithCartsType } from "@/src/types";
 
-const ViewOrder = ({ order }: { order: OrderWithCartsType }) => {
+const ViewOrder = ({ order }: { order: OrderWithCartsType | OrderType }) => {
   const totalamount = order?.carts.reduce((total, cart) => {
     return total + (cart.amount ?? 0);
   }, 0);
@@ -40,7 +40,7 @@ const ViewOrder = ({ order }: { order: OrderWithCartsType }) => {
                           Quantity
                         </p>
                         <p className="text-sm font-bold text-gray-900 mt-0.5">
-                          {order.quantity}
+                          {order?.quantity}
                         </p>
                       </div>
                       <div>

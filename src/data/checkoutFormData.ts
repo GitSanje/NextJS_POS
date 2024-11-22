@@ -16,36 +16,49 @@ export const cityOptions = [
     { value: "Lalitpur", label: "Lalitpur" },
   ];
   
-export const formFields = [
+export type formfieldType = {
+  name: FormFieldName;
+  label: string;
+  type :string;
+  placeholder: string;
+      required: boolean
+
+}
+type FormFieldName = "name" | "phone" | "email" | "streetaddress" | "state" | "city" | "paymentMethod";
+export const formFields:formfieldType[] = [
     {
-      name: 'name',
+      name: "name",
       label: "Name",
       type: "text",
       placeholder: "Enter your name",
       required: true,
     },
     {
-      name: 'phone',
+      name: "phone",
       label: "Phone Number",
       type: "tel",
       placeholder: "Enter your phone number",
       required: true,
     },
     {
-      name: 'email',
+      name: "email",
       label: "Email Address",
       type: "email",
       placeholder: "Enter your email address",
       required: true,
     },
     {
-      name: 'streetaddress',
+      name: "streetaddress",
       label: "Street Address",
       type: "text",
       placeholder: "Enter your street address",
       required: true,
     },
     
+  
+  ];
+  
+
     // {
     //   name: "paymentMethod",
     //   label: "Payment Method",
@@ -75,5 +88,3 @@ export const formFields = [
     //     },
     //   ],
     // },
-  ];
-  

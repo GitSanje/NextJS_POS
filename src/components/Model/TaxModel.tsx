@@ -9,16 +9,17 @@ import TaxForm from "../Product/TaxForm";
 
 
 interface TaxModalProps {
+  // setTax: (tax: Tax) => void;
   edit?: boolean;
   tax?: Tax;
-  setTax: (tax: Tax) => void;
+
 }
 
-export function TaxModal({ edit = false, tax, setTax }: TaxModalProps) {
+export function TaxModal({  tax, edit = false }: TaxModalProps) {
   const [open, setOpen] = useState(false);
 
   const handleSuccess = (updatedTax: Tax) => {
-    setTax(updatedTax);
+    // setTax(updatedTax);
     setOpen(false);
   };
 
@@ -42,7 +43,7 @@ export function TaxModal({ edit = false, tax, setTax }: TaxModalProps) {
         </DialogHeader>
         <TaxForm
           tax={tax}
-          setTax={handleSuccess}
+          // setTax={handleSuccess}
           onCancel={() => setOpen(false)}
         />
       </DialogContent>

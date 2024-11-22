@@ -13,8 +13,6 @@ import {
 } from "../../../components/ui/dropdown-menu";
 import Link from "next/link";
 import ProductTable from "./_components/ProductTable";
-import ProductForm from "@/src/components/form/ProductForm";
-import ProductModel from "@/src/components/Model/ProductModel";
 
 const page = () => {
   return (

@@ -125,7 +125,7 @@ export async function checkout(
         state,
         streetAddress: streetaddress,
         city,
-        userId: session?.user.id,
+        userId: session?.user.id as string,
         paymentStatus:true,
 
         products: {
@@ -136,18 +136,18 @@ export async function checkout(
         },
       },
     });
-    const subTotal =  pendingCarts.reduce((sum, cart) => {
-      return sum +( cart?.amount ?? 0)
-     },0 )
-    const totaltax = pendingCarts.reduce((sum, item) => {
-      const productPrice =
-              item.variants.length > 0
-                ? item.variants.find(
-                    (var_p) => var_p.variant.name === "Size"
-                  )?.salePrice || item.product.salePrice
-                : item.product.salePrice;
-      return sum + (item.product?.tax?.rate ?? 0)/ 100 *( productPrice ?? 0)
-     },0 ) 
+    // const subTotal =  pendingCarts.reduce((sum, cart) => {
+    //   return sum +( cart?.amount ?? 0)
+    //  },0 )
+    // const totaltax = pendingCarts.reduce((sum, item) => {
+    //   const productPrice =
+    //           item.variants.length > 0
+    //             ? item.variants.find(
+    //                 (var_p) => var_p.variant.name === "Size"
+    //               )?.salePrice || item.product.salePrice
+    //             : item.product.salePrice;
+    //   return sum + (item.product?.tax?.rate ?? 0)/ 100 *( productPrice ?? 0)
+    //  },0 ) 
 
     // Update cart status to "CHECKOUT"
     await prisma.cart.updateMany({
@@ -155,19 +155,19 @@ export async function checkout(
       data: { status: "CHECKOUT" },
     });
 
-    const salesInvoice = await prisma.salesInvoice.create({
-      data: {
-        InvoiceId: await generateInvoiceId(),
-        orderId: order.id,
-        totalAmount: subTotal+ totaltax,
+    // const salesInvoice = await prisma.salesInvoice.create({
+    //   data: {
+    //     InvoiceId: await generateInvoiceId(),
+    //     orderId: order.id,
+    //     totalAmount: subTotal+ totaltax,
 
-        tax: {
-          connect: taxtIds.map((id) => ({ id })),
-        },
-      },
-    });
+    //     tax: {
+    //       connect: taxtIds.map((id) => ({ id })),
+    //     },
+    //   },
+    // });
 
-    console.log(order, salesInvoice);
+    // console.log(order, salesInvoice);
 
     revalidatePath("/order");
     revalidatePath("/view-cart");
@@ -190,9 +190,9 @@ export async function checkout(
             name: name
 
           },
-          InvoiceId: salesInvoice.InvoiceId,
+          // InvoiceId: salesInvoice.InvoiceId,
           carts: pendingCarts,
-          invoiceDate: salesInvoice.invoiceDate
+          // invoiceDate: salesInvoice.invoiceDate
         
       },
     });

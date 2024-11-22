@@ -4,7 +4,8 @@ import PageHeader from '@/src/components/PageHeader/PageHeader'
 import { getCategories } from '@/src/server-actions/cagtegory/category'
 import { getSuppliers } from '@/src/server-actions/supplier/supplier'
 import { getTaxes } from '@/src/server-actions/tax'
-import { SelectType } from '@/src/types/orderType'
+import { categoryType, SelectType, taxType } from '@/src/types'
+
 import { getServerSession } from "next-auth/next"
 
 
@@ -17,7 +18,7 @@ const page = async () => {
   const userId = session?.user.id;
   const categoriesData = (await getCategories(true)) ?? [];
   const suppliersData = (await getSuppliers(true)) ?? [];
-  const taxs = (await getTaxes(true)) ?? [];
+  const taxs:  SelectType[] =  (await getTaxes(true)) ?? [];
 
 
   return (

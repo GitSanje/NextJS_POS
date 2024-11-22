@@ -51,7 +51,7 @@ export const getAllOrders = cache(
     revalidate: 2,
   }
 );
-export async function deleteOrder(id: string): Promise<any> {
+export async function deleteOrder(id: string) {
   try {
     await prisma.order.delete({
       where: {
@@ -61,9 +61,9 @@ export async function deleteOrder(id: string): Promise<any> {
 
     revalidatePath("/admin/orders");
   } catch (error) {
-    return {
-      error: " There was an error on deleting",
-    };
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
   }
 }
 
@@ -117,7 +117,7 @@ export const getAOrder = cache(
   },
   ["/admin/orders/view/[id]", "getAOrder"],
 
-  { revalidate: 2 }
+  { revalidate: 40 }
 );
 export const getUserOrder = cache(
   async (userId: string | undefined) => {

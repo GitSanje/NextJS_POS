@@ -23,9 +23,15 @@ import {
   DropDownTable,
   EditDropdownItem,
 } from "@/src/components/DropDown/Actions";
+import { supplierType, SelectType } from "@/src/types";
+import { notFound } from "next/navigation";
 
 const SupplierTable = async () => {
-  const suppliers = await getSuppliers();
+  const suppliers: supplierType | null = await getSuppliers(false);
+
+  if(!suppliers){
+    return notFound();
+  }
 
   if (suppliers?.length === 0) return <p>No Suppliers found</p>;
   return (
@@ -42,17 +48,24 @@ const SupplierTable = async () => {
         </TableHeader>
 
         <TableBody>
-          {suppliers?.map((supplier) => (
-            <TableRow key={supplier.id}>
-              <TableCell>{supplier.supplierName}</TableCell>
-              <TableCell>{supplier.email}</TableCell>
-              <TableCell>{supplier.phone}</TableCell>
-              <TableCell>{supplier._count?.products}</TableCell>
-              <TableCell>
-               <DropDownTable supplier={supplier}/>
-              </TableCell>
-            </TableRow>
-          ))}
+        {suppliers.map((supplier) => {
+            // Narrow the type at runtime
+            if ("supplierName" in supplier) {
+              return (
+                <TableRow key={supplier.id}>
+                  <TableCell>{supplier.supplierName}</TableCell>
+                  <TableCell>{supplier.email}</TableCell>
+                  <TableCell>{supplier.phone}</TableCell>
+                  <TableCell>{supplier._count?.products}</TableCell>
+                  <TableCell>
+                    <DropDownTable supplier={supplier} />
+                  </TableCell>
+                </TableRow>
+              );
+            }
+            return null;
+
+          })}
         </TableBody>
       </Table>
     </div>

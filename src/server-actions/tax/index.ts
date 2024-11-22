@@ -4,52 +4,45 @@ import { cache } from "@/lib/cache";
 
 import { response } from "@/lib/utils";
 import { taxSchema } from "@/src/schemas";
+import { SelectType, taxType } from "@/src/types";
 import { prisma } from "@/src/vendor/prisma";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 
-type Tax = {
-    id: string;
-    name: string;
-    rate: number;
-  };
-  
-type TaxClient = {
-    id: string;
-    label: string;
-    value: string;
-  };
-export const getTaxes= cache(
-    async (fromClient: boolean = false): Promise< Tax[] | TaxClient[] > => {
-      try {
-        const taxs = await prisma.tax.findMany({
-          select: {
-            id: true,
-            name:true,
-            rate:true
-            
-           
-          },
-        });
-  
-        if (fromClient) {
-          const taxsClient = taxs.map((tax) => ({
-            id: tax.id,
-            label: tax.name + " - " + tax.rate.toString()+"%",
-            value: tax.name.toUpperCase(),
-          }));
-          return taxsClient;
-        }
-        return taxs;
-      } catch (error) {
-        console.log(error);
-        return [];
-      }
-    },
-    ["/", "getTaxes"],
-    { revalidate: 30*60 }
-  );
-  
+export function getTaxes(fromClient: true): Promise<SelectType[] | null>;
+export function getTaxes(fromClient: false): Promise<taxType[] | null>;
+export function getTaxes(fromClient: boolean): Promise<SelectType[] | taxType[] | null>;
+
+
+
+export async function getTaxes(fromClient: boolean): Promise<SelectType[] | taxType[] | null>{
+  try {
+    const taxs: taxType[] = await prisma.tax.findMany({
+      select: {
+        id: true,
+        name:true,
+        rate:true
+        
+       
+      },
+    });
+
+    if (fromClient) {
+      const taxsClient:SelectType[] = taxs.map((tax) => ({
+        id: tax.id,
+        label: tax.name + " - " + tax.rate.toString()+"%",
+        value: tax.name.toUpperCase(),
+      }));
+      return taxsClient;
+    }
+    return taxs;
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+}
+
+
   
 
   
@@ -131,7 +124,7 @@ export const addTax = async (payload: FormData) => {
       const tax = await prisma.tax.create({
         data: {
           name: data.name.toLowerCase(),
-          rate: data.rate,
+          rate: data.rate ?? 0,
           description: data.description,
         
         },

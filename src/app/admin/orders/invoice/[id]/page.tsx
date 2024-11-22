@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import SalesInvoice from '@/src/components/Invoice/SaleInvoice'
+// import SalesInvoice from '@/src/components/Invoice/SaleInvoice'
 import PageHeader from '@/src/components/PageHeader/PageHeader';
 import { getAOrder } from '@/src/server-actions/order/order';
 
@@ -17,9 +17,9 @@ const page = async (
   return (
     <>
         
-      
+       <h2> Sale Invoice</h2>
         
-        <SalesInvoice order={order} />
+        {/* <SalesInvoice order={order} /> */}
       
     </>
   )

@@ -26,9 +26,9 @@ interface GlobalContextType {
     refPdf: HTMLDivElement | null;
     setRefPdf: (refPdf: HTMLDivElement | null) => void;
     handleGeneratePdf: ( inputData: HTMLDivElement, invoiceId:string, download: boolean,toEmail?: string ) =>  Promise<void>;
-
-    order: InvoiceType | null,
-    setOrder: ( order: InvoiceType ) => void
+    cartInfo: { subTotal: number, totaltax: number};
+    order: InvoiceType | null;
+    setOrder: ( order: InvoiceType ) => void;
 }
 
 const globalContext = createContext<GlobalContextType | null>(null);
@@ -117,7 +117,7 @@ export const GlobalProvider: React.FC<Props> = (props) => {
   }
 };
 
-const { getCart, cart } = useCartStore();
+const { getCart,subTotal,totaltax } = useCartStore();
 const { data: session } = useSession();
 useEffect (() => {
   if(session?.user){
@@ -126,14 +126,20 @@ useEffect (() => {
 
 }, [session])
 
+ const cartInfo = {subTotal,totaltax }
+
   return (
     <>
-      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,setRefPdf,refPdf ,handleGeneratePdf, order, setOrder}}>
+      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,setRefPdf,refPdf ,handleGeneratePdf, order, setOrder, cartInfo}}>
         {children}
       </globalContext.Provider>
     </>
   );
 };
+
+
+
+
 
 export default function useGloabalContext() {
   const context = useContext(globalContext);

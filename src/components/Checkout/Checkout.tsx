@@ -42,7 +42,7 @@ import { useRouter } from "next/navigation";
 
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import useGloabalContext from "@/src/context/GlobalProvider";
-import SalesInvoice from "../Invoice/SaleInvoice";
+// import SalesInvoice from "../Invoice/SaleInvoice";
 
 interface Props {
   session: Session | null;
@@ -54,11 +54,12 @@ const CheckoutForm: React.FC<Props> = (props) => {
  
   const router = useRouter();
   const { session } = props;
+  
   const [stripeError, setStripeError] = useState<string>("");
   const stripe = useStripe();
   const elements = useElements();
-  const { setOrder,order,handleGeneratePdf,cartDetails} = useGloabalContext()
-  const {subTotal, totaltax } = cartDetails
+  const { setOrder,order,handleGeneratePdf, cartInfo} = useGloabalContext()
+
 
   console.log('====================================');
           console.log(order,'invoicedatafrom checkout');
@@ -107,7 +108,7 @@ const CheckoutForm: React.FC<Props> = (props) => {
             return toast.error(data.error.message);
           }
     
-          setOrder(data.data)
+          // setOrder(data.data)
           
          
            
@@ -152,7 +153,7 @@ const CheckoutForm: React.FC<Props> = (props) => {
           error.type === "card_error" || error.type === "validation_error"
             ? error.message
             : "An unknown error occurred";
-        setStripeError(errorMessage);
+        setStripeError(errorMessage as string);
       } else {
         startTransition(handleCheckout);
       }
@@ -187,7 +188,7 @@ const CheckoutForm: React.FC<Props> = (props) => {
                     <FormInput
                       key={index}
                       control={form.control}
-                      name={field.name as string}
+                      name={field.name }
                       label={field.label}
                       type={field.type}
                       placeholder={field.placeholder}
@@ -282,7 +283,7 @@ const CheckoutForm: React.FC<Props> = (props) => {
                   >
                     <Spinner className="absolute h-4 group-enabled:opacity-0" />
                     <span className="group-disabled:opacity-0">
-                      Checkout - ${subTotal + totaltax}
+                      Checkout - ${cartInfo.subTotal + cartInfo.totaltax}
                     </span>
                   </Button>
                 </div>
@@ -290,7 +291,7 @@ const CheckoutForm: React.FC<Props> = (props) => {
             </form>
           </Form>
 
-          { order &&  <SalesInvoice hidden={true} />}
+          { /* order &&  <SalesInvoice hidden={true} /> */}
         </>
   
       

@@ -4,11 +4,11 @@ import ViewOrder from "@/src/components/Orders/ViewOrder";
 import { getUserOrder } from "@/src/server-actions/order/order";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../api/auth/[...nextauth]/options";
-import { OrderType } from "@/src/types";
+import { OrderType, OrderWithCartsType } from "@/src/types";
 
 const page = async () => {
   const session = await getServerSession(authOptions);
-  const orders= await getUserOrder(session?.user.id);
+  const orders : OrderWithCartsType[] | null= await getUserOrder(session?.user.id);
   if(!orders){
     return null;
   }

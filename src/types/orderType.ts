@@ -72,9 +72,3 @@ export type CartItem =  {
   };
 
 
-  export type SelectType= {
-    id: string;
-    label: string;
-    value: string ;
-
-  }

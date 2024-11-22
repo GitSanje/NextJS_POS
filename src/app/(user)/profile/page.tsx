@@ -7,7 +7,7 @@ import withAuth from "../../utils/withAuth";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useAxiosPrivate from "../../../hooks/useAxiosPrivate";
-import Modal from "../../../components/Model/Model";
+import Modal from "./_components/profileModel";
 import Sidebar from "../../../components/Sidebar/Sidebar";
 import { useUserState } from "../../../hooks/useUserStore";
 import { useSession } from "next-auth/react";

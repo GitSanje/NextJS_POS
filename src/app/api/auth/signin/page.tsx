@@ -7,7 +7,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import Input from "../../../../components/Input/Input";
 import Button from "../../../../components/Button/Button";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { ReadonlyURLSearchParams, useRouter,  useSearchParams } from "next/navigation";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useFormState } from 'react-dom';
@@ -17,9 +17,6 @@ import Select from '../../../../components/Select/Select';
 
 
 
-interface Props {
-  searchParams: URLSearchParams;
-}
 
 interface RegisterData {
   username: string;
@@ -33,7 +30,7 @@ interface LoginData {
   email: string;
   password: string;
 }
-const SiginIn: React.FC<Props> =   () => {
+const SiginIn: React.FC =   () => {
 
   const searchParams =  useSearchParams()
   const tab = searchParams.get("tab") || "login";

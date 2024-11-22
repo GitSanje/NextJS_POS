@@ -18,11 +18,11 @@ import { taxSchema } from "@/src/schemas";
 
 interface TaxFormProps {
     tax?: Tax
-    setTax: (tax: Tax) => void
+    // setTax: (tax: Tax) => void
     onCancel: () => void
   }
 
-const TaxForm = ({ tax, setTax, onCancel }: TaxFormProps) => {
+const TaxForm = ({ tax, onCancel }: TaxFormProps) => {
 
    
     
@@ -60,7 +60,8 @@ const TaxForm = ({ tax, setTax, onCancel }: TaxFormProps) => {
                 return toast.error(data.error.message);
               }
               toast.success(data.message);
-              setTax(data?.data)
+              // setTax(data?.data)
+             onCancel();
             
             })
             .catch((error) => {

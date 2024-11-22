@@ -235,3 +235,35 @@ export type productVariantType =  {
       variantName: string | null;
   }[];
 }[] | null | undefined;
+
+
+export type supplierType =  {
+  id: string ;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  _count: {
+      products: number;
+  };
+  supplierName: string;
+}[];
+
+
+export type categoryType =  {
+  id: string;
+  categoryName: string;
+  description: string | null;
+}[];
+
+
+export type SelectType= {
+  id: string;
+  label: string;
+  value: string;
+};
+
+export type taxType = {
+  id: string;
+  name: string;
+  rate: number;
+};

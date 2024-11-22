@@ -29,7 +29,7 @@ export const useFetchValues = create<ListOptions>((set) => ({
     try {
       const productData = await getProducts();
       set({
-        products: productData ||null,
+        // products: productData ||null,
         isLoading:false
       })
     } catch (error) {
@@ -41,8 +41,8 @@ export const useFetchValues = create<ListOptions>((set) => ({
   getValues: async () => {
     set({ isLoading: true });
     try {
-        const categoriesData = await getCategories();
-        const suppliersData = await getSuppliers();
+        const categoriesData = await getCategories(true);
+        const suppliersData = await getSuppliers(true);
     
         set({
           categories: categoriesData?.map((category:  any) =>

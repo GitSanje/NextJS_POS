@@ -19,14 +19,14 @@ import { SelectModel } from "@/components/ui/select";
 import ImageInput from "./ImageInput";
 import { TaxModal } from "../Model/TaxModel";
 import { toast } from "sonner";
-import { SelectType } from "@/src/types/orderType";
+import { categoryType, SelectType, supplierType, taxType } from "@/src/types";
 
 
 interface Props {
   userId: string | undefined;
-  categories: SelectType[];
-  suppliers: SelectType[];
-  taxs: SelectType[];
+  categories: SelectType[] ;
+  suppliers: SelectType[] ;
+  taxs: SelectType[] ;
 }
 const ProductForm: React.FC<Props> = (props) => {
   const { userId, categories, suppliers, taxs } = props;
@@ -39,20 +39,20 @@ const ProductForm: React.FC<Props> = (props) => {
   //     getValues();
   //   }
   // }, [userId]);
-  const [tax, setTax] = useState<SelectType | null>(() => {
-    const taxs = localStorage.getItem("tax");
-    if (taxs) {
-      return JSON.parse(taxs);
-    } else {
-      return null;
-    }
-  });
+  // const [tax, setTax] = useState<SelectType | null>(() => {
+  //   const taxs = localStorage.getItem("tax");
+  //   if (taxs) {
+  //     return JSON.parse(taxs);
+  //   } else {
+  //     return null;
+  //   }
+  // });
 
-  useEffect(() => {
-    if (tax) {
-      localStorage.setItem("tax", JSON.stringify(tax));
-    }
-  }, [tax]);
+  // useEffect(() => {
+  //   if (tax) {
+  //     localStorage.setItem("tax", JSON.stringify(tax));
+  //   }
+  // }, [tax]);
 
 
   const [isPending, startTransition] = useTransition();
@@ -71,7 +71,7 @@ const ProductForm: React.FC<Props> = (props) => {
       salePrice: undefined,
       margin: "",
       tax: "",
-      taxRate: tax?.label || "",
+      taxRate:   "",
       imageUrl:"",
       category: "",
       suppliers: [{ id: "", supplier: "" }],
@@ -85,12 +85,12 @@ const ProductForm: React.FC<Props> = (props) => {
   });
 
 
-  useEffect(() => {
-    if(tax){
-      setValue('taxRate', tax.label)
-    }
+  // useEffect(() => {
+  //   if(tax){
+  //     setValue('taxRate', tax.label)
+  //   }
     
-  }, [tax])
+  // }, [tax])
 
   const selectedSuppliers = form.watch("suppliers") || [];
   const imageUrl = form.watch("imageUrl") || null
@@ -263,34 +263,35 @@ const ProductForm: React.FC<Props> = (props) => {
 
                 <div className="flex flex-col gap-2 ">
                   {
-                    !tax? <SelectModel
+                    <SelectModel
                     control={form.control}
                     name="tax"
                     options={taxs}
                     isPending={isPending}
                     label="Tax"
                     defaultValue="Select a Tax"
-                  /> : ""
+                  /> 
 
                   }
                   
 
-                  {tax ? (
+                  {/* {tax ? (
                     <FormInput
                       control={form.control}
                       name="taxRate"
                       label="Tax Rate"
                       type="text"
-                      value={tax.label}
+                      // value={tax.label}
                       isPending={isPending}
                     />
-                  ) : (
+                  ) : ( */}
+
                     <>
                       <p className="text-gray-600 text-center"> or </p>
 
-                      <TaxModal setTax={setTax} />
+                      <TaxModal   />
                     </>
-                  )}
+                  
                 </div>
               </div>
               <div className="space-y-4 ">

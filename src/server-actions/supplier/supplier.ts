@@ -2,45 +2,53 @@
 import { cache } from "@/lib/cache";
 import { response } from "@/lib/utils";
 import { supplierSchema } from "@/src/schemas";
+import { supplierType, SelectType } from "@/src/types";
 import { prisma } from "@/src/vendor/prisma";
 import { revalidatePath } from "next/cache";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
-export const getSuppliers = cache(
-  async (fromClient: boolean = false) => {
-    try {
-      const suppliers = await prisma.supplier.findMany({
-        select: {
-          id: true,
-          supplierName: true,
-          email: true,
-          phone: true,
-          _count: {
-            select: {
-              products: true,
-            },
+
+// Function overloads
+export function getSuppliers(fromClient: true): Promise<SelectType[] | null>;
+export function getSuppliers(fromClient: false): Promise<supplierType | null>;
+export function getSuppliers(fromClient: boolean): Promise<SelectType[] | supplierType | null>;
+
+export async function getSuppliers(fromClient: boolean): Promise<SelectType[] | supplierType | null>{
+  try {
+    const suppliers:supplierType = await prisma.supplier.findMany({
+      select: {
+        id: true,
+        supplierName: true,
+        email: true,
+        phone: true,
+        address:true,
+        _count: {
+          select: {
+            products: true,
           },
         },
-      });
-
-      if (fromClient) {
-        const supplersClient = suppliers.map((sup) => ({
-          id: sup.id,
-          label: sup.supplierName,
-          value: sup.supplierName.toUpperCase(),
-        }));
-        return supplersClient;
-      }
-      return suppliers;
-    } catch (error) {
-      console.log(error);
-
-      return null;
+      },
+    });
+    if(!suppliers){
+      return notFound();
     }
-  },
-  ["admin/suppliers", "getSuppliers"],
-  { revalidate: 24 * 60 * 60 }
-);
+
+    if (fromClient) {
+      const supplersClient: SelectType[] = suppliers.map((sup) => ({
+        id: sup.id,
+        label: sup.supplierName,
+        value: sup.supplierName.toUpperCase(),
+      }));
+      return supplersClient;
+    }
+    return suppliers;
+  } catch (error) {
+    console.log(error);
+
+    return null;
+  }
+
+}
 
 export const addSupplier = async (payload: FormData) => {
   const validatedFields = supplierSchema.safeParse(
