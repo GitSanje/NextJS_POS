@@ -4,7 +4,7 @@ import ProductImages from "./ProductImages";
 import CustomizeProducts from "./CustomizedProducts";
 import AddCart from "../Cart/AddCart";
 
-import { ProductOneType,productVariantType } from "@/src/types";
+import { ProductOneType,productVariantType } from "@/types";
 
 
 interface Props {

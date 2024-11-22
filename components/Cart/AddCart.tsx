@@ -1,6 +1,6 @@
 "use client";
 
-import { useCartStore } from "@/src/hooks/useCartStore";
+import { useCartStore } from "@/hooks/useCartStore";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import {  useRouter } from 'next/navigation'

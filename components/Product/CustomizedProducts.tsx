@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { VariantOption, ProductVariant, Variant } from "@prisma/client";
 
 import AddCart from "../Cart/AddCart";
-import { productVariantType } from "@/src/types";
+import { productVariantType } from "@/types";
 
 export type productoptionType=  (ProductVariant & {
   variant: Variant;

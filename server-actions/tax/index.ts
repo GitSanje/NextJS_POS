@@ -3,9 +3,9 @@
 import { cache } from "@/lib/cache";
 
 import { response } from "@/lib/utils";
-import { taxSchema } from "@/src/schemas";
-import { SelectType, taxType } from "@/src/types";
-import { prisma } from "@/src/vendor/prisma";
+import { taxSchema } from "@/schemas";
+import { SelectType, taxType } from "@/types";
+import { prisma } from "@/vendor/prisma";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 

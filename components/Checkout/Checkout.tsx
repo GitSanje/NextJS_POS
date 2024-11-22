@@ -27,21 +27,21 @@ import {
   cityOptions,
   formFields,
   stateOptions,
-} from "@/src/data/checkoutFormData";
+} from "@/data/checkoutFormData";
 import FormInput from "../form/FormInput";
 import { useForm , SubmitHandler, SubmitErrorHandler} from "react-hook-form";
-import { checkoutSchema } from "@/src/server-actions/checkout/definitions";
+import { checkoutSchema } from "@/server-actions/checkout/definitions";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { SelectModel } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/Spinner";
-import { useCartStore } from "@/src/hooks/useCartStore";
+import { useCartStore } from "@/hooks/useCartStore";
 import { useRouter } from "next/navigation";
 
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import useGloabalContext from "@/src/context/GlobalProvider";
+import useGloabalContext from "@/context/GlobalProvider";
 // import SalesInvoice from "../Invoice/SaleInvoice";
 
 interface Props {

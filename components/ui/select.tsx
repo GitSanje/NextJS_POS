@@ -3,7 +3,7 @@ import * as Select from "@radix-ui/react-select";
 import { FormControl, FormField, FormLabel, FormMessage } from "./form";
 import { ComponentPropsWithRef } from "react";
 import { Control, FieldValues, Path, UseFormSetValue } from "react-hook-form";
-import { FormItem } from "@/src/components/ui/form";
+import { FormItem } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 
 type FormSelectProps<T extends FieldValues> = {

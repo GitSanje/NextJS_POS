@@ -12,14 +12,14 @@ import { Spinner } from "@/components/ui/Spinner";
 import { useRouter } from "next/navigation";
 import { Minus, Plus } from "lucide-react";
 
-import { productSchema } from "@/src/schemas";
+import { productSchema } from "@/schemas";
 import FormInput from "./FormInput";
-import { addProduct } from "@/src/server-actions/product/product";
+import { addProduct } from "@/server-actions/product/product";
 import { SelectModel } from "@/components/ui/select";
 import ImageInput from "./ImageInput";
 import { TaxModal } from "../Model/TaxModel";
 import { toast } from "sonner";
-import { categoryType, SelectType, supplierType, taxType } from "@/src/types";
+import { categoryType, SelectType, supplierType, taxType } from "@/types";
 
 
 interface Props {

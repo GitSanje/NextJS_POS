@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useFetchValues } from "@/src/hooks/useFetchValues";
+import { useFetchValues } from "@/hooks/useFetchValues";
 import DOMPurify from "isomorphic-dompurify";
 import { useSession } from "next-auth/react";
 import Image from "next/image";

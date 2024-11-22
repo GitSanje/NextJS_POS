@@ -13,8 +13,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Textarea } from "@/components/ui/textarea"
 
 import { Loader2 } from 'lucide-react'
-import { addTax, updateTax } from "@/src/server-actions/tax";
-import { taxSchema } from "@/src/schemas";
+import { addTax, updateTax } from "@/server-actions/tax";
+import { taxSchema } from "@/schemas";
 
 interface TaxFormProps {
     tax?: Tax

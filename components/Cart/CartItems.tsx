@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
-import useGloabalContext from "@/src/context/GlobalProvider";
-import { CartType } from "@/src/types";
+import useGloabalContext from "@/context/GlobalProvider";
+import { CartType } from "@/types";
 import { Session } from "next-auth/core/types";
 
 type  cartItemsProps = {

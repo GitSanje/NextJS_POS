@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { deleteSupplier } from "@/src/server-actions/supplier/supplier";
+import { deleteSupplier } from "@/server-actions/supplier/supplier";
 import { toast } from "react-toastify";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
@@ -72,7 +72,7 @@ export const DeleteDropdownItem: React.FC<deleteProps> = (props) => {
 
   return (
     <DropdownMenuItem
-      variant="destructive"
+      
       disabled={disabled || isPending}
       onClick={() => {
         startTransition(async () => {

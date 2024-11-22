@@ -1,11 +1,11 @@
 "use server";
 import { cache } from "@/lib/cache";
 import { response } from "@/lib/utils";
-import { prisma } from "@/src/vendor/prisma";
+import { prisma } from "@/vendor/prisma";
 
 import { notFound } from "next/navigation";
-import { CartType } from "@/src/types";
-import { Response } from '@/src/types'
+import { CartType } from "@/types";
+import { Response } from '@/types'
 import { Cart } from "@prisma/client";
 import { revalidateTag } from "next/cache";
 

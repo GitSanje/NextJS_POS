@@ -11,7 +11,7 @@ const nextConfig = {
 
     experimental:{
         
-        // appDir: true,
+        appDir: true,
         // incrementalCacheHandlerPath: require.resolve('./app/lib/cache-handler'),
         
         serverActions:{

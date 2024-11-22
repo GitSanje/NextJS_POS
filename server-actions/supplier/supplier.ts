@@ -1,9 +1,9 @@
 "use server";
 import { cache } from "@/lib/cache";
 import { response } from "@/lib/utils";
-import { supplierSchema } from "@/src/schemas";
-import { supplierType, SelectType } from "@/src/types";
-import { prisma } from "@/src/vendor/prisma";
+import { supplierSchema } from "@/schemas";
+import { supplierType, SelectType } from "@/types";
+import { prisma } from "@/vendor/prisma";
 import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 

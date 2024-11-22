@@ -2,24 +2,20 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { prisma } from "../vendor/prisma";
 import { string } from "zod";
+import { ResponseWithMessage,Response } from "@/types";
 
 
 export function cn(...inputs: ClassValue[]){
     return twMerge(clsx(inputs))
 }
 
-export const formatOrderDate = (dateString: Date | undefined) => {
-    if (!dateString) return ''; 
-    
-    // const date = new Date(dateString);
-    
-    return dateString.toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-  };
-  
+
+  // Overload for response status in server action
+export function response(response: ResponseWithMessage): Response;
+export function response<T extends Record<string, unknown>>(response: Response<T>): Response<T>;
+export function response<T extends object>(response: T): T {
+  return response;
+}
 
   // Convert Uint8Array to String
 export const uint8ArrayToString = (uint8Array: ArrayBuffer) => {
@@ -52,3 +48,31 @@ export async function generateInvoiceId() {
   return `INV-${year}${month}-${uniquePart}`;
 }
 
+
+export const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+export function convertToCapitalized(str: string) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+export const formatOrderDate = (dateString: Date | undefined) => {
+  if (!dateString) return ''; 
+  
+  const date = new Date(dateString);
+  
+  return date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+};

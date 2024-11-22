@@ -1,7 +1,7 @@
 "use server"
 import { cache } from "@/lib/cache";
-import { categoryType, SelectType } from "@/src/types";
-import { prisma } from "@/src/vendor/prisma";
+import { categoryType, SelectType } from "@/types";
+import { prisma } from "@/vendor/prisma";
 
 // Function overloads
 export function getCategories(fromClient: true): Promise<SelectType[]>;

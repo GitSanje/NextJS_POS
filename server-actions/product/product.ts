@@ -1,8 +1,8 @@
 "use server";
 import { cache } from "@/lib/cache";
 import { response, convertToCapitalized } from "@/lib/utils";
-import { productSchema } from "@/src/schemas";
-import { prisma } from "@/src/vendor/prisma";
+import { productSchema } from "@/schemas";
+import { prisma } from "@/vendor/prisma";
 
 import fs from "fs/promises";
 import { revalidatePath } from "next/cache";

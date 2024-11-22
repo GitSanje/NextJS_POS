@@ -1,7 +1,7 @@
 "use client";
 import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { supplierSchema } from "@/src/schemas";
+import { supplierSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import FormInput from "../form/FormInput";
@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import {
   addSupplier,
   updateSupplier,
-} from "@/src/server-actions/supplier/supplier";
+} from "@/server-actions/supplier/supplier";
 import { useRouter } from "next/navigation";
 import { Supplier } from "@prisma/client";
 

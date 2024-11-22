@@ -1,8 +1,8 @@
 "use client";
-import { formatOrderDate } from "@/src/lib/utils";
+import { formatOrderDate } from "@/lib/utils";
 import Link from "next/link";
 import React from "react";
-import {  OrderType, OrderWithCartsType } from "@/src/types";
+import {  OrderType, OrderWithCartsType } from "@/types";
 
 const ViewOrder = ({ order }: { order: OrderWithCartsType | OrderType }) => {
   const totalamount = order?.carts.reduce((total, cart) => {
@@ -31,7 +31,7 @@ const ViewOrder = ({ order }: { order: OrderWithCartsType | OrderType }) => {
                           Date
                         </p>
                         <p className="text-sm font-bold text-gray-900 mt-0.5">
-                          {formatOrderDate(order?.orderDate )}
+                          {formatOrderDate(order?.orderDate  )}
                         </p>
                       </div>
 

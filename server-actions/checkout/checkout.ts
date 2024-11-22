@@ -3,9 +3,9 @@ import { CheckoutState, checkoutSchema } from "./definitions";
 import { prisma } from "../../vendor/prisma";
 import { revalidatePath } from "next/cache";
 import { response } from "@/lib/utils";
-import { generateInvoiceId } from "@/src/lib/utils";
+import { generateInvoiceId } from "@/lib/utils";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/app/api/auth/[...nextauth]/options";
+import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
 
 export async function checkout(
