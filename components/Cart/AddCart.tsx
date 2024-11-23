@@ -32,7 +32,7 @@ const AddCart = ({
   return notFound()
  }
 
-  const router = useRouter()
+  // const router = useRouter()
   const handleQuantity = (type: "i" | "d") => {
     if (type === "d" && quantity > 1) {
       setQuantity((prev) => prev - 1);
@@ -83,7 +83,7 @@ const AddCart = ({
           {productVariantIds && productVariantIds?.length > 0 ? (
             <button
               onClick={() =>
-                addItem(router, userId, quantity, productId, amount, productVariantIds)
+                addItem( userId, quantity, productId, amount, productVariantIds)
               }
               disabled={!isLoading}
               className="w-36 text-sm rounded-3xl ring-1 ring-indigo-500 text-indigo-500 py-2 px-4 hover:bg-indigo-500 hover:text-white disabled:cursor-not-allowed disabled:bg-pink-200 disabled:ring-0 disabled:text-white disabled:ring-none"
@@ -94,7 +94,7 @@ const AddCart = ({
             <button
               onClick={() =>
                 addItem(
-                  router,
+               
                   userId,
                   quantity,
                   productId,

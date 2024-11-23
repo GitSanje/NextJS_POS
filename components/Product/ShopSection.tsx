@@ -118,8 +118,11 @@ const ShopSection = ({
     });
 
     setCartItems(derivedCartItems);
+    if (global?.window !== undefined) {
+      localStorage.setItem("cartItemsData", JSON.stringify(derivedCartItems));
 
-    localStorage.setItem("cartItemsData", JSON.stringify(derivedCartItems));
+    }
+
   }, [cart, products, setCartItems]);
   
   

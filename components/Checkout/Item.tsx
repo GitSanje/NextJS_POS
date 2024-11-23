@@ -20,23 +20,26 @@ export default function ProductCard({ cartItem} : {
   const { setCart, cart, setCartItems} = orderSummary
 
   const updateCartItemQuantity = (productId: string, increment: number) => {
-    setCartItems((prevCartData: CartItem[]): CartItem[] => {
-      const updatedCartData = prevCartData.map((cartItem) => {
-        if (cartItem.product?.id === productId) {
-          return {
-            ...cartItem,
-            quantity: cartItem.quantity + increment,
-          };
+    setCartItems((prevCartData) => {
+        const updatedCartData = prevCartData.map((cartItem) => {
+            if (cartItem.product?.id === productId) {
+                return {
+                    ...cartItem,
+                    quantity: cartItem.quantity + increment,
+                };
+            }
+            return cartItem;
+        });
+
+        // Update localStorage after updating cart
+        if (global?.window !== undefined)  {
+          localStorage.setItem("cartItemsData", JSON.stringify(updatedCartData));
+    
         }
-        return cartItem;
-      });
-  
-      // Update localStorage after updating cart
-      localStorage.setItem("cartItemsData", JSON.stringify(updatedCartData));
-  return updatedCartData
-      
+        
+        return updatedCartData; // Return the updated array
     });
-  };
+};
 
 
 

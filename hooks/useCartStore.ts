@@ -6,7 +6,7 @@ import { getUserCarts, postCarts } from "../server-actions/cart";
 import { toast } from "sonner";
 
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-
+//router:  AppRouterInstance ,
 
 type CartState = {
     
@@ -17,7 +17,7 @@ type CartState = {
     totaltax: number;
     
     getCart: (userId: string) => void;
-    addItem: (router:  AppRouterInstance ,userId: string,quantity: number, productId: string , amount:number,productVariantIds: (string | undefined)[]) => void;
+    addItem: (userId: string,quantity: number, productId: string , amount:number,productVariantIds: (string | undefined)[]) => void;
     removeItem: (cartId: string) => void;
 
 }
@@ -58,7 +58,7 @@ export const useCartStore = create<CartState>((set) => ({
     }
 
     },
-    addItem: async (router, userId,quantity, productId,amount, productVariantIds) => {
+    addItem: async (userId,quantity, productId,amount, productVariantIds) => {
         set({ isLoading: true });
         try {
       console.log("add items ",userId,quantity, productId,amount, productVariantIds );
@@ -71,7 +71,7 @@ export const useCartStore = create<CartState>((set) => ({
             //   counter: response.data?.length || 0,
             //   isLoading: false,
             // });
-            router.push("/view-cart")
+            // router.push("/view-cart")
             
           }
           // const response = await fetch('/api/cart', {

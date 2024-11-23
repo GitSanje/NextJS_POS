@@ -85,7 +85,11 @@ const LoginSignup: React.FC<Props> = ({ searchParams }) => {
       }
       const result = await res.json()
       // setUser(result.user)
-      localStorage.setItem('user',JSON.stringify(result.user))
+      if (global?.window !== undefined) {
+        localStorage.setItem('user',JSON.stringify(result.user))
+
+      }
+      
 
       toast.success("Login successful!");
       router.push("/auth/profile");

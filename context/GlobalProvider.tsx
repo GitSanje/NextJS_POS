@@ -39,7 +39,7 @@ interface GlobalContextType {
        cart: Record<string, number>;
        setCart: React.Dispatch<React.SetStateAction<Record<string, number>>>
        cartItems: CartItem[];
-       setCartItems: (items: CartItem[]) => void;
+       setCartItems : (items: CartItem[] | ((prevItems: CartItem[]) => CartItem[])) => void;
     }
 }
 
@@ -59,7 +59,7 @@ export const GlobalProvider: React.FC<Props> = (props) => {
   const [userId, setUserId] = useState<string | undefined>(undefined);
 
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
-    const storedCartItems = localStorage.getItem("cartItemsData");
+    const storedCartItems = (global?.window !== undefined) ? localStorage.getItem("cartItemsData"): null ;
     return storedCartItems ? JSON.parse(storedCartItems) : [];
   });
   console.log('====================================');
@@ -152,8 +152,10 @@ useEffect(() => {
  const cartInfo = {subTotal,totaltax }
 
 
+
+
   const [cart, setCart] = useState<Record<string, number>>(() => {
-    const carts = localStorage.getItem("cartItems");
+    const carts = (global?.window !== undefined )? localStorage.getItem("cartItems")  :  null;
     if (carts) {
       return JSON.parse(carts);
     } else {
@@ -162,7 +164,11 @@ useEffect(() => {
   });
   useEffect(() => {
     if (cart) {
-      localStorage.setItem("cartItems", JSON.stringify(cart));
+
+      if (global?.window !== undefined)  {
+        localStorage.setItem("cartItems", JSON.stringify(cart));
+      } 
+      
     }
   }, [cart]);
 

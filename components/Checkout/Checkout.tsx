@@ -184,17 +184,17 @@ const CheckoutForm: React.FC<Props> = (props) => {
                 
                  
                     
-                  {formFields.map((field,index) => (
+                  {/* {formFields.map((field,index) => (
                     <FormInput
                       key={index}
                       control={form.control}
-                      name={field.name }
+                      // name={field.name }
                       label={field.label}
                       type={field.type}
                       placeholder={field.placeholder}
                       isPending={isPending}
                     />
-                  ))}
+                  ))} */}
 
                   {/* State Select */}
 
