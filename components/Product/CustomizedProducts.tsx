@@ -13,7 +13,6 @@ export type productoptionType=  (ProductVariant & {
 
 
 const CustomizeProducts = ({
-  userId,
   quantityInStock,
   productId,
   variants,
@@ -21,7 +20,6 @@ const CustomizeProducts = ({
   setVarPriceDiscout,
   amount
 }: {
-  userId: string;
   quantityInStock: number | undefined;
   productId: string ;
   variants:productVariantType;
@@ -202,7 +200,6 @@ const CustomizeProducts = ({
         )}
 
         <AddCart
-          userId={ userId}
           productId={productId}
           stockNumber={quantityInStock}
           productVariantIds={productVarIds}

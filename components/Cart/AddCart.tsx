@@ -1,19 +1,19 @@
 "use client";
 
 import { useCartStore } from "@/hooks/useCartStore";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
-import {  useRouter } from 'next/navigation'
+import {  notFound, useRouter } from 'next/navigation'
 import React from "react";
+import useGloabalContext from "@/context/GlobalProvider";
 
 const AddCart = ({
-  userId,
+
   productId,
   productVariantIds,
   stockNumber,
   amount,
 }: {
-  userId:string;
+
   productId: string;
   productVariantIds: (string | undefined)[];
   stockNumber: number | undefined;
@@ -21,15 +21,16 @@ const AddCart = ({
 }) => {
   const [quantity, setQuantity] = useState(1);
   const { addItem, isLoading } = useCartStore();
-  console.log("====================================");
-  console.log(
-    amount,
-    quantity,
-    quantity * (amount ?? 0),
-    stockNumber,
-    userId,
-    "from add cart"
-  );
+  const { userId} = useGloabalContext()
+  console.log('====================================');
+  console.log(userId, 'add cart');
+  console.log('====================================');
+  
+
+ if(!userId){
+
+  return notFound()
+ }
 
   const router = useRouter()
   const handleQuantity = (type: "i" | "d") => {

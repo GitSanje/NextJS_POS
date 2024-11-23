@@ -24,7 +24,7 @@ export type formfieldType = {
       required: boolean
 
 }
-type FormFieldName = "name" | "phone" | "email" | "streetaddress" | "state" | "city" | "paymentMethod";
+type FormFieldName = "name" | "phone" | "email" | "streetaddress" | "state" | "city" | "paymentMethod" | "lastName" | "country";
 export const formFields:formfieldType[] = [
     {
       name: "name",

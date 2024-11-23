@@ -16,19 +16,31 @@ import { arrayBufferToBase64 } from "../lib/utils";
 import { useCartStore } from "../hooks/useCartStore";
 import { useSession } from "next-auth/react";
 import { InvoiceType } from "../types";
+import { Session } from "next-auth/core/types";
+import { getUserSession } from "../server-actions/user";
+import { CartItem } from "@/types/orderType";
+
+
 
 interface GlobalContextType {
     cartRef: RefObject<HTMLDivElement | null>;
     isCartOpen: boolean;
     cartToogle: (isCartOpen: boolean) => void
     setCartOpen: (isCartOpen: boolean) => void
-    // pdfRef: RefObject<HTMLDivElement>;
+   
     refPdf: HTMLDivElement | null;
     setRefPdf: (refPdf: HTMLDivElement | null) => void;
     handleGeneratePdf: ( inputData: HTMLDivElement, invoiceId:string, download: boolean,toEmail?: string ) =>  Promise<void>;
     cartInfo: { subTotal: number, totaltax: number};
     order: InvoiceType | null;
     setOrder: ( order: InvoiceType ) => void;
+    userId: string| undefined;
+    orderSummary: {
+       cart: Record<string, number>;
+       setCart: React.Dispatch<React.SetStateAction<Record<string, number>>>
+       cartItems: CartItem[];
+       setCartItems: (items: CartItem[]) => void;
+    }
 }
 
 const globalContext = createContext<GlobalContextType | null>(null);
@@ -44,7 +56,16 @@ export const GlobalProvider: React.FC<Props> = (props) => {
   
   const cartRef = useRef<HTMLDivElement>(null);
   const [ order, setOrder ] = useState<InvoiceType| null>(null)
-  
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    const storedCartItems = localStorage.getItem("cartItemsData");
+    return storedCartItems ? JSON.parse(storedCartItems) : [];
+  });
+  console.log('====================================');
+  console.log(cartItems, "cartItems from global");
+  console.log('====================================');
+
   const cartToogle = () => setCartOpen(!isCartOpen)
 
   useEffect(() => {
@@ -118,19 +139,43 @@ export const GlobalProvider: React.FC<Props> = (props) => {
 };
 
 const { getCart,subTotal,totaltax } = useCartStore();
-const { data: session } = useSession();
-useEffect (() => {
-  if(session?.user){
-    getCart(session?.user.id)
-  }
 
-}, [session])
+useEffect(() => {
+  const fetchUserId = async () => {
+    const sessionId = await getUserSession(); // Call your session fetch function
+    setUserId(sessionId); // Update userId in state
+  };
+
+  fetchUserId(); // Invoke the function
+}, []);
 
  const cartInfo = {subTotal,totaltax }
 
+
+  const [cart, setCart] = useState<Record<string, number>>(() => {
+    const carts = localStorage.getItem("cartItems");
+    if (carts) {
+      return JSON.parse(carts);
+    } else {
+      return {};
+    }
+  });
+  useEffect(() => {
+    if (cart) {
+      localStorage.setItem("cartItems", JSON.stringify(cart));
+    }
+  }, [cart]);
+
+   const orderSummary = {
+    cart,
+    setCart,
+    cartItems,
+    setCartItems
+   }
+
   return (
     <>
-      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,setRefPdf,refPdf ,handleGeneratePdf, order, setOrder, cartInfo}}>
+      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,setRefPdf,refPdf ,handleGeneratePdf, order, setOrder, cartInfo, userId,orderSummary}}>
         {children}
       </globalContext.Provider>
     </>

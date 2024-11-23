@@ -1,5 +1,4 @@
-
-import 'server-only';
+"use server"
 
 import { cache } from 'react'
 import { prisma } from '../vendor/prisma';
@@ -34,3 +33,12 @@ export const getUser = cache( async() => {
      
 )
 
+
+
+
+
+export const getUserSession = async () => {
+    const session = await getServerSession( authOptions)
+
+    return session?.user.id
+}

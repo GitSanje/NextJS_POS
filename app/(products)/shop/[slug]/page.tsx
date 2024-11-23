@@ -4,8 +4,6 @@ import { getallOptions, getallVarients, productgetById } from "@/lib/dal";
 import { getServerSession } from "next-auth";
 import { notFound } from "next/navigation";
 import React, { useState } from "react";
-
-import { Cart, User,Product, ProductVariant, VariantOption, Variant, Tax ,Order} from "@prisma/client";
 import { ProductOneType, productVariantType } from "@/types";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 
@@ -19,17 +17,9 @@ const page = async ({
   const { slug } = await params;
   const product:ProductOneType = await productgetById(slug);
   const varients:productVariantType = await getallVarients();
-  const session = await getServerSession(  authOptions)
-  console.log('====================================');
-  console.log(session?.user.id);
-  console.log('====================================');
-  // console.log('====================================');
-  // console.log("product: "+ JSON.stringify(product, null, 2),"variants: "+ JSON.stringify(varients, null, 2));
-  // console.log('====================================');
 
-
-  if (!product && ! varients && !session) {
-    // return notFound();
+  if (!product && ! varients ) {
+    
     return notFound();
   }
    
@@ -45,13 +35,12 @@ const page = async ({
   return (
     <>
     {
-      session &&
+     
       <div className="px-4 md:px-8 lg:px-16 xl:px-32 2xl:px-64 relative flex flex-col lg:flex-row gap-16">
         <SingleDisplay 
         product={product }
         varients={varients}
-        userId= { session?.user.id}
-       
+
        />
       
       </div>

@@ -1,11 +1,9 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { useFetchValues } from "@/hooks/useFetchValues";
 import DOMPurify from "isomorphic-dompurify";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect } from "react";
+import React from "react";
 
 interface Product {
   
@@ -68,6 +66,8 @@ const ProductList = ({
             </Button>
           </Link>
         ))}
+      
+
       </div>
     </>
   );

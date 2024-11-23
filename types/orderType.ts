@@ -39,8 +39,8 @@ import { productType } from "./productType";
   // type for Cart Item
 export type CartItem =  {
     quantity: number;
-    product: productType;
-    amount?: number;
+    product: productType | undefined;
+    // amount: number | null;
 
     variants?: Variant[] ;
   }

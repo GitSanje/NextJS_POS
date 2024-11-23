@@ -1,4 +1,3 @@
-
 import ProductList from "@/components/Product/ProductList";
 import { ProductCardSkeleton } from "@/components/Product/ProductSkeleton";
 import { getProducts } from "@/services/product";
@@ -10,11 +9,9 @@ const page = async () => {
       <Suspense
         fallback={
           <>
-          <div className="grid"> </div>
-            <ProductCardSkeleton />
-            <ProductCardSkeleton />
-            <ProductCardSkeleton />
-            <ProductCardSkeleton />
+            <div className="container mx-auto mt-12 flex gap-x-8 gap-y-16 justify-between flex-wrap">
+              <ProductCardSkeleton />
+            </div>
           </>
         }
       >
@@ -27,12 +24,7 @@ const page = async () => {
 export default page;
 
 async function ProductSuspense() {
-
   const product = await getProducts();
-
 
   return <ProductList products={product} />;
 }
-
-
-

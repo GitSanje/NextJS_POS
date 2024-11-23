@@ -3,24 +3,26 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 export function ProductCardSkeleton() {
     return (
-      <Card className="overflow-hidden flex flex-col animate-pulse">
-        <div className="w-full aspect-video bg-gray-300" />
-        <CardHeader>
-          <CardTitle>
-            <div className="w-3/4 h-6 rounded-full bg-gray-300" />
-          </CardTitle>
-          <CardDescription>
-            <div className="w-1/2 h-4 rounded-full bg-gray-300" />
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="w-full h-4 rounded-full bg-gray-300" />
-          <div className="w-full h-4 rounded-full bg-gray-300" />
-          <div className="w-3/4 h-4 rounded-full bg-gray-300" />
-        </CardContent>
-        <CardFooter>
-          <Button className="w-full" disabled size="lg"></Button>
-        </CardFooter>
-      </Card>
+      [...Array(8)].map((_, index) => (
+        <div
+          className="w-full flex flex-col gap-4 sm:w-[45%] lg:w-[22%] animate-pulse"
+          key={index}
+        >
+          {/* Skeleton for image */}
+          <div className="relative w-full h-80 bg-gray-300 rounded-md"></div>
+      
+          {/* Skeleton for product name and price */}
+          <div className="flex justify-between items-center">
+            <span className="w-1/2 h-4 bg-gray-300 rounded"></span>
+            <span className="w-1/4 h-4 bg-gray-300 rounded"></span>
+          </div>
+      
+          {/* Skeleton for description */}
+          <div className="h-6 bg-gray-300 rounded mt-2"></div>
+      
+          {/* Skeleton for button */}
+          <div className="w-max py-2 px-4 h-8 bg-gray-300 rounded-2xl mt-2"></div>
+        </div>
+      ))
     )
 }

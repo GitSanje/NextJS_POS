@@ -5,16 +5,17 @@ import CustomizeProducts from "./CustomizedProducts";
 import AddCart from "../Cart/AddCart";
 
 import { ProductOneType,productVariantType } from "@/types";
+import { useSession } from "next-auth/react";
 
 
 interface Props {
   product: ProductOneType;
   varients: productVariantType;
-  userId: string
+
   
 }
 const SingleDisplay: React.FC<Props> = (props) => {
-  const { product, varients,userId } = props;
+  const { product, varients } = props;
   const product_varients = product?.ProductVariant;
 
 
@@ -37,6 +38,13 @@ const SingleDisplay: React.FC<Props> = (props) => {
   console.log('====================================');
   console.log(varPriceDiscout,salePrice,discount,discountPrice, "from single display");
   console.log('====================================');
+
+  const { data: session} = useSession();
+  console.log('====================================');
+  console.log(session, 'session');
+  console.log('====================================');
+  
+ const userId = session?.user.id 
   return (
     <>
       {/* IMG */}
@@ -61,9 +69,8 @@ const SingleDisplay: React.FC<Props> = (props) => {
 
         <div className="h-[2px] bg-gray-100" />
 
-        {product_varients && product_varients.length > 0 ? (
+        {product_varients && product_varients.length  > 0 ? (
           <CustomizeProducts
-            userId={userId}
             quantityInStock={product?.quantityInStock}
             productId={product?.id  }
             variants={varients}
@@ -75,13 +82,13 @@ const SingleDisplay: React.FC<Props> = (props) => {
         ) : (
           product && 
           <AddCart
-          userId= { userId}
+       
             productId={product && product.id}
             productVariantIds={[]}
             stockNumber={product?.quantityInStock}
             amount ={discountPrice}
          
-            // variantId={null}
+           
           />
         )}
       </div>

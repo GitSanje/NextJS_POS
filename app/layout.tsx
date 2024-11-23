@@ -45,11 +45,11 @@ export default function RootLayout({ children }:{
         <Navbar/>
       
         {children}
-        <Toaster />
-        <ToastContainer/>
+    
         </GlobalProvider>
         </Providers>
-       
+        <Toaster />
+        <ToastContainer/>
       </body>
     </html>
   );
