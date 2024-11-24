@@ -220,6 +220,12 @@ export type OrderWithCartsType = Order & {
 
 
 export type ProductOneType = Product & {
+  category:{
+    categoryName: string
+  };
+  tax?: {
+    rate: number
+  } | null, 
   ProductVariant: (ProductVariant & {
     variant: Variant;
     option: VariantOption | null;

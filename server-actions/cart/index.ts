@@ -202,60 +202,106 @@ export const postCarts = async (userId:string,quantity:number, productId:string,
 
 
 } 
-export const removeCart = async (productId: string): Promise<Response | undefined> => {
+
+export const addCart = async ( productId: string, amount: number): Promise<Response | undefined> => {
+
   try {
-    await prisma.$transaction(async (tx) => {
-      // Fetch the cart item and check its quantity
-      const cartItem = await tx.cart.findFirst({
-        where: { productId : productId},
-        select: { id: true, quantity: true },
+    // Fetch the cart item
+    const cartItem = await prisma.cart.findFirst({
+      where: { productId },
+      select: { id: true, quantity: true },
+    });
+
+    if (!cartItem) {
+      return response({
+        success: false,
+        error: {
+          code: 404,
+          message: "Cart not found",
+        },
+      });
+    }
+
+  
+      await prisma.cart.update({
+        where: { id: cartItem.id },
+        data: {
+          quantity: { increment: 1 },
+          amount: { increment: amount },
+        },
       });
 
-      if (!cartItem) {
-        
-         return response({
-          success: false,
+      return response({
+        success: true,
+        code: 200,
+        message: "added an item to cart",
+      });
     
-          error: {
-            code: 404,
-            message: "Cart not found",
-          },
-        });
-      }
-
-      // Conditional logic based on quantity
-      if (cartItem.quantity > 1) {
-        await tx.cart.update({
-          where: { id: cartItem.id },
-          data: {
-            quantity: { decrement: 1 },
-          },
-        });
-        return response({
-          success: true,
     
-          code:200,
-            message: "removed a item from cart",
-          
-        });
-      } else {
-        await tx.cart.delete({
-          where: { id: cartItem.id },
-        });
-        return response({
-          success: true,
-    
-          code:200,
-            message: "removed a cart successfully",
-          
-        });
-       
-      }
-    });
   } catch (error) {
+    console.error("Error removing item from cart:", error);
+
     return response({
       success: false,
+      error: {
+        code: 500,
+        message: "Unknown error occurred",
+      },
+    });
+  }
 
+}
+export const removeCart = async (productId: string, amount: number): Promise<Response | undefined> => {
+  try {
+    // Fetch the cart item
+    const cartItem = await prisma.cart.findFirst({
+      where: { productId },
+      select: { id: true, quantity: true },
+    });
+
+    if (!cartItem) {
+      return response({
+        success: false,
+        error: {
+          code: 404,
+          message: "Cart not found",
+        },
+      });
+    }
+
+    // Check the quantity and perform the appropriate action
+    if (cartItem.quantity > 1) {
+      // Update quantity and amount
+      await prisma.cart.update({
+        where: { id: cartItem.id },
+        data: {
+          quantity: { decrement: 1 },
+          amount: { decrement: amount },
+        },
+      });
+
+      return response({
+        success: true,
+        code: 200,
+        message: "Removed an item from cart",
+      });
+    } else {
+      // Delete the cart item
+      await prisma.cart.delete({
+        where: { id: cartItem.id },
+      });
+
+      return response({
+        success: true,
+        code: 200,
+        message: "Removed the cart successfully",
+      });
+    }
+  } catch (error) {
+    console.error("Error removing item from cart:", error);
+
+    return response({
+      success: false,
       error: {
         code: 500,
         message: "Unknown error occurred",
@@ -263,3 +309,4 @@ export const removeCart = async (productId: string): Promise<Response | undefine
     });
   }
 };
+

@@ -25,11 +25,23 @@ export const productgetById =  cache (async (id: string)=> {
         id: id,
       },
       include: {
+        category: {
+          select: {
+            categoryName:true
+          }
+        },
+        tax: {
+          select: {
+            rate:true
+          }
+        },
         ProductVariant: {
           include: {
             variant: true,
             option: true,
+            
           },
+
         },
       },
     });

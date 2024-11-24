@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useTransition, useEffect, useState } from "react";
-import { ShoppingCart, X, Plus, Minus } from "lucide-react";
+import { ShoppingCart, X, Plus, Minus, Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -22,7 +22,7 @@ import { Button } from "../ui/button";
 import useGloabalContext from "@/context/GlobalProvider";
 import { getUserSession } from "@/server-actions/user";
 import { toast } from "sonner";
-import { postCarts, removeCart } from "@/server-actions/cart";
+import { addCart, postCarts, removeCart } from "@/server-actions/cart";
 import { SpinningButton } from "../ui/spinning-button";
 import { Router } from "next/router";
 import { useRouter } from "next/navigation";
@@ -67,6 +67,8 @@ const ShopSection = ({
     fetchUserId(); // Invoke the function
   }, []);
 
+  
+  
   const totalItems = Object.values(cart).reduce((sum, count) => sum + count, 0);
 
   const cartItems: CartItem[] = Object.entries(cart).map(([id, quantity]) => {
@@ -122,37 +124,62 @@ const ShopSection = ({
           (product) => product?.category.categoryName === selectedCategory
         );
      const router = useRouter()
-
-      const addToCartDB = async (productId: string,amount: number, productVariantIds: string[]= []) => {
-        
-          startTransition(async () => {
-            if( userId) {
-
-              addToCart(productId);
-              await postCarts(userId,1,productId,amount,productVariantIds)
-
-               .then((data) => {
-                if(!data.success){
+     const addToCartDB = async (productId: string, amount: number, productVariantIds: string[] = []) => {
+      startTransition(() => {
+        if (userId) {
+          addToCart(productId); // Local cart update
+    
+          // Check if the product is already in the cart
+          if (cart[productId] > 0) {
+            addCart(productId, amount)
+              .then((data) => {
+                if (!data) {
+                  return toast.error("Something went wrong");
+                }
+                if (!data.success) {
                   return toast.error(data.error.message);
                 }
-                toast.success("product added to cart sucsesfully");
-                // router.push("/cart-view");
-               })
-        
-            }
-            
-          })
-      
+                toast.success("Product quantity updated successfully!");
+              })
+              .catch((error) => {
+                console.error("Error updating cart:", error);
+                toast.error("An unexpected error occurred while updating the cart.");
+              });
+          } else {
+            postCarts(userId, 1, productId, amount, productVariantIds)
+              .then((data) => {
+                if (!data) {
+                  return toast.error("Something went wrong");
+                }
+                if (!data.success) {
+                  return toast.error(data.error.message);
+                }
+                toast.success("Product added to the cart successfully!");
+              })
+              .catch((error) => {
+                console.error("Error adding to cart:", error);
+                toast.error("An unexpected error occurred while adding to the cart.");
+              });
+          }
+        } else {
+          toast.error("User not logged in. Please log in to add items to the cart.");
         }
+      });
+    };
+    
+    
 
-    const removeCartDB = async (productId: string) => {
+    const removeCartDB = async (productId: string, amount: number) => {
       startTransition(async () => {
         if( userId) {
 
           removeFromCart(productId);
-          await removeCart(productId)
+    
+          await removeCart(productId, amount)
 
            .then((data) => {
+            console.log(data, "from data");
+            
             if(!data){
               return toast.error("something went wrong");
             }
@@ -397,25 +424,30 @@ const ShopSection = ({
                     </div>
                     <div className="flex items-center space-x-2">
                       {item.product && (
-                        <Button
+                        <SpinningButton
                           size="icon"
                           variant="outline"
-                          onClick={() => removeCartDB(item.product?.id as string)}
+                          onClick={() => removeCartDB(item.product?.id as string, item.product?.salePrice as number)}
                           aria-label={`Decrease quantity of ${item.product.name}`}
+                          // isLoading= { isPending}
                         >
-                          <Minus className="h-4 w-4" />
-                        </Button>
+                         {
+ <Minus className="h-4 w-4" />
+                         } 
+
+                        </SpinningButton>
                       )}
 
                       <span className="w-8 text-center">{item.quantity}</span>
-                      <Button
+                      <SpinningButton
                         size="icon"
                         variant="outline"
-                        onClick={() => addToCart(item.product?.id)}
+                        onClick={() => addToCartDB(item.product?.id as string, item.product?.salePrice as number)}
                         aria-label={`Increase quantity of ${item.product?.name}`}
+                       
                       >
                         <Plus className="h-4 w-4" />
-                      </Button>
+                      </SpinningButton>
                     </div>
                   </div>
                 ))}

@@ -6,6 +6,7 @@ import AddCart from "../Cart/AddCart";
 
 import { ProductOneType,productVariantType } from "@/types";
 import { useSession } from "next-auth/react";
+import { productType } from "@/types/productType";
 
 
 interface Props {
@@ -18,6 +19,29 @@ const SingleDisplay: React.FC<Props> = (props) => {
   const { product, varients } = props;
   const product_varients = product?.ProductVariant;
 
+  const deriveProduct: productType = {
+    name: product?.name ?? "Unknown Product",
+    id: product?.id ?? "N/A",
+    image: product?.image ?? null,
+    description: product?.description ?? null,
+    costPrice: product?.costPrice ?? 0,
+    quantityInStock: product?.quantityInStock ?? 0,
+    discount: product?.discount ?? null,
+    taxId: product?.taxId ?? null,
+    tax: product?.tax
+      ? {
+          rate: product.tax.rate,
+        }
+      : undefined,
+    salePrice: product?.salePrice ?? null,
+    status: product?.status ?? false,
+    category: {
+      categoryName: product?.category?.categoryName ?? "Uncategorized",
+    },
+  };
+  
+  
+  
 
   const [varPriceDiscout, setVarPriceDiscout] = useState<[number, number]>([
     0,
@@ -44,7 +68,7 @@ const SingleDisplay: React.FC<Props> = (props) => {
   console.log(session, 'session');
   console.log('====================================');
   
- const userId = session?.user.id 
+
   return (
     <>
       {/* IMG */}
@@ -71,6 +95,7 @@ const SingleDisplay: React.FC<Props> = (props) => {
 
         {product_varients && product_varients.length  > 0 ? (
           <CustomizeProducts
+            // product= { product}
             quantityInStock={product?.quantityInStock}
             productId={product?.id  }
             variants={varients}
@@ -82,7 +107,7 @@ const SingleDisplay: React.FC<Props> = (props) => {
         ) : (
           product && 
           <AddCart
-       
+          product= { deriveProduct}
             productId={product && product.id}
             productVariantIds={[]}
             stockNumber={product?.quantityInStock}

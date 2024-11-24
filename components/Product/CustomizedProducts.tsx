@@ -31,8 +31,7 @@ const CustomizeProducts = ({
 
    
  const {orderSummary } = useGloabalContext()
- const { cartItems} = orderSummary
- 
+
   const [selectedOptions, setSelectedOptions] = useState<
     { [key: string]: string[] }[]
   >([]);
