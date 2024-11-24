@@ -6,6 +6,7 @@ import { VariantOption, ProductVariant, Variant } from "@prisma/client";
 import AddCart from "../Cart/AddCart";
 import { productVariantType } from "@/types";
 import useGloabalContext from "@/context/GlobalProvider";
+import { productType } from "@/types/productType";
 
 export type productoptionType=  (ProductVariant & {
   variant: Variant;
@@ -14,6 +15,7 @@ export type productoptionType=  (ProductVariant & {
 
 
 const CustomizeProducts = ({
+  product,
   quantityInStock,
   productId,
   variants,
@@ -21,6 +23,7 @@ const CustomizeProducts = ({
   setVarPriceDiscout,
   amount
 }: {
+  product: productType
   quantityInStock: number | undefined;
   productId: string ;
   variants:productVariantType;
@@ -204,6 +207,7 @@ const CustomizeProducts = ({
         )}
 
         <AddCart
+          product={product}
           productId={productId}
           stockNumber={quantityInStock}
           productVariantIds={productVarIds}

@@ -95,7 +95,7 @@ const SingleDisplay: React.FC<Props> = (props) => {
 
         {product_varients && product_varients.length  > 0 ? (
           <CustomizeProducts
-            // product= { product}
+            product= { deriveProduct}
             quantityInStock={product?.quantityInStock}
             productId={product?.id  }
             variants={varients}
