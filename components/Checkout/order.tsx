@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,6 +10,11 @@ import ProductCard from "./Item"
 import { productType } from "@/types/productType"
 import { CartItem } from "@/types/orderType"
 import useGloabalContext from "@/context/GlobalProvider"
+import { Session } from "next-auth/core/types"
+import CheckoutPage2 from "./CheckoutPage2"
+import { loadStripe } from "@stripe/stripe-js"
+import { Elements } from "@stripe/react-stripe-js"
+import convertToSubcurrency from "@/lib/utils"
 
 export type product = productType & {
   discountV:number,
@@ -20,11 +24,20 @@ export type product = productType & {
 
 }
 
-export default function CheckoutPage( ) {
+type Props = {
+  session : Session
+ 
+}
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY as string
+);
+
+export default function CheckoutPage({ session}:Props ) {
  
 
   const [quantity, setQuantity] = useState<number>(1)
   const { orderSummary} = useGloabalContext()
+
   const {cartItems,cart} = orderSummary
 
   const calculateFinalPrice = (product: productType, quantity: number) => {
@@ -43,13 +56,27 @@ export default function CheckoutPage( ) {
     0
   );
 
-
+   
 
 
  
 
       const shipping = 5.99
       const total = subtotal + shipping
+
+  //     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+  // const paymentIntent = await stripe.paymentIntents.create({
+  //   amount: total ? total : 50 ,
+  //   currency: "USD",
+  //   // metadata: { productId: product.id },
+  // });
+  // if (paymentIntent.client_secret == null) {
+  //   throw Error("Stripe failed to create payment intent");
+  // }
+ 
+  
+
+
 
   return (
     <div className="container mx-auto p-4">
@@ -58,47 +85,21 @@ export default function CheckoutPage( ) {
       <Card>
       <CardHeader>
             <CardTitle>Shipping Address</CardTitle>
-          </CardHeader>
-      <div className=" pt-4">
 
-    
-          <CardContent>
-            <form className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 ">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" placeholder="John" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" placeholder="Doe" />
-                </div>
-                
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Input id="address" placeholder="123 Main St" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
-                  <Input id="city" placeholder="New York" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="zipCode">ZIP Code</Label>
-                  <Input id="zipCode" placeholder="10001" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="country">Country</Label>
-                <Input id="country" placeholder="United States" />
-              </div>
-            </form>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full">Pay ${total.toFixed(2)}</Button>
-          </CardFooter>
-          </div>
+          </CardHeader>
+
+          <Elements stripe={stripePromise}  options={{
+     
+          mode: "payment" ,
+          amount: convertToSubcurrency(total),
+          currency: "usd",
+       
+        }}>
+                 <CheckoutPage2 total={total} session={session}/>
+
+            </Elements>
+         
+     
       <h1 className="text-2xl font-bold mb-6">Packages</h1>
       {cartItems.map((cartItem,index) => (
         <ProductCard

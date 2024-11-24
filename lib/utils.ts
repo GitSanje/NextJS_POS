@@ -76,3 +76,9 @@ export const formatOrderDate = (dateString: Date | undefined) => {
     year: 'numeric',
   });
 };
+
+function convertToSubcurrency(amount: number, factor = 100) {
+  return Math.round(amount * factor);
+}
+
+export default convertToSubcurrency;

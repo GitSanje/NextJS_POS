@@ -5,14 +5,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../api/auth/[...nextauth]/options";
 
 import { prisma } from "@/vendor/prisma";
-import PaymentForm from "@/components/Checkout/PaymentForm";
+
 import CheckoutPage from "@/components/Checkout/order";
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { Elements } from "@stripe/react-stripe-js";
 // import CheckoutPage from "@/components/Checkout/CheckoutPage2";
 
 export const metadata: Metadata = {
   title: "Checkout",
 };
+
 
 
 
@@ -49,16 +52,12 @@ const page: React.FC = async () => {
   // const subTotalInCents = Math.round(total * 100);
   // const carts = await getCarts(userId);
   // console.log(carts);
-  // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
-  // const paymentIntent = await stripe.paymentIntents.create({
-  //   amount: subTotalInCents> 0? subTotalInCents : 50 ,
-  //   currency: "USD",
-  //   // metadata: { productId: product.id },
-  // });
-  // if (paymentIntent.client_secret == null) {
-  //   throw Error("Stripe failed to create payment intent");
-  // }
+  
 
+  const session = await getServerSession(authOptions)
+  if(!session){
+    redirect("/auth/login")
+  }
 
 
   return (
@@ -77,7 +76,9 @@ const page: React.FC = async () => {
         </div>} */}
 
 
-        <CheckoutPage />
+<CheckoutPage session={session} />
+   
+       
         </>
   );
 };

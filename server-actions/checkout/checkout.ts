@@ -1,174 +1,88 @@
 "use server";
-import { CheckoutState, checkoutSchema } from "./definitions";
+import { CheckoutState, checkoutSchema, checkoutType } from "./definitions";
 import { prisma } from "../../vendor/prisma";
 import { revalidatePath } from "next/cache";
 import { response } from "@/lib/utils";
 import { generateInvoiceId } from "@/lib/utils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
+import { CartItem } from "@/types/orderType";
 
 
 export async function checkout(
-  // prevState: CheckoutState,
-  formData: FormData
+  values: checkoutType,
+  cartItems: CartItem[]
 ) {
-  const session = await getServerSession(authOptions)
-  // Validate form fields using Zod schema
-  const validatedFields = checkoutSchema.safeParse({
-    name: formData.get("name"),
-    email: formData.get("email"),
-    phone: formData.get("phone"),
-    state: formData.get("state"),
-    city: formData.get("city"),
-    streetaddress: formData.get("streetaddress"),
-    paymentMethod: formData.get("paymentMethod"),
-    subtotal: formData.get("subtotal"),
-  });
-  console.log(validatedFields.data, validatedFields.error);
-
-  if (!validatedFields.success) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
     return response({
       success: false,
       error: {
-        code: 422,
-        message: "invalid fields",
+        code: 401,
+        message: "User is not authenticated",
       },
     });
   }
 
   try {
-    const {
-      name,
-      phone,
-      email,
-      streetaddress,
-      state,
-      city,
-      paymentMethod,
+    const { streetaddress, state, city, paymentMethod, name, email } = values;
 
-    } = validatedFields.data;
-
-    // Find the user by email
-    // const user = await prisma.user.findUnique({
-    //   where: { email },
-    //   select: { id: true },
-    // });
-
-    // if (!user) {
-    //   return response({
-    //     success: false,
-    //     error: {
-    //       message: `User with email ${email} not found`,
-    //       code: 404,
-    //     },
-    //   });
-    // }
-
-    // Find pending carts for the user
-    const pendingCarts = await prisma.cart.findMany({
-      where: { status: "PENDING", userId: session?.user.id },
-      include: {
-        product: {
-          select: {
-            salePrice: true,
-            discount: true,
-            taxId: true,
-            tax: true,
-          },
+    // Validate cart items
+    if (!cartItems || cartItems.length === 0) {
+      return response({
+        success: false,
+        error: {
+          code: 404,
+          message: "No items in the cart",
         },
-        variants: {
-          select: {
-            discount: true,
-            salePrice: true,
-            variant: true,
-            option: {
-              select: {
-                value: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (pendingCarts.length === 0) {
-      return response({ success: false,
-        error:{
-          code:404,
-          message: "No pending carts found for the user" }
-        }
-        );
+      });
     }
 
-    // Find or create payment method
+    // Find or create the payment method
     let paymentMethodRecord = await prisma.paymentType.findFirst({
       where: { paymentType: paymentMethod },
     });
 
     if (!paymentMethodRecord) {
       paymentMethodRecord = await prisma.paymentType.create({
-        data: { paymentType: paymentMethod },
+        data: { paymentType: paymentMethod!},
       });
     }
-    const taxtIds = pendingCarts
-      .map((cart) => cart.product.taxId)
-      .filter((id): id is string => id !== null);
 
-    console.log("taxtIds", taxtIds);
-    const quantity = pendingCarts.reduce((sum, cart) => sum + cart.quantity, 0);
+    // Extract unique tax IDs from cart items
+    // const taxIds = cartItems
+    //   .map((cart) => cart.product?.taxId)
+    //   .filter((id): id is string => id !== null);
+
+    const quantity = cartItems.reduce((sum, cart) => sum + cart.quantity, 0);
+
     // Create order
     const order = await prisma.order.create({
       data: {
         orderDate: new Date(),
-        quantity: quantity,
+        quantity,
         deliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days ahead
         state,
         streetAddress: streetaddress,
         city,
-        userId: session?.user.id as string,
-        paymentStatus:true,
-
+        userId: session.user.id as string,
+        paymentStatus: true,
         products: {
-          connect: pendingCarts.map((cart) => ({ id: cart.productId })),
+          connect: cartItems.map((cart) => ({ id: cart.product?.id })),
         },
         carts: {
-          connect: pendingCarts.map((cart) => ({ id: cart.id })),
+          connect: cartItems.map((cart) => ({ id: cart.product?.id })),
         },
       },
     });
-    // const subTotal =  pendingCarts.reduce((sum, cart) => {
-    //   return sum +( cart?.amount ?? 0)
-    //  },0 )
-    // const totaltax = pendingCarts.reduce((sum, item) => {
-    //   const productPrice =
-    //           item.variants.length > 0
-    //             ? item.variants.find(
-    //                 (var_p) => var_p.variant.name === "Size"
-    //               )?.salePrice || item.product.salePrice
-    //             : item.product.salePrice;
-    //   return sum + (item.product?.tax?.rate ?? 0)/ 100 *( productPrice ?? 0)
-    //  },0 ) 
 
     // Update cart status to "CHECKOUT"
     await prisma.cart.updateMany({
-      where: { id: { in: pendingCarts.map((cart) => cart.id) } },
+      where: { productId: { in: cartItems.map((cart) => cart.product?.id !) } },
       data: { status: "CHECKOUT" },
     });
 
-    // const salesInvoice = await prisma.salesInvoice.create({
-    //   data: {
-    //     InvoiceId: await generateInvoiceId(),
-    //     orderId: order.id,
-    //     totalAmount: subTotal+ totaltax,
-
-    //     tax: {
-    //       connect: taxtIds.map((id) => ({ id })),
-    //     },
-    //   },
-    // });
-
-    // console.log(order, salesInvoice);
-
+    // Revalidate cache for necessary pages
     revalidatePath("/order");
     revalidatePath("/view-cart");
     revalidatePath("/");
@@ -178,60 +92,24 @@ export async function checkout(
       code: 201,
       message: "Order placed successfully",
       data: {
-         
-          id: order.id,
-          state: state,
-          orderDate: order.orderDate,
-          quantity: quantity,
-          streetAddress: streetaddress,
-          city: city,
-          user: {
-            email: email,
-            name: name
-
-          },
-          // InvoiceId: salesInvoice.InvoiceId,
-          carts: pendingCarts,
-          // invoiceDate: salesInvoice.invoiceDate
-        
+        id: order.id,
+        state,
+        orderDate: order.orderDate,
+        quantity,
+        streetAddress: streetaddress,
+        city,
+        user: { email, name },
+        carts: cartItems,
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error during checkout:", error);
     return response({
       success: false,
       error: {
-        message: `error to post checkout`,
+        message: "Error occurred during checkout",
         code: 500,
       },
     });
   }
 }
-
-//   const filteredCarts =
-
-//   const productVariants = await Promise.all(
-//     pendingCarts.map( async cart => {
-//         if( cart.variantId){
-//             const variant = await prisma.variant.findFirst({
-//                 where: {
-//                     id: cart.variantId,
-//                     productId: cart.productId
-//                 }
-
-//             })
-
-//             return  variant ? { productId: cart.productId, variantId: cart.variantId } : { productId: cart.productId, variantId: null };
-//         }
-//         return { productId: cart.productId, variantId: null };
-//     })
-
-//   )
-// Filter out invalid variant-product pairs
-//    const validVariantsFiltered = productVariants.filter(Boolean);
-
-//    // Extract product IDs from pending carts
-//    const productIds = pendingCarts.map(cart => cart.productId)
-//    const variantIds = pendingCarts
-//                        .filter(cart => cart.variantId)// Only keep carts with a variant
-//                        .map(cart => cart.variantId);
