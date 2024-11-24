@@ -40,9 +40,10 @@ import { productType } from "./productType";
 export type CartItem =  {
     quantity: number;
     product: productType | undefined;
-    // amount: number | null;
+    amount?: number | null;
 
     variants?: Variant[] ;
+    variantIds? : string[];
   }
   
   // type for Order

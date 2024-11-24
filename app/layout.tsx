@@ -8,6 +8,9 @@ import { GlobalProvider } from "../context/GlobalProvider";
 import { Providers } from "./providers";
 import { ToastContainer } from "react-toastify";
 import { Toaster } from 'sonner';
+import { NavbarVendify } from '@/components/Navbar/NavbarVendify';
+import { getServerSession } from 'next-auth';
+import { authOptions } from './api/auth/[...nextauth]/options';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,9 +26,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }:{
+export default async function RootLayout({ children }:{
   children: React.ReactNode;
 }) {
+
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en">
          {/* <Script strategy='afterInteractive'>{`
@@ -42,7 +48,8 @@ export default function RootLayout({ children }:{
       <body className={`${inter.className} bg-white`}>
       <Providers>
         <GlobalProvider>
-        <Navbar/>
+        {/* <Navbar/> */}
+        <NavbarVendify session = {session}/>
       
         {children}
     

@@ -1,47 +1,120 @@
 "use client";
 
 import { useCartStore } from "@/hooks/useCartStore";
-import { useState } from "react";
-import {  notFound, useRouter } from 'next/navigation'
+import { startTransition, useEffect, useState, useTransition } from "react";
+import { notFound, useRouter } from "next/navigation";
 import React from "react";
 import useGloabalContext from "@/context/GlobalProvider";
+import { getUserSession } from "@/server-actions/user";
+import { Router } from "next/router";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { CartItem } from "@/types/orderType";
+import { postCarts } from "@/server-actions/cart";
+import { toast } from "sonner";
+import { SpinningButton } from "../ui/spinning-button";
 
 const AddCart = ({
-
   productId,
   productVariantIds,
   stockNumber,
   amount,
 }: {
-
   productId: string;
   productVariantIds: (string | undefined)[];
   stockNumber: number | undefined;
   amount: number;
 }) => {
-  const [quantity, setQuantity] = useState(1);
+
   const { addItem, isLoading } = useCartStore();
-  const { userId} = useGloabalContext()
-  console.log('====================================');
-  console.log(userId, 'add cart');
-  console.log('====================================');
+  const [isPending, startTransition] = useTransition()
+  
+  const { orderSummary,cartFunctions } = useGloabalContext();
+  const { cart, setCart, setCartItems, cartItems } = orderSummary;
+  const {addToCart,removeFromCart} = cartFunctions
+  const [quantity, setQuantity] = useState(cart[productId]);
+
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const sessionId = await getUserSession(); // Call your session fetch function
+      setUserId(sessionId); // Update userId in state
+    };
+
+    fetchUserId(); // Invoke the function
+  }, []);
+
+
+
+ 
+
+  
+  useEffect(() => {
+
+    if(productId){
+      setCartItems((prevCartData) => {
+        const updatedCartData = prevCartData.map((cartItem) => {
+            if (cartItem.product?.id === productId) {
+                return {
+                    ...cartItem,
+                    quantity: quantity,
+                    productVariantIds: productVariantIds,
+                    amount:amount
+                };
+            }
+            return cartItem;
+        });
+  
+        // Update localStorage after updating cart
+        if (global?.window !== undefined)  {
+          localStorage.setItem("cartItemsData", JSON.stringify(updatedCartData));
+    
+        }
+        
+        return updatedCartData; // Return the updated array
+    });
+    }
+   
+
+  } ,[productId, productVariantIds,amount])
+
+  console.log(cartItems, "cartItems from the addcart");
   
 
- if(!userId){
+ 
 
-  return notFound()
- }
-
-  // const router = useRouter()
-  const handleQuantity = (type: "i" | "d") => {
+  const router = useRouter();
+  const handleQuantity = (type: "i" | "d", productId: string) => {
     if (type === "d" && quantity > 1) {
       setQuantity((prev) => prev - 1);
+      removeFromCart(productId)
     }
     if (type === "i" && quantity < (stockNumber ?? 0)) {
       setQuantity((prev) => prev + 1);
+      addToCart(productId)
     }
   };
 
+  
+  const addToCartDB = async () => {
+    startTransition(async () => {
+      if( userId) {
+        await postCarts(userId,quantity,productId,amount,productVariantIds)
+         .then((data) => {
+          if(!data.success){
+            return toast.error(data.error.message);
+          }
+          toast.success("product added to cart sucsesfully");
+          // router.push("/cart-view");
+         })
+  
+      }
+      
+    })
+
+  }
+
+ 
   return (
     <>
       <div className="flex flex-col gap-4">
@@ -53,7 +126,7 @@ const AddCart = ({
             <div className="bg-gray-100 py-2 px-4 rounded-3xl flex items-center justify-between w-32">
               <button
                 className="cursor-pointer text-xl disabled:cursor-not-allowed disabled:opacity-20"
-                onClick={() => handleQuantity("d")}
+                onClick={() => handleQuantity("d",productId)}
                 disabled={quantity === 1}
               >
                 -
@@ -61,7 +134,7 @@ const AddCart = ({
               {quantity}
               <button
                 className="cursor-pointer text-xl disabled:cursor-not-allowed disabled:opacity-20"
-                onClick={() => handleQuantity("i")}
+                onClick={() => handleQuantity("i",productId)}
                 disabled={quantity === stockNumber}
               >
                 +
@@ -81,33 +154,51 @@ const AddCart = ({
             )}
           </div>
           {productVariantIds && productVariantIds?.length > 0 ? (
-            <button
-              onClick={() =>
-                addItem( userId, quantity, productId, amount, productVariantIds)
-              }
-              disabled={!isLoading}
-              className="w-36 text-sm rounded-3xl ring-1 ring-indigo-500 text-indigo-500 py-2 px-4 hover:bg-indigo-500 hover:text-white disabled:cursor-not-allowed disabled:bg-pink-200 disabled:ring-0 disabled:text-white disabled:ring-none"
-            >
-              Add to Cart
-            </button>
-          ) : (
-            <button
-              onClick={() =>
-                addItem(
+
+            <SpinningButton
                
-                  userId,
-                  quantity,
-                  productId,
-                  amount,
-                  productVariantIds,
-             
-                )
+              onClick={userId ? () =>
+                addToCartDB()
+                :
+                () => router.push('/auth/login')
               }
-              disabled={!isLoading}
-              className="w-36 text-sm rounded-3xl ring-1 ring-indigo-500 text-indigo-500 py-2 px-4 hover:bg-indigo-500 hover:text-white disabled:cursor-not-allowed disabled:bg-pink-200 disabled:ring-0 disabled:text-white disabled:ring-none"
-            >
-              Add to Cart
-            </button>
+            className="w-36 text-xs"
+            size="sm"
+            isLoading= { isPending}
+          >
+            Add to Cart
+            {cart[productId] && (
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {cart[productId]}
+              </Badge>
+            )}
+          </SpinningButton>
+          ) : (
+
+            <SpinningButton
+               onClick={userId ? () =>
+                addItem(userId, quantity, productId, amount, productVariantIds)
+                :
+                () => router.push('/auth/login')
+              }
+            className="w-36 text-xs"
+            size="sm"
+            isLoading= { isPending}
+          >
+            Add to Cart
+            {cart[productId] && (
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {cart[productId]}
+              </Badge>
+            )}
+          </SpinningButton>
+            // <button
+           
+            //   // disabled={!isLoading}
+            //   // className="w-36 text-sm rounded-3xl ring-1 ring-indigo-500 text-indigo-500 py-2 px-4 hover:bg-indigo-500 hover:text-white disabled:cursor-not-allowed disabled:bg-pink-200 disabled:ring-0 disabled:text-white disabled:ring-none"
+            // >
+            //   Add to Cart
+            // </button>
           )}
         </div>
       </div>

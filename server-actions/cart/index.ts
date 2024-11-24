@@ -202,3 +202,64 @@ export const postCarts = async (userId:string,quantity:number, productId:string,
 
 
 } 
+export const removeCart = async (productId: string): Promise<Response | undefined> => {
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Fetch the cart item and check its quantity
+      const cartItem = await tx.cart.findFirst({
+        where: { productId : productId},
+        select: { id: true, quantity: true },
+      });
+
+      if (!cartItem) {
+        
+         return response({
+          success: false,
+    
+          error: {
+            code: 404,
+            message: "Cart not found",
+          },
+        });
+      }
+
+      // Conditional logic based on quantity
+      if (cartItem.quantity > 1) {
+        await tx.cart.update({
+          where: { id: cartItem.id },
+          data: {
+            quantity: { decrement: 1 },
+          },
+        });
+        return response({
+          success: true,
+    
+          code:200,
+            message: "removed a item from cart",
+          
+        });
+      } else {
+        await tx.cart.delete({
+          where: { id: cartItem.id },
+        });
+        return response({
+          success: true,
+    
+          code:200,
+            message: "removed a cart successfully",
+          
+        });
+       
+      }
+    });
+  } catch (error) {
+    return response({
+      success: false,
+
+      error: {
+        code: 500,
+        message: "Unknown error occurred",
+      },
+    });
+  }
+};

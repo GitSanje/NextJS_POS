@@ -28,7 +28,6 @@ const Navbar: React.FC = () => {
             <div className="text-2xl tracking-wide">Vendify</div>
           </Link>
           <div className="hidden xl:flex gap-4">
-            <Link href="/">Homepage</Link>
             <Link href="/">Shop</Link>
             <Link href="/">Deals</Link>
             <Link href="/">About</Link>

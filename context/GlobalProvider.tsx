@@ -40,7 +40,14 @@ interface GlobalContextType {
        setCart: React.Dispatch<React.SetStateAction<Record<string, number>>>
        cartItems: CartItem[];
        setCartItems : (items: CartItem[] | ((prevItems: CartItem[]) => CartItem[])) => void;
+    };
+    cartFunctions: {
+      removeFromCart: (productId: string | undefined) => void;
+    addToCart: (productId: string | undefined) => void;
+
     }
+    
+    
 }
 
 const globalContext = createContext<GlobalContextType | null>(null);
@@ -62,9 +69,41 @@ export const GlobalProvider: React.FC<Props> = (props) => {
     const storedCartItems = (global?.window !== undefined) ? localStorage.getItem("cartItemsData"): null ;
     return storedCartItems ? JSON.parse(storedCartItems) : [];
   });
-  console.log('====================================');
-  console.log(cartItems, "cartItems from global");
-  console.log('====================================');
+
+
+
+  const addToCart = (productId: string | undefined) => {
+    if (!productId) {
+      return;
+    }
+    setCart((prevCart) => {
+      const prevCarts = { ...prevCart };
+      const updatedCarts = {
+        ...prevCarts,
+        [productId]: (prevCarts[productId] || 0) + 1,
+      };
+
+      return updatedCarts;
+    });
+  };
+
+  const removeFromCart = (productId: string | undefined) => {
+    if (!productId) {
+      return;
+    }
+    setCart((prevCart) => {
+      const newCart = { ...prevCart };
+      if (newCart[productId] > 1) {
+        newCart[productId]--;
+      } else {
+        delete newCart[productId];
+      }
+      return newCart;
+    });
+  };
+
+  
+
 
   const cartToogle = () => setCartOpen(!isCartOpen)
 
@@ -138,16 +177,21 @@ export const GlobalProvider: React.FC<Props> = (props) => {
   }
 };
 
-const { getCart,subTotal,totaltax } = useCartStore();
+const { subTotal,totaltax } = useCartStore();
 
 useEffect(() => {
   const fetchUserId = async () => {
     const sessionId = await getUserSession(); // Call your session fetch function
     setUserId(sessionId); // Update userId in state
+   
   };
 
   fetchUserId(); // Invoke the function
 }, []);
+
+console.log('====================================');
+console.log(userId);
+console.log('====================================');
 
  const cartInfo = {subTotal,totaltax }
 
@@ -179,9 +223,14 @@ useEffect(() => {
     setCartItems
    }
 
+   const cartFunctions = {
+    addToCart,
+    removeFromCart
+   }
+
   return (
     <>
-      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,setRefPdf,refPdf ,handleGeneratePdf, order, setOrder, cartInfo, userId,orderSummary}}>
+      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,setRefPdf,refPdf ,handleGeneratePdf, order, setOrder, cartInfo, userId,orderSummary,cartFunctions}}>
         {children}
       </globalContext.Provider>
     </>

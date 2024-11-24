@@ -5,6 +5,7 @@ import { VariantOption, ProductVariant, Variant } from "@prisma/client";
 
 import AddCart from "../Cart/AddCart";
 import { productVariantType } from "@/types";
+import useGloabalContext from "@/context/GlobalProvider";
 
 export type productoptionType=  (ProductVariant & {
   variant: Variant;
@@ -29,12 +30,16 @@ const CustomizeProducts = ({
 }) => {
 
    
-
+ const {orderSummary } = useGloabalContext()
+ const { cartItems} = orderSummary
+ 
   const [selectedOptions, setSelectedOptions] = useState<
     { [key: string]: string[] }[]
   >([]);
+  
 
-  console.log(selectedOptions, amount,"from customize produ");
+
+  
   
 
   const productVarIds = selectedOptions.map((selectVar) => {

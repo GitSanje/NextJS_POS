@@ -7,9 +7,10 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import Input from "../../../../components/Input/Input";
 import Button from "../../../../components/Button/Button";
 
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { signIn } from "next-auth/react";
 
 
 interface Props {
@@ -191,7 +192,9 @@ const LoginSignup: React.FC<Props> = ({ searchParams }) => {
                 <p className="text-lg font-semibold pb-2 text-black">
                   Sign in with:
                 </p>
-                <div className="social_accounts">
+                <div className="social_accounts" onClick={() => signIn('google', {
+                  redirect:false
+                })}>
                   <Button className={social_icons} type="button">
                     <i className="fab fa-google"></i>
                   </Button>

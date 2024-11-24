@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useTransition, useEffect, useState } from "react";
 import { ShoppingCart, X, Plus, Minus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +20,12 @@ import { CartItem } from "@/types/orderType";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import useGloabalContext from "@/context/GlobalProvider";
-
-
+import { getUserSession } from "@/server-actions/user";
+import { toast } from "sonner";
+import { postCarts, removeCart } from "@/server-actions/cart";
+import { SpinningButton } from "../ui/spinning-button";
+import { Router } from "next/router";
+import { useRouter } from "next/navigation";
 // Zod schemas
 const ProductSchema = z.object({
   id: z.string(),
@@ -45,87 +49,63 @@ const ShopSection = ({
   products,
   categories,
 }: ShopSectionProps) => {
+  const { orderSummary,cartFunctions } = useGloabalContext();
+  const { cart, setCart, setCartItems } = orderSummary;
+  const {addToCart,removeFromCart} = cartFunctions
 
-  const {orderSummary} =useGloabalContext();
-  const { cart, setCart,setCartItems} = orderSummary
-  
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
-
+  const [isPending, startTransition] = useTransition()
  
-  const addToCart = (productId: string | undefined) => {
-    if (!productId) {
-      return;
-    }
-    setCart((prevCart) => {
-      const prevCarts = { ...prevCart };
-      const updatedCarts = {
-        ...prevCarts,
-        [productId]: (prevCarts[productId] || 0) + 1,
-      };
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const sessionId = await getUserSession(); // Call your session fetch function
+      setUserId(sessionId); // Update userId in state
+    };
 
-   
-
-      return updatedCarts;
-    });
-  };
-
-  const removeFromCart = (productId: string | undefined) => {
-    if(!productId){
-        return
-    }
-    setCart((prevCart) => {
-      const newCart = { ...prevCart };
-      if (newCart[productId] > 1) {
-        newCart[productId]--;
-      } else {
-        delete newCart[productId];
-      }
-      return newCart;
-    });
-  };
+    fetchUserId(); // Invoke the function
+  }, []);
 
   const totalItems = Object.values(cart).reduce((sum, count) => sum + count, 0);
 
   const cartItems: CartItem[] = Object.entries(cart).map(([id, quantity]) => {
     const product = products.find((p) => p.id === id);
-  
+
     if (!product) {
       throw new Error(`Product with id ${id} not found`);
     }
-  
-    return { 
-      product: product as productType, 
-      quantity 
+
+    return {
+      product: product as productType,
+      quantity,
     };
   });
-  console.log('====================================');
-  console.log(cartItems,'cartitems from shopsection');
-  console.log('====================================');
+  
 
   useEffect(() => {
-    const derivedCartItems: CartItem[] = Object.entries(cart).map(([id, quantity]) => {
-      const product = products.find((p) => p.id === id);
+    const derivedCartItems: CartItem[] = Object.entries(cart).map(
+      ([id, quantity]) => {
+        const product = products.find((p) => p.id === id);
 
-      if (!product) {
-        throw new Error(`Product with id ${id} not found`);
+        if (!product) {
+          throw new Error(`Product with id ${id} not found`);
+        }
+
+        return {
+          product: product as productType,
+          quantity,
+          
+        };
       }
-
-      return {
-        product: product as productType,
-        quantity,
-      };
-    });
+    );
 
     setCartItems(derivedCartItems);
     if (global?.window !== undefined) {
       localStorage.setItem("cartItemsData", JSON.stringify(derivedCartItems));
-
     }
-
   }, [cart, products, setCartItems]);
-  
-  
+
   const totalPrice = cartItems.reduce((sum, item) => {
     const productPrice =
       item.variants && item.variants?.length > 0
@@ -141,6 +121,53 @@ const ShopSection = ({
       : products?.filter(
           (product) => product?.category.categoryName === selectedCategory
         );
+     const router = useRouter()
+
+      const addToCartDB = async (productId: string,amount: number, productVariantIds: string[]= []) => {
+        
+          startTransition(async () => {
+            if( userId) {
+
+              addToCart(productId);
+              await postCarts(userId,1,productId,amount,productVariantIds)
+
+               .then((data) => {
+                if(!data.success){
+                  return toast.error(data.error.message);
+                }
+                toast.success("product added to cart sucsesfully");
+                // router.push("/cart-view");
+               })
+        
+            }
+            
+          })
+      
+        }
+
+    const removeCartDB = async (productId: string) => {
+      startTransition(async () => {
+        if( userId) {
+
+          removeFromCart(productId);
+          await removeCart(productId)
+
+           .then((data) => {
+            if(!data){
+              return toast.error("something went wrong");
+            }
+            if(!data.success){
+              return toast.error(data.error.message);
+            }
+            toast.success("product removed from cart sucsesfully");
+           
+           })
+    
+        }
+        
+      })
+
+    }
 
   return (
     <div
@@ -161,12 +188,12 @@ const ShopSection = ({
               {totalItems > 0 && (
                 <Badge
                   variant="destructive"
-                  className="absolute -top-2 -right-2"
+                  className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full text-xs"
                 >
                   {totalItems}
                 </Badge>
               )}
-              <ShoppingCart className="w-6 h-6" />
+              <ShoppingCart className="h-6 w-6 text-gray-400 hover:text-gray-500" />
             </div>
           </>
         ) : (
@@ -175,10 +202,15 @@ const ShopSection = ({
               className="relative cursor-pointer"
               onClick={() => setIsCartOpen(true)}
             >
-              <ShoppingCart className="w-6 h-6" />
               {totalItems > 0 && (
-                <Badge variant="destructive">{totalItems}</Badge>
+                <Badge
+                  variant="destructive"
+                  className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full text-xs"
+                >
+                  {totalItems}
+                </Badge>
               )}
+              <ShoppingCart className="h-6 w-6 text-gray-400 hover:text-gray-500" />
             </div>
           </div>
         )}
@@ -230,28 +262,24 @@ const ShopSection = ({
                 key={product?.id}
                 className="border rounded-lg overflow-hidden bg-white text-black shadow-sm "
               >
-
-              <Link
-            href={"/products/" + product.id}
-            // className="w-full flex flex-col gap-4 sm:w-[45%] lg:w-[22%]"
-            key={product.id}
-          >
                 <div
                   className={`relative overflow-hidden ${
                     isMobile ? "h-24" : "sm:h-48 h-40"
                   }`}
                 >
-                  {product?.image && (
-                    <Image
-                      src={product?.image}
-                      alt={product.name}
-                      fill
-                      className="absolute object-cover rounded-md hover:scale-110 transition-transform duration-300 object-contain"
-                      unoptimized
-                      loading="lazy"
-                       sizes="25vw"
-                    />
-                  )}
+                  <Link href={"/products/" + product.id} key={product.id}>
+                    {product?.image && (
+                      <Image
+                        src={product?.image}
+                        alt={product.name}
+                        fill
+                        className="absolute object-cover rounded-md hover:scale-110 transition-transform duration-300 object-contain"
+                        unoptimized
+                        loading="lazy"
+                        sizes="25vw"
+                      />
+                    )}
+                  </Link>
                 </div>
                 <div className="p-2 flex flex-col gap-2">
                   <h3 className="font-semibold text-lg sm:text-sm mb-1 truncate">
@@ -286,17 +314,21 @@ const ShopSection = ({
                       size="sm"
                       variant="ghost"
                     >
-                      <Link href={`/buy-now/${product.id}`}>
-                      Buy Now
-                      </Link>
-                     
+                      <Link href={"/products/" + product.id} key={product.id}>Buy Now</Link>
                     </Button>
 
-                    <Button
-                      onClick={() => addToCart(product?.id)}
+                    <SpinningButton
+                    
+                      
+                    
+                      onClick={ userId && product?.id ? () => addToCartDB(product?.id,productPrice)
+                        :
+                        () => router.push('/auth/login')
+
+                      }
                       className="w-full text-xs"
                       size="sm"
-                     
+                      isLoading={isPending}
                     >
                       Add to Cart
                       {cart[product.id] && (
@@ -304,13 +336,10 @@ const ShopSection = ({
                           {cart[product?.id]}
                         </Badge>
                       )}
-                    </Button>
+                    </SpinningButton>
                   </div>
                 </div>
-                </Link>
               </div>
-
-             
             );
           })}
         </div>
@@ -367,18 +396,17 @@ const ShopSection = ({
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
-                        {
-                            item.product && 
-                            <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => removeFromCart(item.product?.id )}
-                            aria-label={`Decrease quantity of ${item.product.name}`}
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                        }
-                     
+                      {item.product && (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => removeCartDB(item.product?.id as string)}
+                          aria-label={`Decrease quantity of ${item.product.name}`}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                      )}
+
                       <span className="w-8 text-center">{item.quantity}</span>
                       <Button
                         size="icon"
@@ -403,15 +431,14 @@ const ShopSection = ({
                 </span>
               </div>
 
-              <Link href={'/checkout'}>
-          
-              <Button
-                className="w-full"
-                disabled={cartItems.length === 0}
-                // onClick={() => alert("Proceeding to checkout")}
-              >
-                Checkout
-              </Button>
+              <Link href={"/checkout"}>
+                <Button
+                  className="w-full"
+                  disabled={cartItems.length === 0}
+                  // onClick={() => alert("Proceeding to checkout")}
+                >
+                  Checkout
+                </Button>
               </Link>
             </div>
           </SheetFooter>

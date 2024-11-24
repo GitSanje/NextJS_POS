@@ -5,12 +5,42 @@ import { getProducts } from "@/server-actions/product/product";
 import { getCategories } from "@/server-actions/cagtegory/category";
 import ShopSection from "@/components/Product/ShopSection";
 import { notFound } from "next/navigation";
+import { ProductCardSkeleton } from "@/components/Product/ProductSkeleton";
+import { Suspense } from "react";
+import { ProductGridSkeleton } from "@/components/skeleton/product-grid-skeleton";
 
 export const metadata: Metadata = {
   title: "Shop",
 };
 
-export default  async function Shop() {
+
+const page = async () => {
+return (
+  <div>
+    <Suspense
+      fallback={
+        <>
+        <div className="container mx-auto px-2 pb-4">
+        <ProductGridSkeleton isMobile={false}/>
+
+        </div>
+      
+        </>
+      }
+    >
+      <Shop />
+    </Suspense>
+  </div>
+);
+};
+
+export default page;
+
+
+
+
+
+async function Shop() {
 
   const products: productType[] | null = await getProducts()
   const categories: category = await getCategories(false)
