@@ -3,6 +3,8 @@ import { formatOrderDate } from "@/lib/utils";
 import Link from "next/link";
 import React from "react";
 import {  OrderType, OrderWithCartsType } from "@/types";
+import Image from "next/image";
+
 
 const ViewOrder = ({ order }: { order: OrderWithCartsType | OrderType }) => {
   const totalamount = order?.carts.reduce((total, cart) => {
@@ -88,10 +90,13 @@ const ViewOrder = ({ order }: { order: OrderWithCartsType | OrderType }) => {
                     {order?.carts.map((cart, index) => (
                       <li className="relative flex pb-10 sm:pb-0" key={index}>
                         <div className="flex-shrink-0">
-                          <img
-                            className="object-cover rounded-lg w-28 h-28"
-                            src="https://cdn.rareblocks.xyz/collection/clarity-ecommerce/images/order-details/3/product-1.png"
-                            alt=""
+                          
+                          <Image
+                            className="object-cover rounded-lg 28v 28h "
+                            src={ `${cart.product?.image}`}
+                            width={28}
+                            height={28}
+                            alt={cart.product?.name || "Product Image"}
                           />
                         </div>
 

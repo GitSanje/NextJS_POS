@@ -7,12 +7,21 @@ import { generateInvoiceId } from "@/lib/utils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import { CartItem } from "@/types/orderType";
+import { Response } from "@/types";
+type ReturnType  = Response & {
+  data?: {
+    id: string;
+    amount: number;
+    productName: string;
+  }
 
+} 
 
 export async function checkout(
   values: checkoutType,
-  cartItems: CartItem[]
-) {
+  cartItems: CartItem[],
+  amount: number
+): Promise<ReturnType> {
   const session = await getServerSession(authOptions);
   if (!session) {
     return response({
@@ -23,9 +32,10 @@ export async function checkout(
       },
     });
   }
+console.log(values,cartItems,amount,'from checkout');
 
   try {
-    const { streetaddress, state, city, paymentMethod, name, email } = values;
+    const { streetaddress, state, city, paymentMethod, name, email,phone } = values;
 
     // Validate cart items
     if (!cartItems || cartItems.length === 0) {
@@ -37,6 +47,7 @@ export async function checkout(
         },
       });
     }
+    const productName = cartItems[0].product?.name
 
     // Find or create the payment method
     let paymentMethodRecord = await prisma.paymentType.findFirst({
@@ -71,8 +82,9 @@ export async function checkout(
           connect: cartItems.map((cart) => ({ id: cart.product?.id })),
         },
         carts: {
-          connect: cartItems.map((cart) => ({ id: cart.product?.id })),
+          connect: cartItems.map((cart) => ({ id: cart.id })),
         },
+        amount: amount,
       },
     });
 
@@ -87,21 +99,16 @@ export async function checkout(
     revalidatePath("/view-cart");
     revalidatePath("/");
 
-    return response({
+    return {
       success: true,
       code: 201,
       message: "Order placed successfully",
       data: {
         id: order.id,
-        state,
-        orderDate: order.orderDate,
-        quantity,
-        streetAddress: streetaddress,
-        city,
-        user: { email, name },
-        carts: cartItems,
+        amount: amount,
+        productName : productName !,
       },
-    });
+    };
   } catch (error) {
     console.error("Error during checkout:", error);
     return response({

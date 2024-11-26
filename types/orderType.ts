@@ -38,6 +38,7 @@ import { productType } from "./productType";
   
   // type for Cart Item
 export type CartItem =  {
+    id: string;
     quantity: number;
     product: productType | undefined;
     amount?: number | null;

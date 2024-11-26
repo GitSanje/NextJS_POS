@@ -139,6 +139,8 @@ export const getUserOrder = cache(
                   id: true,
                   name: true,
                   salePrice: true,
+                  image:true,
+                  description:true
                 },
               },
               variants: {

@@ -6,15 +6,15 @@ import { CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { useSearchParams } from 'next/navigation'
 
-export default function PaymentSuccessContent({amount, orderNumber} :{
-    amount: number;
-    orderNumber: string;
-}) {
-//   const [orderNumber, setOrderNumber] = useState<string | null>(null)
+export default function PaymentSuccessContent() {
 
- 
-
+const searchParams = useSearchParams()
+const orderNumber = searchParams.get("id")
+const rawAmount = searchParams.get("amount")
+const sanitizedAmount = rawAmount?.split("?")[0];
+const formattedAmount = sanitizedAmount ? (Number(sanitizedAmount) / 100).toFixed(2) : '0.00'
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -39,7 +39,7 @@ export default function PaymentSuccessContent({amount, orderNumber} :{
             We&apos;ve sent a confirmation email with order details and tracking information.
           </p>
           <div className="bg-white p-2 rounded-md text-purple-500 mt-5 text-4xl font-bold">
-          ${amount.toFixed(2)}
+          Rs {formattedAmount}
         </div>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
@@ -47,7 +47,7 @@ export default function PaymentSuccessContent({amount, orderNumber} :{
             <Link href="/order">View Order Status</Link>
           </Button>
           <Button asChild variant="outline" className="w-full">
-            <Link href="/">Continue Shopping</Link>
+            <Link href="/shop">Continue Shopping</Link>
           </Button>
         </CardFooter>
       </Card>

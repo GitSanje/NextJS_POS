@@ -5,6 +5,7 @@ import { getUserOrder } from "@/server-actions/order/order";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../api/auth/[...nextauth]/options";
 import { OrderType, OrderWithCartsType } from "@/types";
+import { NoOrders } from "@/components/Orders/NoOrders";
 
 const page = async () => {
   const session = await getServerSession(authOptions);
@@ -12,6 +13,8 @@ const page = async () => {
   if(!orders){
     return null;
   }
+  console.log(orders);
+  
   return (
     <>
       <div className="py-12 bg-white sm:py-16 lg:py-20">
@@ -35,7 +38,7 @@ const page = async () => {
             { orders.length > 0 ? orders?.map((order,index) => (
               <ViewOrder order={order} key={index} />
             )):
-            <h2 className="min-h-screen flex items-center justify-center font-bold"> There has been no order placed</h2>
+            <NoOrders/>
           
           
           } 

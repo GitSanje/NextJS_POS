@@ -26,6 +26,8 @@ import convertToSubcurrency from "@/lib/utils";
 import { checkout } from "@/server-actions/checkout/checkout";
 import { toast } from "sonner";
 import useGloabalContext from "@/context/GlobalProvider";
+import { useRouter } from "next/router";
+import { khaltiPayloadType } from "@/app/api/khalti/route";
 
 
 type Props = {
@@ -59,6 +61,7 @@ const CheckoutPage2 = ({ total, session }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [stripeError, setStripeError] = useState<string>("");
   const [clientSecret, setClientSecret] = useState<string>("");
+  const [khaltiPayload, setKhaltiPayload] = useState<khaltiPayloadType | null>(null);
   const { orderSummary} = useGloabalContext()
   const { cartItems} = orderSummary
 
@@ -83,65 +86,96 @@ const CheckoutPage2 = ({ total, session }: Props) => {
   }, [total]);
 
 
+const onSubmit = async( values: checkoutType) => {
 
-  const onSubmit = async (values: checkoutType) => {
-    // const formData = new FormData();
-  
-    // // Convert and append all entries to FormData
-    // for (const [key, value] of Object.entries(values)) {
-    //   formData.append(key, value as string);
-    // }
-   
-  
-    const handleCheckout = async () => {
+
+     const handleCheckout = async () => {
       try {
-        const data = await checkout(values,cartItems);
+        const data = await checkout(values, cartItems, total);
         if (!data) return;
   
         if (!data.success) {
-          return toast.error(data.error.message);
+          toast.error(data.error.message);
+          return;
         }
+        
+        // // Display success message
+        // toast.success("Order placed successfully!");
+       const  payload = {
+ 
+          amount: convertToSubcurrency(data.data?.amount!),
+          purchase_order_id: data.data?.id!,
+          purchase_order_name: data.data?.productName!,
+          customer_info: {
+              name: session.user.name!,
+              email: values.email,
+              phone: values.phone
+          }
+        }
+       console.log(payload,'payload from khalti');
+       
+        
+        setKhaltiPayload(payload as khaltiPayloadType)
+        if( selectedPaymentMethod === "khalti"){
+          await handleKhaltiPayment(payload)
+        }
+
+        
+
+       
       } catch (error) {
         console.error(error);
         toast.error("Something went wrong.");
       }
     };
+
+
+    if( selectedPaymentMethod === "khalti"){
+      startTransition( async () => {
+              handleCheckout(); 
+            });
+      
+    }else{
+      startTransition(  () => {
+        handleCheckout(); 
+      });
+    }
+
+
+}
+
+ 
+  const handleKhaltiPayment = async (payload: khaltiPayloadType) => {
   
-    if (selectedPaymentMethod === "cash") {
-      startTransition(handleCheckout);
-    } else {
-      if (!stripe || !elements) return;
   
-      // Submit elements before confirming the payment
-      const elementsSubmitResponse = await elements.submit();
-      if (elementsSubmitResponse.error) {
-        setStripeError(elementsSubmitResponse.error.message !);
-        return;
-      }
-  
-      const { error } = await stripe.confirmPayment({
-        elements,
-        clientSecret,
-        confirmParams: {
-          return_url: `${process.env.NEXT_PUBLIC_SERVICE_URL}/stripe/success`,
-        },
+    try {
+      const response = await fetch("/api/khalti", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
   
-      if (error) {
-        const errorMessage =
-          error.type === "card_error" || error.type === "validation_error"
-            ? error.message
-            : "An unknown error occurred";
-        setStripeError(errorMessage!);
-      } else {
-        startTransition(handleCheckout);
-
+      if (!response.ok) {
+        throw new Error("Failed to create Khalti payment intent");
       }
+  
+      const data = await response.json();
+  
+      window.location.href = data.response.payment_url;
+      if (data?.payment_url) {
+        // Redirect user to the Khalti payment page
+         window.location.href = data.response.payment_url;
+        console.log(data?.px);
+        
+      } else {
+        console.error("No payment URL received from server", data);
+      }
+    } catch (error) {
+      console.error("Error during payment initiation:", error);
+      toast.error("Failed to initiate payment. Please try again.");
     }
   };
   
-
-
   const onError: SubmitErrorHandler<checkoutType> = (values) => {
     console.log("Form values errors:", values);
   };
@@ -170,6 +204,18 @@ const CheckoutPage2 = ({ total, session }: Props) => {
               )}
             </div>
           </div>
+          <div className="space-y-2">
+              <Label htmlFor="email">Phone</Label>
+              <Input
+                id="email"
+                {...register("phone")}
+                placeholder="eg:9833224354"
+             
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm">{errors.email.message}</p>
+              )}
+            </div>
           <div className="space-y-2">
             <Label htmlFor="address">Address</Label>
             <Input
@@ -203,7 +249,7 @@ const CheckoutPage2 = ({ total, session }: Props) => {
           <div className="space-y-4">
             <Label>Payment Method</Label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {["stripe", "khalti", "cash"].map((method) => (
+              {["khalti", "stripe", "cash"].map((method) => (
                 <div
                   key={method}
                   className="flex flex-col items-start border rounded-lg p-4 hover:bg-gray-50 transition-colors"
@@ -282,7 +328,7 @@ const CheckoutPage2 = ({ total, session }: Props) => {
           isLoading={isPending}
           onClick={handleSubmit(onSubmit, onError)}
         >
-          {isPending ? "Processing..." : `Pay $${total.toFixed(2)}`}
+          { `Pay Rs${total.toFixed(2)}`}
         </SpinningButton>
       </CardFooter>
     </div>
@@ -324,3 +370,106 @@ export default CheckoutPage2;
               </div>
             </RadioGroup> */
 // }
+
+
+  // const onSubmit = async (values: checkoutType) => {
+  //   // const router = useRouter();
+
+    
+  
+  
+  //   if (selectedPaymentMethod === "cash") {
+  //     startTransition(() => {
+  //       handleCheckout(); // Call inside a synchronous wrapper
+  //     });
+  //   } else if (selectedPaymentMethod === "stripe") {
+  //     if (!stripe || !elements) return;
+  
+  //     // Submit elements before confirming the payment
+  //     const elementsSubmitResponse = await elements.submit();
+  //     if (elementsSubmitResponse.error) {
+  //       setStripeError(elementsSubmitResponse.error.message!);
+  //       return;
+  //     }
+  //     // const { paymentMethod, error } = await stripe.createPaymentMethod({
+  //     //   type: "card",
+  //     //   card: elements.getElement(PaymentElement), // Can use CardElement instead of PaymentElement
+  //     //   billing_details: {
+  //     //     name: session?.user?.name || "Anonymous",
+  //     //     email: session?.user?.email || "email@example.com",
+  //     //   },
+  //     // });
+  
+  
+  //     const { error  } = await stripe.confirmPayment({
+  //       elements,
+  //       clientSecret,
+  //       confirmParams: {
+  //         return_url: `${process.env.NEXT_PUBLIC_SERVICE_URL}/stripe/success`,
+          
+  //       },
+  //     });
+  //     // Get payment method details first
+  //     // const { paymentMethod, error } = await stripe.createPaymentMethod({
+  //     //   elements,
+  //     //   params: {
+  //     //     type: 'card'
+  //     //   },
+        
+  //     // });
+  //     // if (paymentMethod) {
+  //     //   // Extract and log card details
+  //     //   const { brand, last4, exp_month, exp_year } = paymentMethod.card!;
+  //     //   console.log(`Card Details: Brand: ${brand}, Last 4: ${last4}, Expiry: ${exp_month}/${exp_year}`);
+  
+  //       // Step 2: Confirm PaymentIntent
+  //       // const { error } = await stripe.confirmPayment({
+  //       //   elements,
+  //       //   clientSecret,
+  //       //   confirmParams: {
+  //       //     payment_method: paymentMethod.id,
+  //       //     return_url: `${process.env.NEXT_PUBLIC_SERVICE_URL}/stripe/success`,
+  //       //     // description: "Purchase of goods/services from vendify",
+  //       //   },
+  //       // });
+  //     if (error) {
+  //       console.log(error);
+        
+  //       const errorMessage =
+  //         error.type === "card_error" || error.type === "validation_error"
+  //           ? error.message
+  //           : "An unknown error occurred";
+  //       setStripeError(errorMessage!);
+  //     } else {
+
+  //       // if (paymentMethod) {
+         
+  //       //   const cardDetails = paymentMethod.card;
+  //       //   const last4 = cardDetails?.last4;
+  //       //   const expMonth = cardDetails?.exp_month;
+  //       //   const expYear = cardDetails?.exp_year;
+  //       //   const brand = cardDetails?.brand;
+      
+  //       //   console.log("Card Details:");
+  //       //   console.log(`Brand: ${brand}`);
+  //       //   console.log(`Last 4 Digits: ${last4}`);
+  //       //   console.log(`Expiry: ${expMonth}/${expYear}`);
+  //       // }
+      
+  //       startTransition(() => {
+  //         handleCheckout(); 
+  //       });
+  //     }
+  //   }
+  //   else if (selectedPaymentMethod === "khalti"){
+  //     console.log("from kahlit");
+      
+  //      startTransition( () => {
+  //       handleCheckout(); // Call inside a synchronous wrapper
+       
+
+  //     });
+       
+  //   }
+
+  //   }

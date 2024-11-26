@@ -50,13 +50,13 @@ const ShopSection = ({
   categories,
 }: ShopSectionProps) => {
   const { orderSummary,cartFunctions } = useGloabalContext();
-  const { cart, setCart, setCartItems } = orderSummary;
+  const { cart, setCart, setCartItems,cartItems } = orderSummary;
   const {addToCart,removeFromCart} = cartFunctions
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isPending, startTransition] = useTransition()
- 
+  const [ cartId, setCartId]  = useState<string>()
   const [userId, setUserId] = useState<string | undefined>(undefined);
   useEffect(() => {
     const fetchUserId = async () => {
@@ -71,42 +71,48 @@ const ShopSection = ({
   
   const totalItems = Object.values(cart).reduce((sum, count) => sum + count, 0);
 
-  const cartItems: CartItem[] = Object.entries(cart).map(([id, quantity]) => {
-    const product = products.find((p) => p.id === id);
+  // const cartItems: CartItem[] = Object.entries(cart).map(([id, quantity]) => {
+  //   const product = products.find((p) => p.id === id);
 
-    if (!product) {
-      throw new Error(`Product with id ${id} not found`);
-    }
+  //   if (!product) {
+  //     throw new Error(`Product with id ${id} not found`);
+  //   }
 
-    return {
-      product: product as productType,
-      quantity,
-    };
-  });
+  //   return {
+  //     id: cartId!,
+  //     product: product as productType,
+  //     quantity,
+  //   };
+  // });
   
 
   useEffect(() => {
-    const derivedCartItems: CartItem[] = Object.entries(cart).map(
-      ([id, quantity]) => {
-        const product = products.find((p) => p.id === id);
-
-        if (!product) {
-          throw new Error(`Product with id ${id} not found`);
+    if(cartId){
+      const derivedCartItems: CartItem[] = Object.entries(cart).map(
+        ([id, quantity]) => {
+          const product = products.find((p) => p.id === id);
+  
+          if (!product) {
+            throw new Error(`Product with id ${id} not found`);
+          }
+  
+          return {
+            id:cartId,
+            product: product as productType,
+            quantity,
+            
+          };
         }
-
-        return {
-          product: product as productType,
-          quantity,
-          
-        };
+      );
+  
+      setCartItems(derivedCartItems);
+      if (global?.window !== undefined) {
+        localStorage.setItem("cartItemsData", JSON.stringify(derivedCartItems));
       }
-    );
 
-    setCartItems(derivedCartItems);
-    if (global?.window !== undefined) {
-      localStorage.setItem("cartItemsData", JSON.stringify(derivedCartItems));
     }
-  }, [cart, products, setCartItems]);
+    
+  }, [cart, products, setCartItems, cartId]);
 
   const totalPrice = cartItems.reduce((sum, item) => {
     const productPrice =
@@ -154,6 +160,7 @@ const ShopSection = ({
                 if (!data.success) {
                   return toast.error(data.error.message);
                 }
+                setCartId(data.data?.id)
                 toast.success("Product added to the cart successfully!");
               })
               .catch((error) => {

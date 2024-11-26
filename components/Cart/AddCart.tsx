@@ -35,7 +35,7 @@ const AddCart = ({
   const { cart, setCart, setCartItems, cartItems } = orderSummary;
   const { addToCart, removeFromCart } = cartFunctions;
   const [quantity, setQuantity] = useState(
-    cart[productId] ? cart[productId] : 1
+    cart[productId] ? cart[productId] : 0
   );
 
   const [userId, setUserId] = useState<string | undefined>(undefined);
@@ -51,6 +51,7 @@ const AddCart = ({
   console.log(productId, stockNumber, cart[productId]);
 
   const handleCartUpdate = (
+    id:string,
     productId: string,
     product: productType,
     quantity: number,
@@ -58,8 +59,9 @@ const AddCart = ({
     productVariantIds: string[]
   ) => {
     addToCart(productId);
-    if(!cartItems || cartItems.length ==0){
+    if(!cartItems || cartItems.length <=0){
       const newCartItem = {
+        id: id,
         product: product,
         quantity: quantity,
         amount: amount,
@@ -78,6 +80,7 @@ const AddCart = ({
     else{
       setCartItems((prevCartData) => {
         const newCartItem = {
+          id: id,
           product: product,
           quantity: quantity,
           amount: amount,
@@ -129,7 +132,7 @@ const AddCart = ({
 
   const router = useRouter();
   const handleQuantity = (type: "i" | "d", productId: string) => {
-    if (type === "d" && quantity > 1) {
+    if (type === "d" && quantity > 0) {
       setQuantity((prev) => prev - 1);
       removeFromCart(productId);
     }
@@ -148,7 +151,7 @@ const AddCart = ({
           toast.info("please enter the quantity")
           return;
         }
-        handleCartUpdate(productId,product as productType, quantity,amount,productVariantIds as string[])
+  
         
         await postCarts(
           userId,
@@ -160,9 +163,13 @@ const AddCart = ({
           if (!data.success) {
             return toast.error(data.error.message);
           }
+
+          handleCartUpdate(data.data?.id!,productId,product as productType, quantity,amount,productVariantIds as string[])
           toast.success("product added to cart sucsesfully");
           // router.push("/cart-view");
         });
+
+        
         
       }
     });
@@ -225,16 +232,7 @@ const AddCart = ({
           ) : (
             <SpinningButton
               onClick={
-                userId
-                  ? () =>
-                      addItem(
-                        userId,
-                        quantity,
-                        productId,
-                        amount,
-                        productVariantIds
-                      )
-                  : () => router.push("/auth/login")
+                userId ? () => addToCartDB() : () => router.push("/auth/login")
               }
               className="w-36 text-xs"
               size="sm"

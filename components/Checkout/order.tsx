@@ -75,6 +75,14 @@ export default function CheckoutPage({ session}:Props ) {
   // }
  
   
+// Configure Elements instance with manual payment method creation
+const elementsOptions = {
+ // Replace with your client secret
+  appearance: {
+    theme: 'stripe', // Customize appearance
+  },
+  paymentMethodCreation: 'manual', // Set manual payment method creation
+};
 
 
 
@@ -90,11 +98,11 @@ export default function CheckoutPage({ session}:Props ) {
 
           <Elements stripe={stripePromise}  options={{
      
-          mode: "payment" ,
-          amount: convertToSubcurrency(total),
-          currency: "usd",
-       
-        }}>
+     mode: "payment" ,
+     amount: convertToSubcurrency(total),
+     currency: "usd",
+   
+   }}>
                  <CheckoutPage2 total={total} session={session}/>
 
             </Elements>

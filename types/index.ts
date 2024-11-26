@@ -202,6 +202,8 @@ export type OrderWithCartsType = Order & {
       id: string; // Product ID
       name: string; // Product name
       salePrice: number | null; // Sale price of the product (nullable)
+      image:string | null;
+      description: string | null;
     } | null; // Product details (nullable)
     variants: {
       salePrice: number | null; // Sale price of the variant (nullable)

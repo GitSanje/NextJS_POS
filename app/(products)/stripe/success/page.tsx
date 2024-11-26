@@ -1,10 +1,17 @@
+import PaymentSuccessContent from '@/components/Checkout/PaymentSuccess'
 import React from 'react'
 
+
+
 const page = () => {
+
+
+
   return (
-    <div>
+    <>
+    <PaymentSuccessContent   />
       
-    </div>
+    </>
   )
 }
 
