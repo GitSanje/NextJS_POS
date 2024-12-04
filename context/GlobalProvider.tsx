@@ -30,6 +30,7 @@ interface GlobalContextType {
    
     refPdf: HTMLDivElement | null;
     setRefPdf: (refPdf: HTMLDivElement | null) => void;
+    pdfRef:  RefObject<HTMLDivElement | null>;
     handleGeneratePdf: ( inputData: HTMLDivElement, invoiceId:string, download: boolean,toEmail?: string ) =>  Promise<void>;
     cartInfo: { subTotal: number, totaltax: number};
     order: InvoiceType | null;
@@ -69,7 +70,6 @@ export const GlobalProvider: React.FC<Props> = (props) => {
     const storedCartItems = (global?.window !== undefined) ? localStorage.getItem("cartItemsData"): null ;
     return storedCartItems ? JSON.parse(storedCartItems) : [];
   });
-
 
 
   const addToCart = (productId: string | undefined) => {
@@ -122,7 +122,7 @@ export const GlobalProvider: React.FC<Props> = (props) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [cartRef]);
-  const pdfRef = useRef(null);
+  const pdfRef = useRef<HTMLDivElement | null>(null);
 
  const handleGeneratePdf = async (inputData: HTMLDivElement | null, invoiceId:string,  download:boolean,toEmail?: string  ) => {
   // const inputData = pdfRef.current;
@@ -230,7 +230,7 @@ console.log('====================================');
 
   return (
     <>
-      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,setRefPdf,refPdf ,handleGeneratePdf, order, setOrder, cartInfo, userId,orderSummary,cartFunctions}}>
+      <globalContext.Provider value={{ cartRef, isCartOpen,cartToogle, setCartOpen,setRefPdf,refPdf ,pdfRef,handleGeneratePdf, order, setOrder, cartInfo, userId,orderSummary,cartFunctions}}>
         {children}
       </globalContext.Provider>
     </>

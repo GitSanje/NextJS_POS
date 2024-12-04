@@ -7,7 +7,7 @@ const nextConfig = {
             fullUrl:true
         }
     },
-    serverExternalPackages: ['@prisma/client', 'bcrypt','fs/promises'],
+    serverExternalPackages: ['@prisma/client', 'bcrypt','fs/promises','fs'],
 
     experimental:{
         

@@ -99,9 +99,13 @@ export type OrderType = (Order & {
       id: string;
       name: string;
       salePrice: number | null;
+      image: string | null;
+      description: string | null;
+      discount: number | null;
     } | null;
     variants: ( {
       salePrice: number | null;
+      discount: number | null;
       variant: Variant;
       option: {
         value: string;
@@ -204,9 +208,11 @@ export type OrderWithCartsType = Order & {
       salePrice: number | null; // Sale price of the product (nullable)
       image:string | null;
       description: string | null;
+      discount: number | null
     } | null; // Product details (nullable)
     variants: {
       salePrice: number | null; // Sale price of the variant (nullable)
+      discount: number | null
       variant: {
         id: string; // Variant ID
         name: string; // Variant name

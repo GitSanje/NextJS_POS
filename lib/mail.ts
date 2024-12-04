@@ -1,6 +1,6 @@
 "use server";
 import nodemailer from "nodemailer";
-import * as handlebars from "handlebars";
+
 import { welcomeTemplate } from "./template/welcome";
 import { response } from "@/lib/utils";
 import html2canvas from "html2canvas";
@@ -8,24 +8,83 @@ import jsPDF from "jspdf";
 import puppeteer from "puppeteer";
 import jsdom from 'jsdom'
 import { stringToUint8Array } from "./utils";
+import { InvoiceDataType } from "@/types";
+import { createEmailBody } from "./email";
+// import * as fs from 'fs';
+import  fs  from "fs/promises"
+
+import path from "path"
 
 
-const generatePdf = async(htmlContent:string) => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-  const pdfBuffer = await page.pdf({
-    format: 'A4',
-    printBackground: true,
+// const generatePdf = async(htmlContent:string) => {
+//   const browser = await puppeteer.launch();
+//   const page = await browser.newPage();
+//   await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+//   const pdfBuffer = await page.pdf({
+//     format: 'A4',
+//     printBackground: true,
+//   });
+//   await browser.close();
+//   return  Buffer.from(pdfBuffer);;
+// }
+
+
+// function outerHTMLToElement(outerHTML :string) {
+//   const dom = new jsdom.JSDOM(outerHTML);
+//   return dom.window.document.body;
+// }
+
+
+
+export async function sendInvoiceEmailWithBody(toEmail: string, invoicedata: InvoiceDataType){
+  if (typeof window !== "undefined") {
+    console.error("sendWelcomeEmail should only be called on the server side");
+    return;
+  }
+
+  const emailBody = createEmailBody(invoicedata);
+
+  const { SMTP_EMAIL, SMTP_PASSWORD } = process.env;
+  const transport = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: SMTP_EMAIL,
+      pass: SMTP_PASSWORD,
+    },
   });
-  await browser.close();
-  return  Buffer.from(pdfBuffer);;
-}
+  // const filePath =  'invoice-INV123456.pdf'; 
+  // const buffer = await fs.readFile(filePath);
+  
+  const mailOptions = {
+    from: '"Vendify" <vendifyshop@gmail.com>',
+    to: toEmail,
+    subject: `Invoice #${invoicedata.InvoiceId}`,
+    text: "Your Order Invoice",
+    html: emailBody, 
+   
+   
+  };
 
+  try {
+    await transport.verify();
+    await transport.sendMail(mailOptions);
+    return response({
+      success: true,
+      code: 200,
+      message: "Invoice has been send to your email",
+    });
+  } catch (error) {
+    console.error({ error });
+    return response({
+      success: false,
+      error:{
+        code:500,
+        message:"failed to send invoice"
 
-function outerHTMLToElement(outerHTML :string) {
-  const dom = new jsdom.JSDOM(outerHTML);
-  return dom.window.document.body;
+      }
+    });
+  }
+
 }
 
 export async function sendInvoiceEmail(

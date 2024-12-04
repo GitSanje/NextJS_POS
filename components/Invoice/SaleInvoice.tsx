@@ -7,28 +7,27 @@ import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import useGloabalContext from "@/src/context/GlobalProvider";
+import useGloabalContext from "@/context/GlobalProvider";
 
-import { InvoiceType } from "@/src/types";
-import { formatOrderDate } from "@/src/lib/utils";
+import { InvoiceDataType, } from "@/types";
+import { formatOrderDate } from "@/lib/utils";
 interface SalesInvoiceProps {
   hidden: boolean;
-  invoiceProp?: InvoiceType;
+  invoice?: InvoiceDataType;
 }
 
 const SalesInvoice: React.FC<SalesInvoiceProps> = ({
   hidden,
-  invoiceProp,
+  invoice,
 }) => {
   const { order } = useGloabalContext();
 
-  const invoice = hidden ? order : invoiceProp;
+  // const invoice = hidden ? order : invoiceProp;
 
   const totalAmount = invoice?.carts.reduce((total, cart) => {
     return total + cart.amount;
@@ -42,7 +41,7 @@ const SalesInvoice: React.FC<SalesInvoiceProps> = ({
 
   useEffect(() => {
     if (pdfRef.current && hidden) {
-      handleGeneratePdf(pdfRef.current, invoice?.InvoiceId, false);
+      handleGeneratePdf(pdfRef.current, invoice?.InvoiceId!, false);
     }
   }, [pdfRef]);
 
@@ -58,7 +57,7 @@ const SalesInvoice: React.FC<SalesInvoiceProps> = ({
           type="button"
           onClick={() => {
             pdfRef.current
-              ? handleGeneratePdf(pdfRef.current, invoice?.InvoiceId, true)
+              ? handleGeneratePdf(pdfRef.current, invoice?.InvoiceId!, true)
               : null;
           }}
           className="inline-flex items-center justify-center px-4 py-3 text-xs font-bold text-gray-900 transition-all duration-200 bg-gray-100 binvoice binvoice-transparent rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 hover:bg-gray-200"

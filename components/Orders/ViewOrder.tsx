@@ -1,18 +1,39 @@
 "use client";
 import { formatOrderDate } from "@/lib/utils";
 import Link from "next/link";
-import React from "react";
-import {  OrderType, OrderWithCartsType } from "@/types";
+import React, { useTransition } from "react";
+import {  InvoiceDataType, OrderType, OrderWithCartsType } from "@/types";
 import Image from "next/image";
+
 
 
 const ViewOrder = ({ order }: { order: OrderWithCartsType | OrderType }) => {
   const totalamount = order?.carts.reduce((total, cart) => {
     return total + (cart.amount ?? 0);
   }, 0);
+  const [isPending, startTransition] = useTransition();
+  // const sendEmail = async () => {
+  //   startTransition(async () => {
+  //     const response = await sendInvoiceEmailWithBody(
+  //       "santzukarki37@gmail.com",
+  //       Invoicedata as InvoiceDataType
+  //     );
 
+  //     if (response?.success) {
+  //       toast.success("Invoice has been sent to your email!");
+  //     } else {
+  //       toast.error("Failed to send invoice");
+  //     }
+  //   });
+  // };
   return (
     <>
+
+    {/* <SpinningButton
+     onClick={sendEmail}
+     isLoading={isPending}>
+      send invoce 
+    </SpinningButton> */}
      <ul className="mt-8 space-y-5 lg:mt-12 sm:space-y-6 lg:space-y-10">
             <li className="overflow-hidden bg-white border border-gray-200 rounded-md">
               <div className="lg:flex">
@@ -87,16 +108,39 @@ const ViewOrder = ({ order }: { order: OrderWithCartsType | OrderType }) => {
 
                 <div className="flex-1 px-4 py-6 sm:p-6 lg:p-8">
                   <ul className="space-y-7">
-                    {order?.carts.map((cart, index) => (
-                      <li className="relative flex pb-10 sm:pb-0" key={index}>
+                    {order?.carts.map((cart, index) => {
+                      const productPrice =
+                      (cart.variants.length > 0
+                        ? cart.variants.find((var_p) => var_p.variant.name === "Size")?.salePrice ||
+                        cart.product?.salePrice
+                        : cart.product?.salePrice) ?? 0;
+
+                        const discount =
+                        cart.variants.length > 0
+                          ? (cart.variants.find((var_p) => var_p.variant.name === "Size")?.discount ?? 0) ||
+                            (cart.product?.discount ?? 0)
+                          : cart.product?.discount ?? 0;
+
+                 
+
+                  
+                      const finalPrice =
+                        discount > 0 ? (productPrice ?? 0) - (discount / 100) * productPrice : productPrice;
+                  
+                      const discountPrice = discount > 0 ? (discount / 100) * productPrice : 0;
+                    console.log(finalPrice,'finalprice',discountPrice,discount, JSON.stringify(cart.variants,null,2));
+                    
+                      return (
+                        <li className="relative flex pb-10 sm:pb-0" key={index}>
                         <div className="flex-shrink-0">
                           
                           <Image
-                            className="object-cover rounded-lg 28v 28h "
+                            className="object-cover rounded-lg w-28 h-28 "
                             src={ `${cart.product?.image}`}
-                            width={28}
-                            height={28}
+                            width={0}
+                            height={0}
                             alt={cart.product?.name || "Product Image"}
+                              sizes="(max-width: 768px) 100vw, 28vw"
                           />
                         </div>
 
@@ -104,26 +148,26 @@ const ViewOrder = ({ order }: { order: OrderWithCartsType | OrderType }) => {
                           <div className="sm:grid sm:grid-cols-2 sm:gap-x-5">
                             <div>
                               <p className="text-base font-bold text-gray-900">
-                                {cart.product?.name}
+                                {cart.product?.name} X { cart.quantity}
                               </p>
                               <p className="mt-1.5 text-sm font-medium text-gray-500">
+                                
                                 {cart.variants.length > 0
                                   ? cart.variants.map((var_opt) => {
-                                      return var_opt.option?.value + " ";
+                                      return  var_opt.option?.value + " ";
                                     })
                                   : ""}
+                              </p>
+                              <p className="mt-1.5 text-sm font-medium text-gray-500">
+                                
+                                {cart.product?.description}
                               </p>
                             </div>
 
                             <div className="mt-4 sm:mt-0">
                               <p className="text-base font-bold text-left text-gray-900 sm:text-right">
-                                $
-                                {cart.variants.length > 0
-                                  ? cart.variants.find(
-                                      (var_product) =>
-                                        var_product.variant.name === "Size"
-                                    )?.salePrice || cart.product?.salePrice
-                                  : cart.product?.salePrice}
+                                
+                                Rs{finalPrice}
                               </p>
                             </div>
                           </div>
@@ -153,7 +197,12 @@ const ViewOrder = ({ order }: { order: OrderWithCartsType | OrderType }) => {
                           </div>
                         </div>
                       </li>
-                    ))}
+                      )
+
+                    }
+
+                     
+                    )}
                   </ul>
 
                   <hr className="mt-8 border-gray-200" />

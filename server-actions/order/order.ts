@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "../../vendor/prisma";
 import { cache } from "@/lib/cache";
 import { notFound } from "next/navigation";
-import { response } from "@/lib/utils";
+import { generateInvoiceId, response } from "@/lib/utils";
 import { InvoiceDataType, InvoiceType, OrderType, OrderWithCartsType } from "@/types";
 
 export const getAllOrders = cache(
@@ -87,12 +87,16 @@ export const getAOrder = cache(
                   id: true,
                   name: true,
                   salePrice: true,
+                  image: true,
+                  description:true,
+                  discount:true
                 },
               },
               variants: {
                 select: {
                   salePrice: true,
                   variant: true,
+                  discount:true,
                   option: {
                     select: {
                       value: true,
@@ -140,13 +144,15 @@ export const getUserOrder = cache(
                   name: true,
                   salePrice: true,
                   image:true,
-                  description:true
+                  description:true,
+                  discount:true
                 },
               },
               variants: {
                 select: {
                   salePrice: true,
                   variant: true,
+                  discount:true,
                   option: {
                     select: {
                       value: true,
@@ -280,3 +286,30 @@ export const getInvoice = async (orderId: string): Promise<InvoiceDataType | nul
     return null; 
   }
 };
+
+
+
+export const postInvoice = async(orderId: string,totalAmount:number ) => {
+  try {
+
+    const newInvoice = await prisma.salesInvoice.create({
+      data: {
+        orderId,
+        totalAmount,
+        InvoiceId: generateInvoiceId()
+       
+      },
+    });
+
+    if(newInvoice){
+      return newInvoice.id
+      
+    }
+    
+  } catch (error) {
+
+    return null
+    
+  }
+}
+
