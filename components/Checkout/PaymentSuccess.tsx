@@ -36,7 +36,7 @@ const formattedAmount = sanitizedAmount ? (Number(sanitizedAmount) / 100).toFixe
             </p>
           )}
           <p className="text-sm text-gray-500">
-            We&apos;ve sent a confirmation email with order details and tracking information.
+            We&apos;ve sent a invoice to your email. please check it out.
           </p>
           <div className="bg-white p-2 rounded-md text-purple-500 mt-5 text-4xl font-bold">
           Rs {formattedAmount}

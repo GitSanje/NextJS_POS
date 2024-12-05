@@ -121,12 +121,6 @@ const CheckoutPage2 = ({ total, session }: Props) => {
         };
         console.log(payload, "payload from khalti");
         // sending data to emailqueue
-
-        setKhaltiPayload(payload as khaltiPayloadType);
-        if (selectedPaymentMethod === "khalti") {
-          await handleKhaltiPayment(payload);
-        }
-
         try {
           const invoiceData = {
             orderId: data.data?.id!,
@@ -153,6 +147,13 @@ const CheckoutPage2 = ({ total, session }: Props) => {
         } catch (emailQueueError) {
           console.error("Error adding to email queue:", emailQueueError);
         }
+
+        setKhaltiPayload(payload as khaltiPayloadType);
+        if (selectedPaymentMethod === "khalti") {
+          await handleKhaltiPayment(payload);
+        }
+
+       
       } catch (error) {
         console.error(error);
         toast.error("Something went wrong.");
@@ -184,10 +185,11 @@ const CheckoutPage2 = ({ total, session }: Props) => {
 
       const data = await response.json();
 
-      window.location.href = data.response.payment_url;
-      if (data?.payment_url) {
+       window.location.href = data.response.payment_url;
+      if (data?.response.payment_url) {
         // Redirect user to the Khalti payment page
         window.location.href = data.response.payment_url;
+       
         console.log(data?.px);
       } else {
         console.error("No payment URL received from server", data);

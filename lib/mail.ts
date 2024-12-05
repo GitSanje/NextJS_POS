@@ -54,13 +54,13 @@ export async function sendInvoiceEmailWithBody(toEmail: string, invoicedata: Inv
   });
   // const filePath =  'invoice-INV123456.pdf'; 
   // const buffer = await fs.readFile(filePath);
-  
+  //
   const mailOptions = {
     from: '"Vendify" <vendifyshop@gmail.com>',
     to: toEmail,
-    subject: `Invoice #${invoicedata.InvoiceId}`,
-    text: "Your Order Invoice",
-    html: emailBody, 
+    subject: `Invoice # ${invoicedata.InvoiceId}`,
+    text: "Your Order Invoice ",
+    html: emailBody , 
    
    
   };
