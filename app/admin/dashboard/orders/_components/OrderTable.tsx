@@ -21,8 +21,9 @@ import { getProducts } from "@/services/product";
 import { CheckCircle2, MoreVertical, XCircle } from "lucide-react";
 import Link from "next/link";
 import { deleteOrder, getAllOrders } from "@/server-actions/order/order";
-import OrderStatusCell from "./OrderStatus";
+
 import { DeleteDropdownItem } from "@/components/DropDown/Actions";
+import StatusCell from "../../../../../components/Orders/Status";
 
 const OrderTable = async () => {
   const orders = await getAllOrders();
@@ -55,7 +56,7 @@ const OrderTable = async () => {
               <TableCell>{`${order.streetAddress}, ${order.city}, ${order.state}`}</TableCell>
               <TableCell>
                 {" "}
-                <OrderStatusCell status={order.status} />
+                <StatusCell status={order.status} />
               </TableCell>
               <TableCell>
                 {" "}

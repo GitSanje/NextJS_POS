@@ -310,3 +310,43 @@ export const removeCart = async (productId: string, amount: number): Promise<Res
   }
 };
 
+
+
+export async function getallCartData() {
+  try {
+    const carts = await prisma.cart.findMany({
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+        product: {
+          select: {
+            name: true,
+            salePrice: true,
+            
+          },
+        
+        },
+        variants: {
+          select: {
+            salePrice: true,
+            variant: true,
+            option: {
+              select: {
+                value: true,
+              },
+            },
+          },
+        },
+      },
+      
+    })
+
+    return carts
+  } catch (error) {
+    console.error('Failed to fetch cart data:', error)
+    throw new Error('Failed to fetch cart data')
+  }
+}

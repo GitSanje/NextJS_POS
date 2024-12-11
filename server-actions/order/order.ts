@@ -5,7 +5,7 @@ import { prisma } from "../../vendor/prisma";
 import { cache } from "@/lib/cache";
 import { notFound } from "next/navigation";
 import { generateInvoiceId, response } from "@/lib/utils";
-import { InvoiceDataType, InvoiceType, OrderType, OrderWithCartsType } from "@/types";
+import { InvoiceDataType, OrderType, OrderWithCartsType } from "@/types";
 
 export const getAllOrders = cache(
   async () => {
