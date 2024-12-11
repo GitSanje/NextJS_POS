@@ -68,7 +68,7 @@ const worker = new Worker<EmailJobData>(
         throw new Error(`Failed to retrieve invoice for Order ID: ${orderId}`);
       }
 
-      await sendInvoiceEmailWithBody("santzukarki37@gmail.com",invoiceData);
+      await sendInvoiceEmailWithBody(invoiceData.user.email!,invoiceData);
 
       console.log('====================================');
       console.log(orderId, amount );

@@ -166,7 +166,7 @@ const AddCart = ({
 
           handleCartUpdate(data.data?.id!,productId,product as productType, quantity,amount,productVariantIds as string[])
           toast.success("product added to cart sucsesfully");
-          // router.push("/cart-view");
+          router.push("/view-cart");
         });
 
         

@@ -50,8 +50,6 @@ export const productSchema = z
     imageUrl: z.string().url("Please enter a valid URL").optional(),
     description: z.string().optional(),
 
-    taxRate: z.string().optional(),
-
     costPrice: numberSchema({
       required: true, // Cost price is required
       required_error: "Cost price is required",
@@ -94,10 +92,7 @@ export const productSchema = z
     message: "Either an image or image URL is required",
     path: ["imageUrl"], // Path to show the error
   })
-  .refine((data) => data.tax || data.taxRate, {
-    message: "Either a tax or tax rate is required",
-    path: ["taxRate"], // Path to show the error
-  });
+  
 
 const PHONE_SCHEMA = z
   .string()

@@ -20,14 +20,26 @@ const page = async () => {
   const suppliersData = (await getSuppliers(true)) ?? [];
   const taxs:  SelectType[] =  (await getTaxes(true)) ?? [];
 
+  const seenLabels = new Set();
+  
+  const categoriesDatafinal = categoriesData.filter((cat) =>  {
+    if (seenLabels.has(cat.label)) {
+      return false; 
+    }
+    seenLabels.add(cat.label); 
+    return true; 
+  }
+    
+  )
 
+  
   return (
     <div className="py-5">
     <div className="flex justify-center">
     <PageHeader> Add a Product </PageHeader>
     </div>
  
-  <ProductForm userId={userId} suppliers={suppliersData} categories={categoriesData} taxs={taxs}/>
+  <ProductForm userId={userId} suppliers={suppliersData} categories={categoriesDatafinal} taxs={taxs}/>
 </div>
   )
 }

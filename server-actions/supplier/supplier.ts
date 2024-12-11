@@ -36,8 +36,8 @@ export async function getSuppliers(fromClient: boolean): Promise<SelectType[] | 
     if (fromClient) {
       const supplersClient: SelectType[] = suppliers.map((sup) => ({
         id: sup.id,
-        label: sup.supplierName,
-        value: sup.supplierName.toUpperCase(),
+        label: sup.supplierName.toUpperCase(),
+        value: sup.supplierName,
       }));
       return supplersClient;
     }

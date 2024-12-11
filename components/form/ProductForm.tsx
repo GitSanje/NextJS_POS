@@ -31,6 +31,7 @@ interface Props {
 const ProductForm: React.FC<Props> = (props) => {
   const { userId, categories, suppliers, taxs } = props;
 
+  
   const router = useRouter();
   // const { categories, suppliers, getValues } = useFetchValues();
 
@@ -71,7 +72,6 @@ const ProductForm: React.FC<Props> = (props) => {
       salePrice: undefined,
       margin: "",
       tax: "",
-      taxRate:   "",
       imageUrl:"",
       category: "",
       suppliers: [{ id: "", supplier: "" }],
@@ -94,6 +94,7 @@ const ProductForm: React.FC<Props> = (props) => {
 
   const selectedSuppliers = form.watch("suppliers") || [];
   const imageUrl = form.watch("imageUrl") || null
+
 
   
   const getAvailableSuppliers = (index: string | number) => {
@@ -134,6 +135,8 @@ const ProductForm: React.FC<Props> = (props) => {
         formData.append(key, JSON.stringify(value));
       }
     }
+    console.log(formData,values);
+    
 
     startTransition(async () => {
       await addProduct(formData)

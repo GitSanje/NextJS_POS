@@ -147,6 +147,8 @@ const CheckoutPage2 = ({ total, session }: Props) => {
         } catch (emailQueueError) {
           console.error("Error adding to email queue:", emailQueueError);
         }
+        localStorage.removeItem("cartItems")
+        localStorage.removeItem("cartItemsData")
 
         setKhaltiPayload(payload as khaltiPayloadType);
         if (selectedPaymentMethod === "khalti") {
@@ -185,12 +187,13 @@ const CheckoutPage2 = ({ total, session }: Props) => {
 
       const data = await response.json();
 
-       window.location.href = data.response.payment_url;
+      //  window.location.href = data.response.payment_url;
       if (data?.response.payment_url) {
         // Redirect user to the Khalti payment page
         window.location.href = data.response.payment_url;
        
         console.log(data?.px);
+      
       } else {
         console.error("No payment URL received from server", data);
       }

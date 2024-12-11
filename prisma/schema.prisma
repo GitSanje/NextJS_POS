@@ -87,7 +87,7 @@ model Product {
   validity        String?
   discount        Float?
   salePrice       Float?
-  margin          String?
+  margin          Float?
   status          Boolean  @default(true)
   isFeatured      Boolean? @default(false)
   slug            String?

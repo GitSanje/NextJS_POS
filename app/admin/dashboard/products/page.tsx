@@ -1,18 +1,12 @@
 import React from "react";
-import { CheckCircle2 } from "lucide-react";
 
-import { prisma } from "../../../vendor/prisma";
+
+
 import { Button } from "@/components/ui/button";
-import PageHeader from "../../../components/PageHeader/PageHeader";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../../../components/ui/dropdown-menu";
+
 import Link from "next/link";
 import ProductTable from "./_components/ProductTable";
+import PageHeader from "@/components/PageHeader/PageHeader";
 
 const page = () => {
   return (
@@ -20,7 +14,7 @@ const page = () => {
       <div className="container mx-auto flex justify-between items-center gap-4">
         <PageHeader>All Products</PageHeader>
         <Button asChild>
-          <Link href="/admin/products/new">Add Product</Link></Button>
+          <Link href="/admin/dashboard/products/new">Add Product</Link></Button>
 
 
         {/* <ProductModel/> */}

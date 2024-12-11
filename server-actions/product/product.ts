@@ -1,12 +1,12 @@
 "use server";
 import { cache } from "@/lib/cache";
-import { response, convertToCapitalized } from "@/lib/utils";
+import { response } from "@/lib/utils";
 import { productSchema } from "@/schemas";
 import { prisma } from "@/vendor/prisma";
 
 import fs from "fs/promises";
 import { revalidatePath } from "next/cache";
-
+const sanitize = (value: any) => (typeof value === 'string' && value.trim() === '' ? null : value);
 const writeImageToDisk = async (image: File) => {
   await fs.mkdir("public/products", { recursive: true });
   const imagepath = `/products/${crypto.randomUUID()}~${image.name}`;
@@ -16,17 +16,40 @@ const writeImageToDisk = async (image: File) => {
   );
   return imagepath;
 };
+function sanitizeString(value: string): string {
+  return value.replace(/\0/g, ""); // Remove null bytes
+}
 
 export const addProduct = async (payload: FormData) => {
-  const payloadObject: any = {};
+  console.log(payload,'from server');
+  
+
+  if(!payload){
+    return
+  }
+  let payloadObject: any = {};
 
   for (const [key, value] of payload.entries()) {
     try {
-      // Try to parse JSON values (for arrays and objects)
-      payloadObject[key] = JSON.parse(value as string);
+      // Remove null bytes from string values
+      const cleanedValue = typeof value === 'string' 
+        ? value.replace(/\0/g, '').trim() 
+        : value;
+      
+      // Try to parse JSON values, but only for string values
+      if (typeof cleanedValue === 'string') {
+        try {
+          payloadObject[key] = JSON.parse(cleanedValue);
+        } catch {
+          payloadObject[key] = cleanedValue;
+        }
+      } else {
+        payloadObject[key] = cleanedValue;
+      }
     } catch (error) {
-      // If parsing fails, assign the value as it is (for non-JSON values like strings or files)
-      payloadObject[key] = value as string;
+      console.error(`Error processing key ${key}:`, error);
+      // Skip this entry if it cannot be processed
+      continue;
     }
   }
 
@@ -41,76 +64,82 @@ export const addProduct = async (payload: FormData) => {
       },
     });
   }
-
-  try {
-    const data = validatedFields.data;
+  const data = validatedFields.data;
  
-    const imagepath = data.image?  await writeImageToDisk(data.image as File) : null
-    const imageUrl = imagepath ? imagepath : data.imageUrl
+  const imagepath = data.image ?  await writeImageToDisk(data.image as File) : null
+  const imageUrl = imagepath ? imagepath : data.imageUrl
 
-    const supplierIds = data.suppliers.map((sup) => sup.id);
+  const supplierIds = data.suppliers?.map((sup) => sup.id) || [];
 
-    const categoryId = (
-      await prisma.category.findFirst({
-        where: { categoryName: convertToCapitalized(data.category as string) },
-      })
-    )?.id!;
-    
-    const taxLabel = data.taxRate ? data.taxRate : data.tax
-    const taxName = taxLabel && taxLabel.split("_")[0].trim();
-    const taxId = (
-      await prisma.tax.findFirst({
-        where: { name: taxName?.toLowerCase()  },
-      })
-    )?.id!;
-
+  const categoryId = (
+    await prisma.category.findFirst({
+      where: { categoryName: data.category as string},
+    })
+  )?.id!;
+  
+  // const taxLabel = data.taxRate ? data.taxRate : data.tax
+  // const taxName = taxLabel && taxLabel.split("_")[0].trim();
+  const taxId = (
+    await prisma.tax.findFirst({
+      where: { name: data.tax  },
+    })
+  )?.id!;
+  
+  const minimalProduct = {
+    name: sanitizeString(data.name), // Ensure name is sanitized
+    image: sanitizeString(imageUrl!) || null,
+    costPrice: data.costPrice ?? 0,
+    quantityInStock: data.quantityInStock ?? 0,
+    categoryId,
+    description: sanitizeString(data.description!) || null,
+    validity: sanitizeString(data.validity!) || null,
+    discount: data.discount ?? null,
+    salePrice: data.salePrice ?? null,
+    margin: data.margin ?? null,
+    taxId,
+    suppliers: {
+      connect: supplierIds.map((id) => ({ id })),
+    },
+  };
+  console.log(data, minimalProduct);
     const product = await prisma.product.create({
-      data: {
-        name: data.name,
-        image: imageUrl,
-        costPrice: data.costPrice ?? 0,
-        quantityInStock: data.quantityInStock ?? 0,
-        categoryId: categoryId,
-        description: data.description,
-        validity: data.validity,
-        discount: data.discount || null,
-        salePrice: data.salePrice,
-        margin: data.margin || null,
-        taxId: taxId,
-        suppliers: {
-          connect: supplierIds.map((id) => ({ id })),
-        },
-      },
+      data: minimalProduct
     });
 
-    if (product) {
-      revalidatePath("/products");
-      return response({
-        success: true,
-        code: 201,
-        message: "Product created successfully",
-        data: product,
-      });
-    } else {
-      return response({
-        success: false,
-        error: {
-          code: 500,
-          message: "Failed to create product",
-        },
-      });
-    }
-  } catch (error) {
-    console.error(error);
+    console.log(product, "product created");
+    
+  // try {
+   
 
-    return response({
-      success: false,
-      error: {
-        code: 500,
-        message: "Unknown error occurred",
-      },
-    });
-  }
+
+  //   if (product) {
+  //     revalidatePath("/products");
+  //     return response({
+  //       success: true,
+  //       code: 201,
+  //       message: "Product created successfully",
+  //       data: product,
+  //     });
+  //   } else {
+  //     return response({
+  //       success: false,
+  //       error: {
+  //         code: 500,
+  //         message: "Failed to create product",
+  //       },
+  //     });
+  //   }
+  // } catch (error) {
+  //   console.log(error);
+
+  //   return response({
+  //     success: false,
+  //     error: {
+  //       code: 500,
+  //       message: "Unknown error occurred",
+  //     },
+  //   });
+  // }
 };
 
 

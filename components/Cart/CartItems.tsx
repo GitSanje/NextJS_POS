@@ -8,6 +8,7 @@ import "react-confirm-alert/src/react-confirm-alert.css";
 import useGloabalContext from "@/context/GlobalProvider";
 import { CartType } from "@/types";
 import { Session } from "next-auth/core/types";
+import { Button } from "../ui/button";
 
 type  cartItemsProps = {
   subtotal: number,
@@ -148,15 +149,11 @@ const CartItems = ({subtotal, totaltax, cart, session}: cartItemsProps)  => {
             </div>
           </div>
           {session ? (
-            counter > 0 ? (
+           
               <Link href="/checkout">
-                <button>PROCEED TO CHECKOUT</button>
+                <Button  className="bg-indigo-500">PROCEED TO CHECKOUT</Button>
               </Link>
-            ) : (
-              <button onClick={() => alert("There are no cart items.")}>
-                PROCEED TO CHECKOUT
-              </button>
-            )
+            
           ) : (
             <Link href="/api/auth/signin">
               <button>PROCEED TO CHECKOUT</button>

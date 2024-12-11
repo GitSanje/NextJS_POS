@@ -31,7 +31,7 @@ export async function getTaxes(fromClient: boolean): Promise<SelectType[] | taxT
       const taxsClient:SelectType[] = taxs.map((tax) => ({
         id: tax.id,
         label: tax.name + " - " + tax.rate.toString()+"%",
-        value: tax.name.toUpperCase(),
+        value: tax.name,
       }));
       return taxsClient;
     }
@@ -85,7 +85,7 @@ export const updateTax = async (id: string, payload: FormData) => {
           data:{
             id: tax.id,
             label: tax.name + " - " + tax.rate.toString()+"%",
-            value: tax.name.toUpperCase(),
+            value: tax.name,
           } 
         });
       }

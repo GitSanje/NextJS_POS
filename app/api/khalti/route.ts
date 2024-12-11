@@ -50,11 +50,11 @@ export async function POST(req: NextRequest) {
         }),
       }
     );
+    console.log(response);
 
     // Check if the response is successful
     if (response.ok) {
       const responseData: KhaltiResponse = await response.json();
-
       // Check for the presence of pidx
       if (responseData.pidx) {
         return NextResponse.json(

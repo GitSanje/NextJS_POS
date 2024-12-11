@@ -25,8 +25,8 @@ export async function getCategories(fromClient: boolean): Promise<SelectType[] |
             
             const selectTypeCategories: SelectType[] = categories.map((category) => ({
                 id: category.id,
-                label: category.categoryName,
-                value: category.categoryName.toUpperCase(),
+                label: category.categoryName.toUpperCase(),
+                value: category.categoryName,
             }));
             return selectTypeCategories;
         }
